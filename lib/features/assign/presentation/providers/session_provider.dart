@@ -153,6 +153,10 @@ class SessionNotifier extends Notifier<SessionState> {
       final historyBox = Hive.box<SplitSession>('history');
       await historyBox.put(updatedSession.id, updatedSession);
 
+      // Save receipt to receipts box so recent splits can display it
+      final receiptsBox = Hive.box<Receipt>('receipts');
+      await receiptsBox.put(state.currentReceipt!.id, state.currentReceipt!);
+
       // Update group usage statistics if a group was selected
       if (state.selectedGroup != null) {
         state.selectedGroup!.markUsed();

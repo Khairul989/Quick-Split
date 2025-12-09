@@ -28,6 +28,7 @@ class GroupSelectScreen extends ConsumerWidget {
       body: SafeArea(
         child: groupsState.groups.isEmpty
             ? _EmptyState(
+                receipt: receipt,
                 colorScheme: colorScheme,
                 textTheme: textTheme,
               )
@@ -165,10 +166,12 @@ class GroupSelectScreen extends ConsumerWidget {
 class _EmptyState extends StatelessWidget {
   final ColorScheme colorScheme;
   final TextTheme textTheme;
+  final Receipt receipt;
 
   const _EmptyState({
     required this.colorScheme,
     required this.textTheme,
+    required this.receipt,
   });
 
   @override
@@ -239,7 +242,10 @@ class _EmptyState extends StatelessWidget {
 
           // CTA Button
           ElevatedButton(
-            onPressed: () => context.pushNamed(RouteNames.groupCreate),
+            onPressed: () => context.pushNamed(
+              RouteNames.groupCreate,
+              extra: receipt,
+            ),
             style: ElevatedButton.styleFrom(
               padding: const EdgeInsets.symmetric(vertical: 16),
               shape: RoundedRectangleBorder(

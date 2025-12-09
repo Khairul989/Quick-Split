@@ -40,16 +40,32 @@ class OcrStateNotifier extends Notifier<OcrState> {
   Future<void> processImage(String imagePath) async {
     state = const OcrStateLoading();
     try {
+      print('🔍 [OCR] Starting OCR processing for: $imagePath');
+
       final ocrService = ref.read(ocrServiceProvider);
-      final rawText = await ocrService.recognizeText(imagePath);
-      final parsedReceipt = ReceiptParser.parseReceipt(rawText);
+      final recognizedText = await ocrService.recognizeText(imagePath);
+
+      print('📝 [OCR] Raw text extracted:');
+      print('  - Blocks: ${recognizedText.blocks.length}');
+      print('  - Lines: ${recognizedText.blocks.fold(0, (sum, block) => sum + block.lines.length)}');
+      print('  - Full text:\n${recognizedText.text}');
+
+      final parsedReceipt = ReceiptParser.parseReceiptFromRecognizedText(recognizedText);
+
+      print('✅ [OCR] Parsing complete:');
+      print('  - Items found: ${parsedReceipt.items.length}');
+      print('  - Total: ${parsedReceipt.total}');
+      if (parsedReceipt.items.isEmpty) {
+        print('⚠️ [OCR] WARNING: Zero items detected!');
+      }
 
       state = OcrStateSuccess(
         parsedReceipt: parsedReceipt,
-        rawText: rawText,
+        rawText: recognizedText.text,
         imagePath: imagePath,
       );
     } catch (e) {
+      print('❌ [OCR] Error: $e');
       state = OcrStateError(e.toString());
     }
   }

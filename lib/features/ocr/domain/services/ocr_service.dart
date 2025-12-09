@@ -2,7 +2,7 @@ import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart
 
 /// Abstract interface for OCR service
 abstract class OcrService {
-  Future<String> recognizeText(String imagePath);
+  Future<RecognizedText> recognizeText(String imagePath);
   Future<void> dispose();
 }
 
@@ -15,12 +15,12 @@ class GoogleMlKitOcrService implements OcrService {
   }
 
   @override
-  Future<String> recognizeText(String imagePath) async {
+  Future<RecognizedText> recognizeText(String imagePath) async {
     try {
       final inputImage = InputImage.fromFilePath(imagePath);
       final recognizedText = await _textRecognizer.processImage(inputImage);
 
-      return recognizedText.text;
+      return recognizedText;
     } catch (e) {
       throw OcrException('Text recognition failed: $e');
     }

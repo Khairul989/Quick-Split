@@ -22,7 +22,9 @@ class _SummaryScreenState extends ConsumerState<SummaryScreen> {
   @override
   void initState() {
     super.initState();
-    _ensureCalculation();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _ensureCalculation();
+    });
   }
 
   void _ensureCalculation() {

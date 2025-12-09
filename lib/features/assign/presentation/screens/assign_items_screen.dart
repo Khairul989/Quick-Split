@@ -19,16 +19,20 @@ class _AssignItemsScreenState extends ConsumerState<AssignItemsScreen> {
   @override
   void initState() {
     super.initState();
-    _initializeAssignments();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeAssignments();
+    });
   }
 
   void _initializeAssignments() {
     final session = ref.read(sessionProvider);
     if (session.currentReceipt != null) {
-      ref.read(assignmentProvider.notifier).initialize(
-        session.currentReceipt!.items,
-        session.participants.map((p) => p.id).toList(),
-      );
+      ref
+          .read(assignmentProvider.notifier)
+          .initialize(
+            session.currentReceipt!.items,
+            session.participants.map((p) => p.id).toList(),
+          );
     }
   }
 
@@ -55,9 +59,7 @@ class _AssignItemsScreenState extends ConsumerState<AssignItemsScreen> {
     if (receipt == null || participants.isEmpty) {
       return Scaffold(
         appBar: AppBar(title: const Text('Assign Items')),
-        body: const Center(
-          child: Text('No active session'),
-        ),
+        body: const Center(child: Text('No active session')),
       );
     }
 

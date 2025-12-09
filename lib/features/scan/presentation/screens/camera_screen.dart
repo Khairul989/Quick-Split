@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:quicksplit/core/router/router.dart';
+import 'package:quicksplit/features/ocr/domain/models/receipt.dart';
+import 'package:quicksplit/features/ocr/presentation/providers/ocr_providers.dart';
 
 /// Camera screen for capturing receipt photos
 class CameraScreen extends ConsumerStatefulWidget {
@@ -76,10 +78,67 @@ class _CameraScreenState extends ConsumerState<CameraScreen>
       final image = await _cameraController.takePicture();
 
       if (mounted) {
-        context.pushNamed(
-          RouteNames.ocrPreview,
-          extra: image.path,
-        );
+        // Reset OCR state before processing
+        ref.read(ocrStateProvider.notifier).reset();
+
+        // Show loading dialog
+        if (mounted) {
+          showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (context) => const Center(
+              child: Card(
+                child: Padding(
+                  padding: EdgeInsets.all(24),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      CircularProgressIndicator(),
+                      SizedBox(height: 16),
+                      Text('Processing receipt...'),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          );
+        }
+
+        // Process OCR
+        await ref.read(ocrStateProvider.notifier).processImage(image.path);
+
+        // Get result
+        final ocrState = ref.read(ocrStateProvider);
+
+        // Close loading dialog
+        if (mounted) Navigator.of(context).pop();
+
+        if (ocrState is OcrStateSuccess) {
+          // Navigate to item editor with parsed items
+          if (mounted) {
+            context.pushReplacementNamed(
+              RouteNames.itemsEditor,
+              extra: ocrState.parsedReceipt.items
+                  .map(
+                    (parsedItem) => ReceiptItem(
+                      name: parsedItem.name,
+                      quantity: parsedItem.quantity,
+                      price: parsedItem.price,
+                    ),
+                  )
+                  .toList(),
+            );
+          }
+        } else if (ocrState case OcrStateError(:final message)) {
+          // Show error message
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('OCR failed: $message'),
+              ),
+            );
+          }
+        }
       }
     } catch (e) {
       if (mounted) {
@@ -99,10 +158,67 @@ class _CameraScreenState extends ConsumerState<CameraScreen>
       );
 
       if (pickedFile != null && mounted) {
-        context.pushNamed(
-          RouteNames.ocrPreview,
-          extra: pickedFile.path,
-        );
+        // Reset OCR state before processing
+        ref.read(ocrStateProvider.notifier).reset();
+
+        // Show loading dialog
+        if (mounted) {
+          showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (context) => const Center(
+              child: Card(
+                child: Padding(
+                  padding: EdgeInsets.all(24),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      CircularProgressIndicator(),
+                      SizedBox(height: 16),
+                      Text('Processing receipt...'),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          );
+        }
+
+        // Process OCR
+        await ref.read(ocrStateProvider.notifier).processImage(pickedFile.path);
+
+        // Get result
+        final ocrState = ref.read(ocrStateProvider);
+
+        // Close loading dialog
+        if (mounted) Navigator.of(context).pop();
+
+        if (ocrState is OcrStateSuccess) {
+          // Navigate to item editor with parsed items
+          if (mounted) {
+            context.pushReplacementNamed(
+              RouteNames.itemsEditor,
+              extra: ocrState.parsedReceipt.items
+                  .map(
+                    (parsedItem) => ReceiptItem(
+                      name: parsedItem.name,
+                      quantity: parsedItem.quantity,
+                      price: parsedItem.price,
+                    ),
+                  )
+                  .toList(),
+            );
+          }
+        } else if (ocrState case OcrStateError(:final message)) {
+          // Show error message
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('OCR failed: $message'),
+              ),
+            );
+          }
+        }
       }
     } catch (e) {
       if (mounted) {

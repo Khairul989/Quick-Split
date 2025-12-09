@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_ce_flutter/hive_flutter.dart';
 
+import 'core/providers/theme_provider.dart';
 import 'core/router/router.dart';
 import 'core/theme/theme.dart';
 import 'features/assign/domain/models/item_assignment.dart';
@@ -9,6 +10,7 @@ import 'features/assign/domain/models/person_share.dart';
 import 'features/assign/domain/models/split_session.dart';
 import 'features/groups/domain/models/group.dart';
 import 'features/groups/domain/models/person.dart';
+import 'features/ocr/domain/models/receipt.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -32,6 +34,7 @@ Future<void> _initializeHive() async {
     Hive.registerAdapter(ItemAssignmentAdapter());
     Hive.registerAdapter(PersonShareAdapter());
     Hive.registerAdapter(SplitSessionAdapter());
+    Hive.registerAdapter(ReceiptAdapter());
 
     // Create boxes for different data types
     // Each box is like a table in a database
@@ -51,6 +54,12 @@ Future<void> _initializeHive() async {
     // Format: List of SplitSession objects ordered by date
     if (!Hive.isBoxOpen('history')) {
       await Hive.openBox<SplitSession>('history');
+    }
+
+    // Receipts box: stores receipt data for split sessions
+    // Format: Map<String, Receipt> where key is receiptId
+    if (!Hive.isBoxOpen('receipts')) {
+      await Hive.openBox<Receipt>('receipts');
     }
 
     // Preferences box: stores user preferences
@@ -79,12 +88,14 @@ class QuickSplitApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     // Watch the router provider
     final router = ref.watch(goRouterProvider);
+    // Watch the theme mode provider
+    final themeMode = ref.watch(themeModeProvider);
 
     return MaterialApp.router(
       title: 'QuickSplit',
       theme: QuickSplitTheme.light,
       darkTheme: QuickSplitTheme.dark,
-      themeMode: ThemeMode.system,
+      themeMode: themeMode,
       routerConfig: router,
       debugShowCheckedModeBanner: false,
     );
