@@ -28,184 +28,152 @@ Do not write code in this file.
 
 ## Memory System
 
-**Hybrid Tiered Memory System** - Prevents token bloat while maintaining context.
+**Event-Driven Memory** - Saves complete, verified work at natural milestones.
 
-### Memory File Structure
+### File Structure
 
 ```
 docs/memory/
-├── current.md          # Lightweight (max 100 lines) - ALWAYS loaded
-├── weekly/             # Weekly summaries - loaded on demand
-│   └── {year}-W{week}.md
-└── detailed/           # Full detailed logs - rarely loaded
-    └── {year}/{month}/{day}.md
+├── current.md          # Active session work only
+└── detailed/           # Archived sessions
+    └── {year}/{month}/
+        └── {date}_{time}.md    # e.g., 2025-12-10_1430.md
 ```
 
 ---
 
-### 1. Current Memory (`docs/memory/current.md`)
+### Triggers (When to Save Memory)
 
-**⚠️ CRITICAL: ALWAYS load `current.md` at session start**
+**1. Task Completion** (Primary - User-confirmed)
 
-- **Max 100 lines** - strictly enforced
-- Contains only last 7 days of work (ultra-compact)
-- **Loaded every session** (low token cost ~500 tokens)
-- Auto-rotates: entries older than 7 days → archived to weekly summary
+- User confirms: "working", "looks good", "perfect", "verified"
+- Agent asks: "✅ Task complete. Update memory?"
 
-#### Format:
+**2. Token Usage** (Automatic - Silent)
+
+- When context > 100,000 tokens → Auto-save immediately
+- Agent: "💾 Context reached 100k tokens. Saved to memory."
+
+**3. Manual** (User-initiated anytime)
+
+- User: "save memory" / "update memory"
+- Agent: Prompts for brief summary, then saves
+
+---
+
+### Commands
+
+**`load memory`**
+
+- Reads `docs/memory/current.md`
+- Shows active session work
+- Must be called at start of every new session
+
+**`save memory` or `update memory`**
+
+- Archives current session to detailed/{date}\_{time}.md
+- Clears current.md for fresh session
+- User provides brief summary of work completed
+
+---
+
+### Memory Entry Format
+
+**current.md** (active session):
 
 ```markdown
-# Current Session Memory
+# Current Session
 
-## Last 7 Days (Auto-Rotated)
+**Session:** 2025-12-10_1430
+**Started:** 14:30
 
-### 2025-12-08
+## Work in Progress
 
-- ✅ Fixed auth token interceptor cascade logout
-- 📝 Modified: dio_client.dart, auth_cubit.dart
+- ⏳ Fixing OCR multi-line extraction
+- 📝 Modified: receipt_parser.dart
 
-### 2025-12-07
+## Completed This Session
 
-- ✅ Added TikTok URL merchant support
-- 📝 Modified: url_resolver.dart
+- ✅ Added dark mode toggle
+- 📝 Modified: theme_provider.dart, settings_screen.dart
 
-## Active Blockers
+## Blockers
 
 - None
-
-## Pending Tasks
-
-- Review PR #137
 ```
 
-#### Content Rules:
-
-- One date section per day (most recent first)
-- Max 5 bullet points per day
-- Use icons: ✅ (done), ⏳ (in progress), ❌ (blocked)
-- File changes: file names only, NO line numbers
-- NO detailed explanations - just facts
-
----
-
-### 2. Weekly Summary (`docs/memory/weekly/{year}-W{week}.md`)
-
-**Created automatically** when:
-
-- Every Sunday, OR
-- When `current.md` exceeds 100 lines
-
-**Load only when**: Investigating work from previous weeks
-
-#### Format:
+**detailed/{date}\_{time}.md** (archived):
 
 ```markdown
-# Week 48 - December 2025
+# Session 2025-12-10_1430
 
-## Major Changes
+**Duration:** 14:30 - 16:45
+**Status:** ✅ COMPLETE
 
-- Enhanced authentication flow with token refresh fallback
-- Added 8 new merchant URL resolvers
-- Fixed clipboard caching performance issues
+## Tasks Completed
 
-## Key Files Modified
+1. ✅ Fixed OCR multi-line item extraction
 
-- lib/core/module/dio/dio_client.dart
-- lib/features/auth/presentation/cubit/auth_cubit.dart
+   - Modified: receipt_parser.dart (added block/line tracking)
+   - Modified: ocr_providers.dart (debug logging)
+   - Verified: Tested with 3 receipts, all parsing correctly
 
-## Blockers Resolved
+2. ✅ Added dark mode with Hive persistence
+   - Created: theme_provider.dart, settings_screen.dart
+   - Modified: main.dart (theme integration)
+   - Verified: flutter analyze 0 errors, persistence working
 
-- 401 cascade logout issue
+## User Confirmation
+
+"Tested both features - OCR accurate, dark mode switching smoothly"
 ```
 
 ---
 
-### 3. Detailed Archive (`docs/memory/detailed/{year}/{month}/{day}.md`)
+### Content Rules
 
-**Full detailed logs** with complete information:
+**current.md:**
 
-```markdown
-### Issue Title
+- Session ID format: `{date}_{time24h}` (e.g., 2025-12-10_1430)
+- Compact bullets only (✅/⏳/❌ + task + files)
+- No detailed explanations
+- Max ~80 lines (soft limit)
 
-**Status:** ✅ RESOLVED | ⏳ IN PROGRESS | ❌ BLOCKED
-**Time:** HH:MM
+**detailed archives:**
 
-#### What Was Done
-
-- Detailed implementation description
-
-#### Files Changed
-
-- `path/to/file.dart` (lines X-Y): Description of change
-
-#### Benefit/Impact
-
-- Why this change matters
-
-#### Goal Achieved
-
-- ✅ Acceptance criteria
-```
-
-**Load only when**: Deep investigation of specific past work needed
+- Full context preserved
+- Include user confirmations/test results
+- File paths with brief change description
+- Status tags (✅/⏳/❌)
 
 ---
 
-### Memory Management Workflow
+### Workflow
 
-#### On Session Start:
+**On `load memory`:**
 
-```
-1. Get today's date: date=$(date +"%Y-%m-%d")
-2. Load `docs/memory/current.md` (ALWAYS)
-3. Check if rotation needed:
-   - If oldest entry in current.md > 7 days old, OR
-   - If current.md > 100 lines:
-     → Run rotation (see below)
-4. Check if today's date already in current.md:
-   - If YES: append to existing date section
-   - If NO: add new date section at top
-```
+1. Read `docs/memory/current.md`
+2. Display active session work
+3. Check token usage (warn if > 100k)
 
-#### Auto-Rotation Process:
+**On task completion:**
 
-```
-1. Read current.md
-2. Extract entries older than 7 days
-3. Group by week
-4. Append to appropriate weekly/{year}-W{week}.md
-5. Remove old entries from current.md
-6. Keep only last 7 days in current.md
-```
+1. User confirms work is done/verified
+2. Agent asks: "Update memory?"
+3. If yes → save to detailed archive + clear current.md
 
-#### Saving Today's Work:
+**On > 100k tokens:**
 
-**Always update TWO files:**
-
-1. **`current.md`** (required) - Add compact entry:
-
-   ```markdown
-   ### 2025-12-08
-
-   - ✅ Task completed
-   - 📝 Modified: file1.dart, file2.dart
-   ```
-
-2. **`detailed/{year}/{month}/{day}.md`** (optional) - Full details if needed
+1. Auto-save current.md → detailed/{date}\_{time}.md
+2. Clear current.md
+3. Notify user: "💾 Saved to memory (100k token limit)"
 
 ---
 
 ### Key Principles
 
-1. **Always load `current.md` first** - never skip this
-2. **Keep `current.md` under 100 lines** - ruthlessly compact
-3. **Weekly summaries** consolidate past work
-4. **Detailed archives** preserve full history
-5. **Auto-rotation** prevents bloat
-6. **Git history** is primary source of truth for code changes
-
----
-
-### Migration from Old System
-
-Existing `docs/memory/{year}/{month}/{day}.md` files are now "detailed archive" files. They remain unchanged and accessible when needed.
+1. **Load current.md every session** - never skip
+2. **Save at task milestones** - not arbitrary times
+3. **Auto-save at 100k tokens** - prevents quality degradation
+4. **Detailed archives preserve everything** - git history is secondary
+5. **current.md = active work only** - always fresh context

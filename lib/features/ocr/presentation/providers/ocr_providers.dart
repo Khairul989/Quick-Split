@@ -1,4 +1,5 @@
 import 'package:riverpod/riverpod.dart';
+import 'package:quicksplit/core/services/logger_service.dart';
 import 'package:quicksplit/features/ocr/domain/services/ocr_service.dart';
 import 'package:quicksplit/features/ocr/domain/services/receipt_parser.dart';
 
@@ -40,23 +41,23 @@ class OcrStateNotifier extends Notifier<OcrState> {
   Future<void> processImage(String imagePath) async {
     state = const OcrStateLoading();
     try {
-      print('🔍 [OCR] Starting OCR processing for: $imagePath');
+      logger.d('🔍 [OCR] Starting OCR processing for: $imagePath');
 
       final ocrService = ref.read(ocrServiceProvider);
       final recognizedText = await ocrService.recognizeText(imagePath);
 
-      print('📝 [OCR] Raw text extracted:');
-      print('  - Blocks: ${recognizedText.blocks.length}');
-      print('  - Lines: ${recognizedText.blocks.fold(0, (sum, block) => sum + block.lines.length)}');
-      print('  - Full text:\n${recognizedText.text}');
+      logger.i('📝 [OCR] Raw text extracted:');
+      logger.i('  - Blocks: ${recognizedText.blocks.length}');
+      logger.i('  - Lines: ${recognizedText.blocks.fold(0, (sum, block) => sum + block.lines.length)}');
+      logger.t('  - Full text:\n${recognizedText.text}');
 
       final parsedReceipt = ReceiptParser.parseReceiptFromRecognizedText(recognizedText);
 
-      print('✅ [OCR] Parsing complete:');
-      print('  - Items found: ${parsedReceipt.items.length}');
-      print('  - Total: ${parsedReceipt.total}');
+      logger.i('✅ [OCR] Parsing complete:');
+      logger.i('  - Items found: ${parsedReceipt.items.length}');
+      logger.i('  - Total: ${parsedReceipt.total}');
       if (parsedReceipt.items.isEmpty) {
-        print('⚠️ [OCR] WARNING: Zero items detected!');
+        logger.w('⚠️ [OCR] WARNING: Zero items detected!');
       }
 
       state = OcrStateSuccess(
@@ -65,7 +66,7 @@ class OcrStateNotifier extends Notifier<OcrState> {
         imagePath: imagePath,
       );
     } catch (e) {
-      print('❌ [OCR] Error: $e');
+      logger.e('❌ [OCR] Error: $e');
       state = OcrStateError(e.toString());
     }
   }

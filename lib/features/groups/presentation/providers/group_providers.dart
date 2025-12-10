@@ -55,6 +55,13 @@ class GroupsNotifier extends Notifier<GroupsState> {
     state = state.copyWith(isLoading: true, error: null);
 
     try {
+      // Save each person to people box if they don't already exist
+      for (final person in people) {
+        if (!_peopleBox.containsKey(person.id)) {
+          await _peopleBox.put(person.id, person);
+        }
+      }
+
       // Create group with person IDs
       final group = Group(
         name: name,
@@ -64,9 +71,10 @@ class GroupsNotifier extends Notifier<GroupsState> {
       // Save to Hive
       await _groupsBox.put(group.id, group);
 
-      // Update state
+      // Update state with both groups and people
       state = state.copyWith(
         groups: _groupsBox.values.toList(),
+        people: _peopleBox.values.toList(),
         isLoading: false,
       );
 

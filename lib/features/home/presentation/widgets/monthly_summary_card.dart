@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:quicksplit/features/home/presentation/providers/monthly_stats_provider.dart';
 
 /// Card widget displaying monthly spending summary
 ///
 /// Shows total spending and number of splits for the current month.
 /// Displays statistics in a clean card layout with icon and details.
-class MonthlySummaryCard extends StatelessWidget {
+class MonthlySummaryCard extends ConsumerWidget {
   const MonthlySummaryCard({super.key});
 
   /// Get current month display name (e.g., "October")
@@ -14,16 +16,17 @@ class MonthlySummaryCard extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final currentMonth = _getCurrentMonth();
+    final monthlyStats = ref.watch(monthlyStatsProvider);
 
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFE5E7EB)),
+        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.2)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
@@ -62,14 +65,14 @@ class MonthlySummaryCard extends StatelessWidget {
                       'Monthly Summary',
                       style: theme.textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.w600,
-                        color: const Color(0xFF1F2937),
+                        color: colorScheme.onSurface,
                       ),
                     ),
                     const SizedBox(height: 2),
                     Text(
                       'Your spending in $currentMonth',
                       style: theme.textTheme.bodySmall?.copyWith(
-                        color: const Color(0xFF6B7280),
+                        color: colorScheme.onSurfaceVariant,
                       ),
                     ),
                   ],
@@ -78,63 +81,77 @@ class MonthlySummaryCard extends StatelessWidget {
               // Chevron right
               Icon(
                 Icons.chevron_right,
-                color: const Color(0xFF6B7280),
+                color: colorScheme.onSurfaceVariant,
                 size: 24,
               ),
             ],
           ),
           const SizedBox(height: 16),
           // Statistics section with rounded background
-          Container(
-            decoration: BoxDecoration(
-              color: const Color(0xFFF7F9FC),
-              borderRadius: BorderRadius.circular(8),
+          monthlyStats.when(
+            loading: () => const Center(
+              child: Padding(
+                padding: EdgeInsets.all(16.0),
+                child: CircularProgressIndicator(strokeWidth: 2),
+              ),
             ),
-            padding: const EdgeInsets.all(12),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            error: (error, stackTrace) => const Column(
               children: [
-                // Total Spent
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Total Spent',
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: const Color(0xFF6B7280),
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'RM 189.35',
-                      style: theme.textTheme.headlineSmall?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: const Color(0xFF1F2937),
-                      ),
-                    ),
-                  ],
-                ),
-                // Total Splits
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Text(
-                      'Total Splits',
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: const Color(0xFF6B7280),
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      '3',
-                      style: theme.textTheme.headlineSmall?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: const Color(0xFF1F2937),
-                      ),
-                    ),
-                  ],
-                ),
+                SizedBox(height: 16),
+                Text('Error loading monthly stats'),
               ],
+            ),
+            data: (stats) => Container(
+              decoration: BoxDecoration(
+                color: colorScheme.surfaceContainerHighest,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              padding: const EdgeInsets.all(12),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  // Total Spent
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Total Spent',
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'RM ${stats.totalSpent.toStringAsFixed(2)}',
+                        style: theme.textTheme.headlineSmall?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: colorScheme.onSurface,
+                        ),
+                      ),
+                    ],
+                  ),
+                  // Total Splits
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(
+                        'Total Splits',
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        '${stats.splitCount}',
+                        style: theme.textTheme.headlineSmall?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: colorScheme.onSurface,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
         ],

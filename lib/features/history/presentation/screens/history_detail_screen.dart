@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hive_ce/hive.dart';
 import 'package:intl/intl.dart';
+import 'package:share_plus/share_plus.dart';
 import '../../../assign/domain/models/split_session.dart';
 import '../../../assign/domain/models/person_share.dart';
 import '../../../ocr/domain/models/receipt.dart';
@@ -38,14 +39,29 @@ class _HistoryDetailScreenState extends ConsumerState<HistoryDetailScreen> {
     try {
       // Load session from Hive
       final historyBox = Hive.box<SplitSession>('history');
+
+      debugPrint('[HistoryDetail] splitId passed: ${widget.splitId}');
+      debugPrint('[HistoryDetail] Available session IDs: ${historyBox.keys.toList()}');
+
       final session = historyBox.values.firstWhere(
         (s) => s.id == widget.splitId,
         orElse: () => throw Exception('Split session not found'),
       );
 
+      debugPrint('[HistoryDetail] Session found: ${session.id}');
+      debugPrint('[HistoryDetail] Session receiptId: ${session.receiptId}');
+
       // Load receipt from Hive
       final receiptsBox = Hive.box<Receipt>('receipts');
+      debugPrint('[HistoryDetail] All receipt keys in box: ${receiptsBox.keys.toList()}');
+      debugPrint('[HistoryDetail] Looking for receipt with ID: ${session.receiptId}');
+
       final receipt = receiptsBox.get(session.receiptId);
+
+      debugPrint('[HistoryDetail] Receipt found: ${receipt != null}');
+      if (receipt != null) {
+        debugPrint('[HistoryDetail] Receipt details - merchant: ${receipt.merchantName}, items: ${receipt.items.length}, total: ${receipt.total}');
+      }
 
       if (receipt == null) {
         return Center(
@@ -56,86 +72,93 @@ class _HistoryDetailScreenState extends ConsumerState<HistoryDetailScreen> {
         );
       }
 
-      return SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Receipt information card
-              Padding(
-                padding: const EdgeInsets.all(24),
-                child: _buildReceiptCard(receipt, session),
-              ),
+      return Scaffold(
+        floatingActionButton: FloatingActionButton(
+          onPressed: () => _shareWholeReceipt(session, receipt),
+          backgroundColor: Theme.of(context).colorScheme.primary,
+          child: const Icon(Icons.share_rounded, color: Colors.white),
+        ),
+        body: SafeArea(
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Receipt information card
+                Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: _buildReceiptCard(receipt, session),
+                ),
 
-              // Items section
-              if (receipt.items.isNotEmpty) ...[
+                // Items section
+                if (receipt.items.isNotEmpty) ...[
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    child: Text(
+                      'Items',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.w600,
+                          ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  ListView.separated(
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    physics: const NeverScrollableScrollPhysics(),
+                    shrinkWrap: true,
+                    itemCount: receipt.items.length,
+                    separatorBuilder: (context, index) => const SizedBox(height: 8),
+                    itemBuilder: (context, index) {
+                      final item = receipt.items[index];
+                      return _buildItemRow(item);
+                    },
+                  ),
+                  const SizedBox(height: 24),
+                ],
+
+                // Individual Shares section
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 24),
                   child: Text(
-                    'Items',
+                    'Individual Shares',
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.w600,
                         ),
                   ),
                 ),
                 const SizedBox(height: 12),
-                ListView.separated(
-                  padding: const EdgeInsets.symmetric(horizontal: 24),
-                  physics: const NeverScrollableScrollPhysics(),
-                  shrinkWrap: true,
-                  itemCount: receipt.items.length,
-                  separatorBuilder: (context, index) => const SizedBox(height: 8),
-                  itemBuilder: (context, index) {
-                    final item = receipt.items[index];
-                    return _buildItemRow(item);
-                  },
-                ),
+                if (session.calculatedShares.isNotEmpty)
+                  ListView.separated(
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    physics: const NeverScrollableScrollPhysics(),
+                    shrinkWrap: true,
+                    itemCount: session.calculatedShares.length,
+                    separatorBuilder: (context, index) => const SizedBox(height: 12),
+                    itemBuilder: (context, index) {
+                      final share = session.calculatedShares[index];
+                      // Get assigned items for this person
+                      final assignedItems = receipt.items
+                          .where((item) =>
+                              share.assignedItemIds.contains(item.id))
+                          .toList();
+
+                      return _buildPersonShareCard(share, assignedItems);
+                    },
+                  )
+                else
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    child: Text(
+                      'No shares calculated',
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color: Theme.of(context)
+                                .colorScheme
+                                .onSurfaceVariant,
+                          ),
+                    ),
+                  ),
                 const SizedBox(height: 24),
               ],
-
-              // Individual Shares section
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: Text(
-                  'Individual Shares',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
-                ),
-              ),
-              const SizedBox(height: 12),
-              if (session.calculatedShares.isNotEmpty)
-                ListView.separated(
-                  padding: const EdgeInsets.symmetric(horizontal: 24),
-                  physics: const NeverScrollableScrollPhysics(),
-                  shrinkWrap: true,
-                  itemCount: session.calculatedShares.length,
-                  separatorBuilder: (context, index) => const SizedBox(height: 12),
-                  itemBuilder: (context, index) {
-                    final share = session.calculatedShares[index];
-                    // Get assigned items for this person
-                    final assignedItems = receipt.items
-                        .where((item) =>
-                            share.assignedItemIds.contains(item.id))
-                        .toList();
-
-                    return _buildPersonShareCard(share, assignedItems);
-                  },
-                )
-              else
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24),
-                  child: Text(
-                    'No shares calculated',
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Theme.of(context)
-                              .colorScheme
-                              .onSurfaceVariant,
-                        ),
-                  ),
-                ),
-              const SizedBox(height: 24),
-            ],
+            ),
           ),
         ),
       );
@@ -418,6 +441,13 @@ class _HistoryDetailScreenState extends ConsumerState<HistoryDetailScreen> {
               ],
             ),
           ),
+          IconButton(
+            icon: const Icon(Icons.share_rounded),
+            iconSize: 20,
+            onPressed: () => _shareIndividualShare(share),
+            constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
+          ),
+          const SizedBox(width: 8),
           // Trailing amount in primary color
           Text(
             'RM ${share.total.toStringAsFixed(2)}',
@@ -503,6 +533,64 @@ class _HistoryDetailScreenState extends ConsumerState<HistoryDetailScreen> {
           ),
         ),
       ],
+    );
+  }
+
+  String _generateWholeReceiptShareText(SplitSession session, Receipt receipt) {
+    final buffer = StringBuffer();
+    final dateFormatter = DateFormat('MMM d, yyyy');
+
+    buffer.writeln('Receipt 🍽️');
+    buffer.writeln(receipt.merchantName);
+    buffer.writeln(dateFormatter.format(session.createdAt));
+    buffer.writeln('Total: RM ${receipt.total.toStringAsFixed(2)}');
+    buffer.writeln();
+
+    for (final share in session.calculatedShares) {
+      buffer.writeln('${share.personEmoji} ${share.personName}: RM ${share.total.toStringAsFixed(2)}');
+    }
+
+    buffer.writeln();
+    buffer.writeln('Split via QuickSplit');
+
+    return buffer.toString();
+  }
+
+  String _generateIndividualShareText(PersonShare share) {
+    final buffer = StringBuffer();
+
+    buffer.writeln('Your Share 💰');
+    buffer.writeln('${share.personName} ${share.personEmoji}');
+    buffer.writeln();
+    buffer.writeln('Items Subtotal: RM ${share.itemsSubtotal.toStringAsFixed(2)}');
+    buffer.writeln('SST: RM ${share.sst.toStringAsFixed(2)}');
+    buffer.writeln('Service Charge: RM ${share.serviceCharge.toStringAsFixed(2)}');
+    buffer.writeln('Rounding: RM ${share.rounding.toStringAsFixed(2)}');
+    buffer.writeln();
+    buffer.writeln('Total: RM ${share.total.toStringAsFixed(2)}');
+    buffer.writeln();
+    buffer.writeln('Split via QuickSplit');
+
+    return buffer.toString();
+  }
+
+  Future<void> _shareWholeReceipt(SplitSession session, Receipt receipt) async {
+    final text = _generateWholeReceiptShareText(session, receipt);
+    await SharePlus.instance.share(
+      ShareParams(
+        text: text,
+        subject: 'Receipt from QuickSplit',
+      ),
+    );
+  }
+
+  Future<void> _shareIndividualShare(PersonShare share) async {
+    final text = _generateIndividualShareText(share);
+    await SharePlus.instance.share(
+      ShareParams(
+        text: text,
+        subject: '${share.personName} Share from QuickSplit',
+      ),
     );
   }
 }

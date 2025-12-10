@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:quicksplit/core/router/router.dart';
 import '../../../ocr/domain/models/receipt.dart';
 import '../providers/calculator_provider.dart';
@@ -79,12 +80,18 @@ class _SummaryScreenState extends ConsumerState<SummaryScreen> {
 
       final shareText = _generateShareText(session.currentReceipt!);
       await Clipboard.setData(ClipboardData(text: shareText));
+      await SharePlus.instance.share(
+        ShareParams(
+          text: shareText,
+          subject: 'Receipt from QuickSplit',
+        ),
+      );
 
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Saved & copied to clipboard!'),
+          content: Text('Saved, copied & shared!'),
           duration: Duration(milliseconds: 1200),
         ),
       );

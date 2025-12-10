@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_ce/hive.dart';
 import '../../domain/models/split_session.dart';
@@ -151,11 +152,30 @@ class SessionNotifier extends Notifier<SessionState> {
 
       // Save session to Hive history box
       final historyBox = Hive.box<SplitSession>('history');
+      debugPrint('[SessionProvider] Saving session ID: ${updatedSession.id}');
       await historyBox.put(updatedSession.id, updatedSession);
+      debugPrint('[SessionProvider] Session saved successfully');
 
       // Save receipt to receipts box so recent splits can display it
       final receiptsBox = Hive.box<Receipt>('receipts');
-      await receiptsBox.put(state.currentReceipt!.id, state.currentReceipt!);
+      debugPrint('[SessionProvider] Saving receipt ID: ${state.currentReceipt!.id}');
+      debugPrint('[SessionProvider] Receipt details - merchant: ${state.currentReceipt!.merchantName}, items: ${state.currentReceipt!.items.length}, total: ${state.currentReceipt!.total}');
+      try {
+        await receiptsBox.put(state.currentReceipt!.id, state.currentReceipt!);
+        debugPrint('[SessionProvider] Receipt saved successfully');
+        debugPrint('[SessionProvider] All receipt keys in box after save: ${receiptsBox.keys.toList()}');
+
+        // Verify receipt was actually saved
+        final verifyReceipt = receiptsBox.get(state.currentReceipt!.id);
+        if (verifyReceipt != null) {
+          debugPrint('[SessionProvider] Receipt verified in box: ${verifyReceipt.id}');
+        } else {
+          debugPrint('[SessionProvider] ERROR: Receipt not found after save!');
+        }
+      } catch (e) {
+        debugPrint('[SessionProvider] ERROR saving receipt: $e');
+        rethrow;
+      }
 
       // Update group usage statistics if a group was selected
       if (state.selectedGroup != null) {

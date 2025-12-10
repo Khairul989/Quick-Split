@@ -34,6 +34,7 @@ Future<void> _initializeHive() async {
     Hive.registerAdapter(ItemAssignmentAdapter());
     Hive.registerAdapter(PersonShareAdapter());
     Hive.registerAdapter(SplitSessionAdapter());
+    Hive.registerAdapter(ReceiptItemAdapter());
     Hive.registerAdapter(ReceiptAdapter());
 
     // Create boxes for different data types

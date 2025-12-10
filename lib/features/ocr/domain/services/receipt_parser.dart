@@ -1,4 +1,5 @@
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
+import 'package:quicksplit/core/services/logger_service.dart';
 
 /// Core receipt parsing service for extracting structured data from OCR text
 class ReceiptParser {
@@ -12,9 +13,7 @@ class ReceiptParser {
     caseSensitive: false,
   );
 
-  static final RegExp _pricePattern = RegExp(
-    r'(\d{1,6}[\.,]\d{2})\s*$',
-  );
+  static final RegExp _pricePattern = RegExp(r'(\d{1,6}[\.,]\d{2})\s*$');
 
   static final RegExp _quantityPattern = RegExp(
     r'^.*?(\d+)\s*[x×X]\s*|^.*?\s*[x×X]\s*(\d+)\s*|^.*?@\s*(\d+)',
@@ -35,18 +34,57 @@ class ReceiptParser {
   /// Blacklist of words indicating non-item lines (improvement #1)
   /// These words commonly appear in receipts but should not be extracted as item names
   static final List<String> _invalidItemWords = [
-    'total', 'subtotal', 'grand total', 'change', 'amount', 'receipt',
-    'phone', 'fax', 'gst', 'tax', 'sst', 'service', 'delivery', 'discount',
-    'payment', 'cash', 'card', 'visa', 'mastercard', 'scan', 'merchant',
-    'store', 'outlet', 'shop', 'thank you', 'welcome', 'bill', 'invoice',
+    'total',
+    'subtotal',
+    'grand total',
+    'change',
+    'amount',
+    'receipt',
+    'phone',
+    'fax',
+    'gst',
+    'tax',
+    'sst',
+    'service',
+    'delivery',
+    'discount',
+    'payment',
+    'cash',
+    'card',
+    'visa',
+    'mastercard',
+    'scan',
+    'merchant',
+    'store',
+    'outlet',
+    'shop',
+    'thank you',
+    'welcome',
+    'bill',
+    'invoice',
   ];
 
   /// Merchant indicator words (improvement #6)
   /// Used to identify and skip lines containing merchant names
   static final List<String> _merchantWords = [
-    'sdn bhd', 'enterprise', 'trading', 'company', 'limited', 'inc',
-    'corporation', 'co.', 'llc', 'restaurant', 'cafe', 'bistro',
-    'hotel', 'resort', 'mall', 'plaza', 'centre', 'center',
+    'sdn bhd',
+    'enterprise',
+    'trading',
+    'company',
+    'limited',
+    'inc',
+    'corporation',
+    'co.',
+    'llc',
+    'restaurant',
+    'cafe',
+    'bistro',
+    'hotel',
+    'resort',
+    'mall',
+    'plaza',
+    'centre',
+    'center',
   ];
 
   /// Parse RecognizedText from Google ML Kit using element-based extraction
@@ -65,7 +103,9 @@ class ReceiptParser {
       );
     }
 
-    final priceElements = _extractPriceElementsFromRecognizedText(recognizedText);
+    final priceElements = _extractPriceElementsFromRecognizedText(
+      recognizedText,
+    );
     final items = _buildItemsFromPriceElements(priceElements);
     final totals = _extractTotalsFromText(recognizedText.text);
 
@@ -120,12 +160,12 @@ class ReceiptParser {
   ) {
     final priceElements = <_PriceElement>[];
 
-    print('\n💰 [PARSER] Extracting price elements...');
+    logger.i("\n💰 [PARSER] Extracting price elements...");
     int totalLines = 0;
     for (final block in recognizedText.blocks) {
       totalLines += block.lines.length;
     }
-    print('  - Total lines to process: $totalLines');
+    logger.i('  - Total lines to process: $totalLines');
 
     for (final block in recognizedText.blocks) {
       for (int lineIndex = 0; lineIndex < block.lines.length; lineIndex++) {
@@ -139,10 +179,11 @@ class ReceiptParser {
           final priceMatch = currencyMatch ?? _pricePattern.firstMatch(text);
 
           if (priceMatch != null && _isValidPrice(text)) {
-            final priceStr = currencyMatch?.group(1) ?? priceMatch.group(1) ?? '0.00';
+            final priceStr =
+                currencyMatch?.group(1) ?? priceMatch.group(1) ?? '0.00';
             final price = _parsePrice(priceStr);
 
-            print('  ✓ Found price: $price on line: "${line.text}"');
+            logger.d('  ✓ Found price: $price on line: "${line.text}"');
 
             priceElements.add(
               _PriceElement(
@@ -153,8 +194,9 @@ class ReceiptParser {
                 lineIndexInBlock: lineIndex,
                 element: element,
                 precedingElements: i > 0 ? line.elements.sublist(0, i) : [],
-                followingElements:
-                    i < line.elements.length - 1 ? line.elements.sublist(i + 1) : [],
+                followingElements: i < line.elements.length - 1
+                    ? line.elements.sublist(i + 1)
+                    : [],
               ),
             );
           }
@@ -166,9 +208,9 @@ class ReceiptParser {
     // Highest price is likely the total, which helps identify line totals vs unit prices
     priceElements.sort((a, b) => b.price.compareTo(a.price));
 
-    print('  - Total price elements extracted: ${priceElements.length}');
+    logger.i('  - Total price elements extracted: ${priceElements.length}');
     if (priceElements.isEmpty) {
-      print('  ⚠️ WARNING: No price elements found!');
+      logger.w('  ⚠️ WARNING: No price elements found!');
     }
 
     return priceElements;
@@ -176,10 +218,14 @@ class ReceiptParser {
 
   /// Build items from price elements by reconstructing names from surrounding elements
   /// Improvements: #1 (invalid word blacklist), #3 (aggressive validation), #6 (merchant filtering)
-  static List<ParsedItem> _buildItemsFromPriceElements(List<_PriceElement> priceElements) {
+  static List<ParsedItem> _buildItemsFromPriceElements(
+    List<_PriceElement> priceElements,
+  ) {
     final items = <ParsedItem>[];
 
-    print('\n🏗️ [PARSER] Building items from ${priceElements.length} price elements...');
+    logger.i(
+      '\n🏗️ [PARSER] Building items from ${priceElements.length} price elements...',
+    );
 
     // Track seen prices to avoid duplicates
     final seenPrices = <String>{};
@@ -188,7 +234,9 @@ class ReceiptParser {
       // Skip duplicate prices (receipts often show prices twice)
       final priceKey = '${priceElement.price}_${priceElement.line.text}';
       if (seenPrices.contains(priceKey)) {
-        print('  ❌ Skipped (duplicate price): ${priceElement.price} on line "${priceElement.line.text}"');
+        logger.d(
+          '  ❌ Skipped (duplicate price): ${priceElement.price} on line "${priceElement.line.text}"',
+        );
         continue;
       }
       seenPrices.add(priceKey);
@@ -209,19 +257,24 @@ class ReceiptParser {
 
       // Fall back to full line text if still empty
       if (itemName.isEmpty) {
-        itemName = priceElement.line.text.replaceAll(priceElement.element.text, '').trim();
+        itemName = priceElement.line.text
+            .replaceAll(priceElement.element.text, '')
+            .trim();
       }
 
       // If item name is still empty or very short (< 3 chars), look at PREVIOUS line
       if (itemName.replaceAll(RegExp(r'[^\w]'), '').length < 3 &&
           priceElement.lineIndexInBlock > 0) {
-        final previousLine = priceElement.block.lines[priceElement.lineIndexInBlock - 1];
+        final previousLine =
+            priceElement.block.lines[priceElement.lineIndexInBlock - 1];
         final previousLineText = previousLine.text.trim();
 
         // Use previous line if it doesn't contain a price (likely an item name)
         if (!_currencyPattern.hasMatch(previousLineText) &&
             !_pricePattern.hasMatch(previousLineText)) {
-          print('  ℹ️ Using previous line for item name: "$previousLineText"');
+          logger.d(
+            '  ℹ️ Using previous line for item name: "$previousLineText"',
+          );
           itemName = previousLineText;
         }
       }
@@ -229,29 +282,34 @@ class ReceiptParser {
       // Filter 1: Skip special rows (tax, total, subtotal, etc.)
       if (_specialRowPattern.hasMatch(itemName) ||
           _specialRowPattern.hasMatch(priceElement.line.text)) {
-        print('  ❌ Skipped (special row): "${priceElement.line.text}"');
-        continue;  // Skip this item
+        logger.d('  ❌ Skipped (special row): "${priceElement.line.text}"');
+        continue; // Skip this item
       }
 
       // Filter 2: Skip if item name is just currency code or very short
-      final cleanedForCheck = itemName.replaceAll(RegExp(r'[^\w\s]'), '').trim();
-      if (cleanedForCheck.length < 2 ||
-          _isCurrencyCode(cleanedForCheck)) {
-        print('  ❌ Skipped (too short/currency): "$itemName"');
-        continue;  // Skip this item
+      final cleanedForCheck = itemName
+          .replaceAll(RegExp(r'[^\w\s]'), '')
+          .trim();
+      if (cleanedForCheck.length < 2 || _isCurrencyCode(cleanedForCheck)) {
+        logger.d('  ❌ Skipped (too short/currency): "$itemName"');
+        continue; // Skip this item
       }
 
       // Improvement #1: Filter by invalid item words (blacklist filtering)
       final lowerName = itemName.toLowerCase();
       if (_invalidItemWords.any((word) => lowerName.contains(word))) {
-        print('  ❌ Skipped (invalid word): "$itemName" (matched: ${_invalidItemWords.where((w) => lowerName.contains(w)).join(", ")})');
-        continue;  // Skip lines with invalid item words (total, tax, payment, etc.)
+        logger.d(
+          '  ❌ Skipped (invalid word): "$itemName" (matched: ${_invalidItemWords.where((w) => lowerName.contains(w)).join(", ")})',
+        );
+        continue; // Skip lines with invalid item words (total, tax, payment, etc.)
       }
 
       // Improvement #6: Filter by merchant words (skip likely merchant names)
       if (_merchantWords.any((word) => lowerName.contains(word))) {
-        print('  ❌ Skipped (merchant word): "$itemName" (matched: ${_merchantWords.where((w) => lowerName.contains(w)).join(", ")})');
-        continue;  // Skip lines with merchant indicator words
+        logger.d(
+          '  ❌ Skipped (merchant word): "$itemName" (matched: ${_merchantWords.where((w) => lowerName.contains(w)).join(", ")})',
+        );
+        continue; // Skip lines with merchant indicator words
       }
 
       // Filter 3: For European "à" format, prefer unit price (price AFTER "à")
@@ -271,7 +329,7 @@ class ReceiptParser {
         // If "à" is NOT in preceding elements but in the name, this might be line total (check further)
         if (!priceAfterSeparator && priceElement.followingElements.isNotEmpty) {
           // This price has more elements after it (likely currency + line total), skip it
-          print('  ❌ Skipped (European à format - line total): "$itemName"');
+          logger.d('  ❌ Skipped (European à format - line total): "$itemName"');
           continue;
         }
       }
@@ -280,8 +338,12 @@ class ReceiptParser {
       int quantity = 1;
       final quantityMatch = _quantityPattern.firstMatch(itemName);
       if (quantityMatch != null) {
-        quantity = int.tryParse(
-              quantityMatch.group(1) ?? quantityMatch.group(2) ?? quantityMatch.group(3) ?? '1',
+        quantity =
+            int.tryParse(
+              quantityMatch.group(1) ??
+                  quantityMatch.group(2) ??
+                  quantityMatch.group(3) ??
+                  '1',
             ) ??
             1;
       }
@@ -292,20 +354,26 @@ class ReceiptParser {
       // Improvement #3: Aggressive item name validation
       // Skip if name is just numbers or symbols
       if (RegExp(r'^[\d\s\.\,\-\*]+$').hasMatch(itemName)) {
-        print('  ❌ Skipped (numeric only): "$itemName"');
-        continue;  // Skip numeric-only names (OCR artifacts)
+        logger.d('  ❌ Skipped (numeric only): "$itemName"');
+        continue; // Skip numeric-only names (OCR artifacts)
       }
 
       // Improvement #3: Skip if name is too short after cleaning (minimum 3 chars)
-      final cleanedNameLength = itemName.replaceAll(RegExp(r'[^\w]'), '').length;
+      final cleanedNameLength = itemName
+          .replaceAll(RegExp(r'[^\w]'), '')
+          .length;
       if (cleanedNameLength < 3) {
-        print('  ❌ Skipped (too short after cleaning): "$itemName" (length: $cleanedNameLength)');
-        continue;  // Skip very short names (likely OCR noise)
+        logger.d(
+          '  ❌ Skipped (too short after cleaning): "$itemName" (length: $cleanedNameLength)',
+        );
+        continue; // Skip very short names (likely OCR noise)
       }
 
       // Final validation: skip if cleaned name is still too short
       if (itemName.length < 2) {
-        print('  ❌ Skipped (final validation): "$itemName" (length: ${itemName.length})');
+        logger.d(
+          '  ❌ Skipped (final validation): "$itemName" (length: ${itemName.length})',
+        );
         continue;
       }
 
@@ -317,12 +385,14 @@ class ReceiptParser {
           rawLine: priceElement.line.text,
         ),
       );
-      print('  ✅ Added item: "$itemName" x$quantity @ ${priceElement.price}');
+      logger.d(
+        '  ✅ Added item: "$itemName" x$quantity @ ${priceElement.price}',
+      );
     }
 
-    print('  - Final items count: ${items.length}');
+    logger.i('  - Final items count: ${items.length}');
     if (items.isEmpty) {
-      print('  ⚠️ WARNING: All items were filtered out!');
+      logger.w('  ⚠️ WARNING: All items were filtered out!');
     }
 
     return items;
@@ -387,12 +457,12 @@ class ReceiptParser {
 
       // Remove quantity notation from name (both at start and end)
       name = name
-          .replaceAll(RegExp(r'^\d+\s*[x×X]\s*'), '')  // 2x at start
-          .replaceAll(RegExp(r'^[x×X]\s*\d+\s*'), '')  // x2 at start
-          .replaceAll(RegExp(r'^\d+\s*@\s*'), '')      // 2@ at start
-          .replaceAll(RegExp(r'\s*\d+\s*[x×X]\s*$'), '')  // at end
-          .replaceAll(RegExp(r'\s*[x×X]\s*\d+\s*$'), '')  // at end
-          .replaceAll(RegExp(r'\s*@\s*\d+\s*$'), '')  // at end
+          .replaceAll(RegExp(r'^\d+\s*[x×X]\s*'), '') // 2x at start
+          .replaceAll(RegExp(r'^[x×X]\s*\d+\s*'), '') // x2 at start
+          .replaceAll(RegExp(r'^\d+\s*@\s*'), '') // 2@ at start
+          .replaceAll(RegExp(r'\s*\d+\s*[x×X]\s*$'), '') // at end
+          .replaceAll(RegExp(r'\s*[x×X]\s*\d+\s*$'), '') // at end
+          .replaceAll(RegExp(r'\s*@\s*\d+\s*$'), '') // at end
           .trim();
 
       // Clean up name: remove common OCR artifacts
@@ -408,16 +478,11 @@ class ReceiptParser {
 
     // Fall back to existing logic for non-European formats (RM, USD, etc.)
     // Extract price (last currency or numeric pattern)
-    final priceMatch = _currencyPattern.firstMatch(line) ??
-        _pricePattern.firstMatch(line);
+    final priceMatch =
+        _currencyPattern.firstMatch(line) ?? _pricePattern.firstMatch(line);
 
     if (priceMatch == null) {
-      return ParsedItem(
-        name: line,
-        quantity: 1,
-        price: 0.0,
-        rawLine: line,
-      );
+      return ParsedItem(name: line, quantity: 1, price: 0.0, rawLine: line);
     }
 
     final priceStr = priceMatch.group(1) ?? priceMatch.group(0) ?? '0.00';
@@ -502,7 +567,7 @@ class ReceiptParser {
         upperText == 'GBP' ||
         upperText == 'RM' ||
         upperText == 'MYR' ||
-        upperText == 'A' ||  // Sometimes OCR reads "à" as "A"
+        upperText == 'A' || // Sometimes OCR reads "à" as "A"
         upperText.length <= 1;
   }
 
@@ -612,7 +677,8 @@ class ReceiptParser {
 
     // Allow 10% variance (some receipts have formatting issues)
     if (extractedTotal > 0 && calculatedSubtotal > 0) {
-      final variance = ((extractedTotal - calculatedSubtotal).abs() /
+      final variance =
+          ((extractedTotal - calculatedSubtotal).abs() /
           calculatedSubtotal *
           100);
       if (variance > 10) {
@@ -651,8 +717,7 @@ class ParsedReceipt {
     this.errors = const [],
   });
 
-  double get calculatedTotal =>
-      subtotal + sst + serviceCharge + rounding;
+  double get calculatedTotal => subtotal + sst + serviceCharge + rounding;
 
   bool get isValid => errors.isEmpty;
 }

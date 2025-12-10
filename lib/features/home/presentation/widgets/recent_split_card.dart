@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+
 import '../providers/recent_splits_provider.dart';
 
 /// Card widget displaying a recent split entry
@@ -10,11 +11,7 @@ class RecentSplitCard extends StatelessWidget {
   final RecentSplitEntry entry;
   final VoidCallback onTap;
 
-  const RecentSplitCard({
-    required this.entry,
-    required this.onTap,
-    super.key,
-  });
+  const RecentSplitCard({required this.entry, required this.onTap, super.key});
 
   /// Format date to "MMM dd, yyyy" (e.g., "Dec 08, 2025")
   String _formatDate(DateTime date) {
@@ -37,15 +34,20 @@ class RecentSplitCard extends StatelessWidget {
     }
 
     // Shopping
-    if (name.contains('grocery') || name.contains('market') ||
-        name.contains('supermarket') || name.contains('mall') ||
-        name.contains('shop') || name.contains('retail') ||
+    if (name.contains('grocery') ||
+        name.contains('market') ||
+        name.contains('supermarket') ||
+        name.contains('mall') ||
+        name.contains('shop') ||
+        name.contains('retail') ||
         name.contains('store')) {
       return Icons.shopping_cart;
     }
 
     // Drinks & Bars
-    if (name.contains('drink') || name.contains('bar') || name.contains('pub')) {
+    if (name.contains('drink') ||
+        name.contains('bar') ||
+        name.contains('pub')) {
       return Icons.local_bar;
     }
 
@@ -74,7 +76,9 @@ class RecentSplitCard extends StatelessWidget {
           decoration: BoxDecoration(
             color: colorScheme.surface,
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: const Color(0xFFE5E7EB)),
+            border: Border.all(
+              color: colorScheme.outline.withValues(alpha: 0.2),
+            ),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withValues(alpha: 0.05),
@@ -94,11 +98,7 @@ class RecentSplitCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Center(
-                  child: Icon(
-                    iconData,
-                    color: colorScheme.primary,
-                    size: 24,
-                  ),
+                  child: Icon(iconData, color: colorScheme.primary, size: 24),
                 ),
               ),
               const SizedBox(width: 16),
@@ -112,7 +112,7 @@ class RecentSplitCard extends StatelessWidget {
                       entry.displayName,
                       style: theme.textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.w600,
-                        color: const Color(0xFF1F2937),
+                        color: colorScheme.onSurface,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -121,7 +121,7 @@ class RecentSplitCard extends StatelessWidget {
                     Text(
                       _formatDate(entry.session.createdAt),
                       style: theme.textTheme.bodySmall?.copyWith(
-                        color: const Color(0xFF6B7280),
+                        color: colorScheme.onSurfaceVariant,
                       ),
                     ),
                   ],
@@ -133,7 +133,7 @@ class RecentSplitCard extends StatelessWidget {
                 entry.formattedTotal,
                 style: theme.textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.w700,
-                  color: const Color(0xFF1F2937),
+                  color: colorScheme.onSurface,
                 ),
               ),
             ],
