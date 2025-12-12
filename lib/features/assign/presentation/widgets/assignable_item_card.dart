@@ -22,22 +22,22 @@ class AssignableItemCard extends ConsumerWidget {
     final textTheme = Theme.of(context).textTheme;
 
     final assignment = ref.watch(assignmentProvider).getAssignment(item.id);
-    final isAssigned = assignment?.isAssigned ?? false;
-    final isShared = assignment?.isShared ?? false;
+    // final isAssigned = assignment?.isAssigned ?? false;
+    // final isShared = assignment?.isShared ?? false;
     final assignedPersonIds = assignment?.assignedPersonIds ?? [];
 
     final assignedPeople = participants
         .where((person) => assignedPersonIds.contains(person.id))
         .toList();
 
-    Color borderColor;
-    if (!isAssigned) {
-      borderColor = colorScheme.outline.withValues(alpha: 0.5);
-    } else if (isShared) {
-      borderColor = Colors.purple;
-    } else {
-      borderColor = colorScheme.primary;
-    }
+    // Color borderColor;
+    // if (!isAssigned) {
+    //   borderColor = colorScheme.outline.withValues(alpha: 0.5);
+    // } else if (isShared) {
+    //   borderColor = Colors.purple;
+    // } else {
+    //   borderColor = colorScheme.primary;
+    // }
 
     return Material(
       color: Colors.transparent,
@@ -46,12 +46,15 @@ class AssignableItemCard extends ConsumerWidget {
         borderRadius: BorderRadius.circular(12),
         child: Container(
           decoration: BoxDecoration(
-            border: Border.all(
-              color: borderColor,
-              width: 2,
-            ),
             borderRadius: BorderRadius.circular(12),
             color: colorScheme.surface,
+            boxShadow: [
+              BoxShadow(
+                color: colorScheme.shadow.withValues(alpha: 0.1),
+                blurRadius: 12,
+                offset: const Offset(0, 4),
+              ),
+            ],
           ),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -82,29 +85,21 @@ class AssignableItemCard extends ConsumerWidget {
                 const SizedBox(width: 12),
                 if (assignedPeople.isNotEmpty)
                   SizedBox(
-                    width: 100,
+                    width: 40,
                     height: 40,
-                    child: Stack(
-                      children: List.generate(
-                        assignedPeople.length,
-                        (index) => Positioned(
-                          left: index * 24.0,
-                          child: CircleAvatar(
-                            radius: 18,
-                            backgroundColor: colorScheme.primary,
-                            child: Text(
-                              assignedPeople[index].emoji,
-                              style: const TextStyle(fontSize: 14),
-                            ),
-                          ),
-                        ),
+                    child: CircleAvatar(
+                      radius: 18,
+                      backgroundColor: colorScheme.primary,
+                      child: Icon(
+                        assignedPeople.length > 1
+                            ? Icons.people_rounded
+                            : Icons.person_rounded,
+                        color: Colors.white,
+                        size: 20,
                       ),
                     ),
                   ),
-                Icon(
-                  Icons.chevron_right_rounded,
-                  color: colorScheme.outline,
-                ),
+                Icon(Icons.chevron_right_rounded, color: colorScheme.outline),
               ],
             ),
           ),

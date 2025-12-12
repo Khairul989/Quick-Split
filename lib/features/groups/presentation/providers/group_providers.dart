@@ -51,7 +51,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
   // ===== GROUP OPERATIONS =====
 
   /// Create a new group with given name and people
-  Future<Group> createGroup(String name, List<Person> people) async {
+  Future<Group> createGroup(String name, List<Person> people, {String? imagePath}) async {
     state = state.copyWith(isLoading: true, error: null);
 
     try {
@@ -66,6 +66,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
       final group = Group(
         name: name,
         personIds: people.map((p) => p.id).toList(),
+        imagePath: imagePath,
       );
 
       // Save to Hive

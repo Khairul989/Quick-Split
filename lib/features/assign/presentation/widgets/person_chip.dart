@@ -5,11 +5,7 @@ class PersonChip extends StatelessWidget {
   final Person person;
   final VoidCallback? onPressed;
 
-  const PersonChip({
-    required this.person,
-    this.onPressed,
-    super.key,
-  });
+  const PersonChip({required this.person, this.onPressed, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -18,10 +14,7 @@ class PersonChip extends StatelessWidget {
     return Chip(
       avatar: CircleAvatar(
         backgroundColor: colorScheme.primary,
-        child: Text(
-          person.emoji,
-          style: const TextStyle(fontSize: 16),
-        ),
+        child: Icon(Icons.person, color: colorScheme.onPrimary, size: 14),
       ),
       label: Text(
         person.name,
@@ -31,9 +24,7 @@ class PersonChip extends StatelessWidget {
         ),
       ),
       backgroundColor: colorScheme.primary.withValues(alpha: 0.1),
-      side: BorderSide(
-        color: colorScheme.primary.withValues(alpha: 0.3),
-      ),
+      side: BorderSide(color: colorScheme.primary.withValues(alpha: 0.3)),
       onDeleted: onPressed,
       deleteIcon: const SizedBox.shrink(),
     );

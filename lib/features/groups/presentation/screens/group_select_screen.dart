@@ -5,14 +5,74 @@ import 'package:quicksplit/core/router/router.dart';
 import 'package:quicksplit/features/assign/presentation/providers/session_provider.dart';
 import 'package:quicksplit/features/ocr/domain/models/receipt.dart';
 import '../providers/group_providers.dart';
+import '../providers/preselected_group_provider.dart';
 import '../widgets/group_card.dart';
 
-class GroupSelectScreen extends ConsumerWidget {
+class GroupSelectScreen extends ConsumerStatefulWidget {
   final Receipt receipt;
   const GroupSelectScreen({required this.receipt, super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<GroupSelectScreen> createState() => _GroupSelectScreenState();
+}
+
+class _GroupSelectScreenState extends ConsumerState<GroupSelectScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // Check for pre-selected group on screen load
+    _handlePreselectedGroup(context, ref);
+  }
+
+  /// Check and handle pre-selected group on screen load
+  void _handlePreselectedGroup(BuildContext context, WidgetRef ref) {
+    // Run after first frame to ensure context is valid
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!context.mounted) return;
+
+      final preselectedGroupId = ref.read(preselectedGroupIdProvider);
+      if (preselectedGroupId == null) return;
+
+      // Find the pre-selected group
+      final groupsState = ref.read(groupsProvider);
+      final preselectedGroup = groupsState.groups
+          .where((g) => g.id == preselectedGroupId)
+          .firstOrNull;
+
+      if (preselectedGroup == null) {
+        // Group not found, clear the pre-selection
+        ref.read(preselectedGroupIdProvider.notifier).clear();
+        return;
+      }
+
+      // Get group members
+      final people = groupsState.people
+          .where((p) => preselectedGroup.personIds.contains(p.id))
+          .toList();
+
+      // Mark group as used
+      preselectedGroup.markUsed();
+      ref.read(groupsProvider.notifier).updateGroup(preselectedGroup);
+
+      // Start session with the pre-selected group
+      ref.read(sessionProvider.notifier).startSession(
+        receipt: widget.receipt,
+        group: preselectedGroup,
+        participants: people,
+      );
+
+      // Clear pre-selection
+      ref.read(preselectedGroupIdProvider.notifier).clear();
+
+      // Navigate to assign items screen
+      context.pushReplacementNamed(RouteNames.assignItems);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final ref = this.ref;
+    final receipt = widget.receipt;
     final groupsState = ref.watch(groupsProvider);
     final frequentGroups = ref.watch(frequentGroupsProvider);
     final theme = Theme.of(context);

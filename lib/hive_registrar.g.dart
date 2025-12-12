@@ -9,11 +9,13 @@ import 'package:quicksplit/features/assign/domain/models/split_session.dart';
 import 'package:quicksplit/features/groups/domain/models/group.dart';
 import 'package:quicksplit/features/groups/domain/models/person.dart';
 import 'package:quicksplit/features/ocr/domain/models/receipt.dart';
+import 'package:quicksplit/features/payments/domain/models/payment_status.dart';
 
 extension HiveRegistrar on HiveInterface {
   void registerAdapters() {
     registerAdapter(GroupAdapter());
     registerAdapter(ItemAssignmentAdapter());
+    registerAdapter(PaymentStatusAdapter());
     registerAdapter(PersonAdapter());
     registerAdapter(PersonShareAdapter());
     registerAdapter(ReceiptAdapter());
@@ -26,6 +28,7 @@ extension IsolatedHiveRegistrar on IsolatedHiveInterface {
   void registerAdapters() {
     registerAdapter(GroupAdapter());
     registerAdapter(ItemAssignmentAdapter());
+    registerAdapter(PaymentStatusAdapter());
     registerAdapter(PersonAdapter());
     registerAdapter(PersonShareAdapter());
     registerAdapter(ReceiptAdapter());

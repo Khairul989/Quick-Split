@@ -25,9 +25,7 @@ class PersonSelectorBottomSheet extends ConsumerWidget {
       height: MediaQuery.of(context).size.height * 0.6,
       decoration: BoxDecoration(
         color: colorScheme.surface,
-        borderRadius: const BorderRadius.vertical(
-          top: Radius.circular(24),
-        ),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
       ),
       child: Column(
         children: [
@@ -69,9 +67,10 @@ class PersonSelectorBottomSheet extends ConsumerWidget {
                   },
                   secondary: CircleAvatar(
                     backgroundColor: colorScheme.primary,
-                    child: Text(
-                      person.emoji,
-                      style: const TextStyle(fontSize: 18),
+                    child: Icon(
+                      Icons.person,
+                      color: colorScheme.onPrimary,
+                      size: 16,
                     ),
                   ),
                   title: Text(

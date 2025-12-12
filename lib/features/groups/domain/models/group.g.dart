@@ -22,6 +22,7 @@ class GroupAdapter extends TypeAdapter<Group> {
       personIds: (fields[2] as List).cast<String>(),
       createdAt: fields[3] as DateTime?,
       lastUsedAt: fields[4] as DateTime?,
+      imagePath: fields[6] as String?,
       usageCount: fields[5] == null ? 0 : (fields[5] as num).toInt(),
     );
   }
@@ -29,7 +30,7 @@ class GroupAdapter extends TypeAdapter<Group> {
   @override
   void write(BinaryWriter writer, Group obj) {
     writer
-      ..writeByte(6)
+      ..writeByte(7)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -41,7 +42,9 @@ class GroupAdapter extends TypeAdapter<Group> {
       ..writeByte(4)
       ..write(obj.lastUsedAt)
       ..writeByte(5)
-      ..write(obj.usageCount);
+      ..write(obj.usageCount)
+      ..writeByte(6)
+      ..write(obj.imagePath);
   }
 
   @override

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../../domain/models/person_share.dart';
 
 /// Widget displaying a person's share breakdown in an expandable card
@@ -7,10 +8,7 @@ import '../../domain/models/person_share.dart';
 class PersonShareCard extends StatelessWidget {
   final PersonShare share;
 
-  const PersonShareCard({
-    required this.share,
-    super.key,
-  });
+  const PersonShareCard({required this.share, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -21,19 +19,18 @@ class PersonShareCard extends StatelessWidget {
       color: Colors.transparent,
       child: ExpansionTile(
         tilePadding: EdgeInsets.zero,
-        collapsedBackgroundColor: colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
-        backgroundColor: colorScheme.surfaceContainerHighest.withValues(alpha: 0.7),
+        collapsedBackgroundColor: colorScheme.surfaceContainerHighest
+            .withValues(alpha: 0.5),
+        backgroundColor: colorScheme.surfaceContainerHighest.withValues(
+          alpha: 0.7,
+        ),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
-          side: BorderSide(
-            color: colorScheme.outline.withValues(alpha: 0.2),
-          ),
+          side: BorderSide(color: colorScheme.outline.withValues(alpha: 0.2)),
         ),
         collapsedShape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
-          side: BorderSide(
-            color: colorScheme.outline.withValues(alpha: 0.2),
-          ),
+          side: BorderSide(color: colorScheme.outline.withValues(alpha: 0.2)),
         ),
         title: Row(
           children: [
@@ -41,22 +38,13 @@ class PersonShareCard extends StatelessWidget {
             Container(
               width: 48,
               height: 48,
+              margin: EdgeInsets.only(left: 8),
               decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    colorScheme.primary,
-                    colorScheme.secondary,
-                  ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
+                color: colorScheme.primary.withAlpha(25),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Center(
-                child: Text(
-                  share.personEmoji,
-                  style: const TextStyle(fontSize: 24),
-                ),
+                child: Icon(Icons.person, color: colorScheme.primary, size: 24),
               ),
             ),
             const SizedBox(width: 16),
@@ -170,9 +158,7 @@ class _BreakdownRow extends StatelessWidget {
         Text(
           label,
           style: isBold
-              ? textTheme.bodySmall?.copyWith(
-                  fontWeight: FontWeight.w700,
-                )
+              ? textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w700)
               : textTheme.bodySmall,
         ),
         Text(

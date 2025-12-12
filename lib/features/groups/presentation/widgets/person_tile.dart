@@ -3,12 +3,14 @@ import '../../domain/models/person.dart';
 
 class PersonTile extends StatelessWidget {
   final Person person;
-  final VoidCallback onRemove;
+  final VoidCallback? onRemove;
+  final VoidCallback? onEdit;
   final bool isRemovable;
 
   const PersonTile({
     required this.person,
-    required this.onRemove,
+    this.onRemove,
+    this.onEdit,
     this.isRemovable = true,
     super.key,
   });
@@ -75,8 +77,28 @@ class PersonTile extends StatelessWidget {
 
               const SizedBox(width: 12),
 
-              // Trailing delete button
-              if (isRemovable)
+              // Trailing actions
+              if (isRemovable && onEdit != null)
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      icon: Icon(
+                        Icons.edit_rounded,
+                        color: colorScheme.primary,
+                      ),
+                      onPressed: onEdit,
+                      tooltip: 'Edit ${person.name}',
+                      constraints: const BoxConstraints(
+                        minWidth: 40,
+                        minHeight: 40,
+                      ),
+                      splashRadius: 20,
+                    ),
+                    const SizedBox(width: 4),
+                  ],
+                )
+              else if (isRemovable)
                 IconButton(
                   icon: Icon(
                     Icons.close_rounded,

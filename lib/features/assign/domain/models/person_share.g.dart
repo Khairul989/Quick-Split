@@ -26,13 +26,19 @@ class PersonShareAdapter extends TypeAdapter<PersonShare> {
       rounding: (fields[6] as num).toDouble(),
       total: (fields[7] as num).toDouble(),
       assignedItemIds: (fields[8] as List).cast<String>(),
+      paymentStatus: fields[9] == null
+          ? PaymentStatus.unpaid
+          : fields[9] as PaymentStatus,
+      amountPaid: (fields[10] as num?)?.toDouble(),
+      lastPaidAt: fields[11] as DateTime?,
+      paymentNotes: fields[12] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, PersonShare obj) {
     writer
-      ..writeByte(9)
+      ..writeByte(13)
       ..writeByte(0)
       ..write(obj.personId)
       ..writeByte(1)
@@ -50,7 +56,15 @@ class PersonShareAdapter extends TypeAdapter<PersonShare> {
       ..writeByte(7)
       ..write(obj.total)
       ..writeByte(8)
-      ..write(obj.assignedItemIds);
+      ..write(obj.assignedItemIds)
+      ..writeByte(9)
+      ..write(obj.paymentStatus)
+      ..writeByte(10)
+      ..write(obj.amountPaid)
+      ..writeByte(11)
+      ..write(obj.lastPaidAt)
+      ..writeByte(12)
+      ..write(obj.paymentNotes);
   }
 
   @override

@@ -32,7 +32,7 @@ class MockGroupsNotifier extends GroupsNotifier {
   }
 
   @override
-  Future<Group> createGroup(String name, List<Person> people) async {
+  Future<Group> createGroup(String name, List<Person> people, {String? imagePath}) async {
     _createdGroup = Group(
       name: name,
       personIds: people.map((p) => p.id).toList(),

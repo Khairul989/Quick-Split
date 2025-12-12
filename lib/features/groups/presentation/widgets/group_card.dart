@@ -1,7 +1,47 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../domain/models/group.dart';
 import '../providers/group_providers.dart';
+
+Widget _buildGradientIcon(ColorScheme colorScheme, {double size = 20}) {
+  return Container(
+    width: size + 8,
+    height: size + 8,
+    decoration: BoxDecoration(
+      gradient: LinearGradient(
+        colors: [
+          colorScheme.primary,
+          colorScheme.primary.withValues(alpha: 0.7),
+        ],
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      ),
+      borderRadius: BorderRadius.circular(12),
+    ),
+    child: Icon(
+      Icons.people_rounded,
+      size: size,
+      color: Colors.white,
+    ),
+  );
+}
+
+Widget _buildGroupImage(Group group, ColorScheme colorScheme, {double size = 40}) {
+  return ClipRRect(
+    borderRadius: BorderRadius.circular(12),
+    child: Image.file(
+      File(group.imagePath!),
+      width: size + 8,
+      height: size + 8,
+      fit: BoxFit.cover,
+      errorBuilder: (context, error, stackTrace) {
+        // Fallback to gradient icon if image fails to load
+        return _buildGradientIcon(colorScheme, size: size);
+      },
+    ),
+  );
+}
 
 class GroupCard extends ConsumerWidget {
   final Group group;
@@ -70,45 +110,24 @@ class _CompactCard extends StatelessWidget {
         child: Container(
           decoration: BoxDecoration(
             color: colorScheme.surface,
-            border: Border.all(
-              color: colorScheme.outlineVariant,
-              width: 1,
-            ),
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.04),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
+                color: colorScheme.shadow.withValues(alpha: 0.1),
+                blurRadius: 12,
+                offset: const Offset(0, 4),
               ),
             ],
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Header with gradient icon
+              // Header with group image or gradient icon
               Padding(
                 padding: const EdgeInsets.all(12),
-                child: Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        colorScheme.primary,
-                        colorScheme.primary.withValues(alpha: 0.7),
-                      ],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Icon(
-                    Icons.people_rounded,
-                    size: 20,
-                    color: Colors.white,
-                  ),
-                ),
+                child: group.imagePath != null
+                    ? _buildGroupImage(group, colorScheme, size: 20)
+                    : _buildGradientIcon(colorScheme, size: 20),
               ),
 
               // Group name
@@ -124,7 +143,7 @@ class _CompactCard extends StatelessWidget {
                 ),
               ),
 
-              const SizedBox(height: 4),
+              const SizedBox(height: 2),
 
               // Member count
               Padding(
@@ -143,7 +162,7 @@ class _CompactCard extends StatelessWidget {
                   left: 12,
                   right: 12,
                   top: 4,
-                  bottom: 12,
+                  bottom: 8,
                 ),
                 child: Text(
                   'Used ${_formatDate(group.lastUsedAt)}',
@@ -192,7 +211,7 @@ class _CompactCard extends StatelessWidget {
                   ),
                 ),
 
-              const SizedBox(height: 12),
+              const SizedBox(height: 8),
             ],
           ),
         ),
@@ -243,16 +262,12 @@ class _ExpandedCard extends StatelessWidget {
         child: Container(
           decoration: BoxDecoration(
             color: colorScheme.surface,
-            border: Border.all(
-              color: colorScheme.outlineVariant,
-              width: 1,
-            ),
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.04),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
+                color: colorScheme.shadow.withValues(alpha: 0.1),
+                blurRadius: 12,
+                offset: const Offset(0, 4),
               ),
             ],
           ),
@@ -261,29 +276,12 @@ class _ExpandedCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Header with gradient icon and title
+                // Header with group image or gradient icon and title
                 Row(
                   children: [
-                    Container(
-                      width: 48,
-                      height: 48,
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [
-                            colorScheme.primary,
-                            colorScheme.primary.withValues(alpha: 0.7),
-                          ],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: const Icon(
-                        Icons.people_rounded,
-                        size: 24,
-                        color: Colors.white,
-                      ),
-                    ),
+                    group.imagePath != null
+                        ? _buildGroupImage(group, colorScheme, size: 24)
+                        : _buildGradientIcon(colorScheme, size: 24),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Column(

@@ -5,12 +5,11 @@ import 'package:hive_ce_flutter/hive_flutter.dart';
 import 'core/providers/theme_provider.dart';
 import 'core/router/router.dart';
 import 'core/theme/theme.dart';
-import 'features/assign/domain/models/item_assignment.dart';
-import 'features/assign/domain/models/person_share.dart';
 import 'features/assign/domain/models/split_session.dart';
 import 'features/groups/domain/models/group.dart';
 import 'features/groups/domain/models/person.dart';
 import 'features/ocr/domain/models/receipt.dart';
+import 'hive_registrar.g.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -28,14 +27,8 @@ Future<void> _initializeHive() async {
     // Initialize Hive for Flutter (handles platform-specific setup)
     await Hive.initFlutter();
 
-    // Register adapters for Phase 3 models
-    Hive.registerAdapter(PersonAdapter());
-    Hive.registerAdapter(GroupAdapter());
-    Hive.registerAdapter(ItemAssignmentAdapter());
-    Hive.registerAdapter(PersonShareAdapter());
-    Hive.registerAdapter(SplitSessionAdapter());
-    Hive.registerAdapter(ReceiptItemAdapter());
-    Hive.registerAdapter(ReceiptAdapter());
+    // Register all Hive type adapters using auto-generated registrar
+    Hive.registerAdapters();
 
     // Create boxes for different data types
     // Each box is like a table in a database

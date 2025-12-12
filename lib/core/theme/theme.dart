@@ -1,46 +1,68 @@
 import 'package:flutter/material.dart';
 
 /// App theme configuration for QuickSplit
-/// Supports both light and dark modes with explicit color definitions
+/// Updated using OPTION A — Modern Fintech Blue palette
 class QuickSplitTheme {
-  // Prevent instantiation
   QuickSplitTheme._();
 
-  /// Light theme
+  /// ===== COLOR PALETTE =====
+  static const Color primary600 = Color(0xFF2563EB);
+  static const Color primary500 = Color(0xFF3B82F6);
+  static const Color primary400 = Color(0xFF60A5FA);
+  static const Color primary300 = Color(0xFF93C5FD);
+  static const Color primaryDark = Color(0xFF1E40AF);
+
+  static const Color accentMint = Color(0xFF10B981);
+
+  static const Color bgLight = Color(0xFFF8FAFC);
+  static const Color surfaceLight = Color(0xFFFFFFFF);
+  static const Color textPrimaryLight = Color(0xFF0F172A);
+  static const Color textSecondaryLight = Color(0xFF475569);
+  static const Color borderLight = Color(0xFFE2E8F0);
+
+  static const Color bgDark = Color(0xFF0F172A);
+  static const Color surfaceDark = Color(0xFF1E293B);
+  static const Color textPrimaryDark = Color(0xFFF1F5F9);
+  static const Color textSecondaryDark = Color(0xFFCBD5E1);
+  static const Color borderDark = Color(0xFF334155);
+
+  /// ============================================================
+  /// LIGHT THEME
+  /// ============================================================
   static ThemeData get light {
     return ThemeData(
       brightness: Brightness.light,
-      primaryColor: const Color(0xFF248CFF),
-      scaffoldBackgroundColor: const Color(0xFFF7F9FC),
+      primaryColor: primary600,
+      scaffoldBackgroundColor: bgLight,
       fontFamily: 'Inter',
 
       colorScheme: const ColorScheme.light(
-        primary: Color(0xFF248CFF),
-        primaryContainer: Color(0xFFA7D4FF),
-        secondary: Color(0xFF10B981),
-        surface: Color(0xFFFFFFFF),
+        primary: primary600,
+        primaryContainer: primary300,
+        secondary: accentMint,
+        surface: surfaceLight,
         onPrimary: Colors.white,
-        onSurface: Color(0xFF1F2937),
+        onSurface: textPrimaryLight,
         error: Color(0xFFDC2626),
       ),
 
       appBarTheme: const AppBarTheme(
-        backgroundColor: Colors.white,
+        backgroundColor: surfaceLight,
         elevation: 0,
-        foregroundColor: Color(0xFF1F2937),
+        foregroundColor: textPrimaryLight,
       ),
 
-      dividerColor: const Color(0xFFE5E7EB),
+      dividerColor: borderLight,
 
       textTheme: const TextTheme(
-        bodyLarge: TextStyle(color: Color(0xFF1F2937)),
-        bodyMedium: TextStyle(color: Color(0xFF1F2937)),
-        labelLarge: TextStyle(color: Color(0xFF1F2937)),
+        bodyLarge: TextStyle(color: textPrimaryLight),
+        bodyMedium: TextStyle(color: textPrimaryLight),
+        labelLarge: TextStyle(color: textPrimaryLight),
       ),
 
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFF248CFF),
+          backgroundColor: primary600,
           foregroundColor: Colors.white,
           padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 20),
           shape: RoundedRectangleBorder(
@@ -51,8 +73,8 @@ class QuickSplitTheme {
 
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
-          foregroundColor: const Color(0xFF248CFF),
-          side: const BorderSide(color: Color(0xFF248CFF)),
+          foregroundColor: primary600,
+          side: const BorderSide(color: primary600),
           padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 20),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
@@ -60,69 +82,88 @@ class QuickSplitTheme {
         ),
       ),
 
+      /// *** TEXT BUTTON STYLE (ADDED) ***
+      textButtonTheme: TextButtonThemeData(
+        style:
+            TextButton.styleFrom(
+              foregroundColor: primary600,
+              textStyle: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            ).copyWith(
+              overlayColor: WidgetStateProperty.all(
+                primary300.withOpacity(0.2),
+              ),
+            ),
+      ),
+
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: const Color(0xFFF0F3F8),
+        fillColor: const Color(0xFFF1F5F9),
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 16,
           vertical: 12,
         ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
+          borderSide: const BorderSide(color: borderLight),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
+          borderSide: const BorderSide(color: borderLight),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xFF248CFF), width: 2),
+          borderSide: const BorderSide(color: primary600, width: 2),
         ),
-        labelStyle: const TextStyle(color: Color(0xFF6B7280)),
-        hintStyle: const TextStyle(color: Color(0xFF9CA3AF)),
+        labelStyle: const TextStyle(color: textSecondaryLight),
+        hintStyle: const TextStyle(color: Color(0xFF94A3B8)),
       ),
 
       cardTheme: CardThemeData(
-        color: Colors.white,
+        color: surfaceLight,
         elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
-          side: const BorderSide(color: Color(0xFFE5E7EB)),
+          side: const BorderSide(color: borderLight),
         ),
       ),
     );
   }
 
-  /// Dark theme
+  /// ============================================================
+  /// DARK THEME
+  /// ============================================================
   static ThemeData get dark {
     return ThemeData(
       brightness: Brightness.dark,
-      primaryColor: const Color(0xFF3EA8FF),
-      scaffoldBackgroundColor: const Color(0xFF0F172A),
+      primaryColor: primaryDark,
+      scaffoldBackgroundColor: bgDark,
       fontFamily: 'Inter',
 
       colorScheme: const ColorScheme.dark(
-        primary: Color(0xFF3EA8FF),
-        primaryContainer: Color(0xFF1E293B),
-        secondary: Color(0xFF10B981),
-        surface: Color(0xFF1E293B),
+        primary: primaryDark,
+        primaryContainer: surfaceDark,
+        secondary: accentMint,
+        surface: surfaceDark,
         onPrimary: Colors.white,
-        onSurface: Color(0xFFF8FAFC),
+        onSurface: textPrimaryDark,
         error: Color(0xFFDC2626),
       ),
 
-      dividerColor: const Color(0xFF334155),
+      dividerColor: borderDark,
 
       textTheme: const TextTheme(
-        bodyLarge: TextStyle(color: Color(0xFFF8FAFC)),
-        bodyMedium: TextStyle(color: Color(0xFFF8FAFC)),
-        labelLarge: TextStyle(color: Color(0xFFF8FAFC)),
+        bodyLarge: TextStyle(color: textPrimaryDark),
+        bodyMedium: TextStyle(color: textPrimaryDark),
+        labelLarge: TextStyle(color: textPrimaryDark),
       ),
 
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFF3EA8FF),
+          backgroundColor: primaryDark,
           foregroundColor: Colors.white,
           padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 20),
           shape: RoundedRectangleBorder(
@@ -133,8 +174,8 @@ class QuickSplitTheme {
 
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
-          foregroundColor: const Color(0xFF3EA8FF),
-          side: const BorderSide(color: Color(0xFF3EA8FF)),
+          foregroundColor: primaryDark,
+          side: const BorderSide(color: primaryDark),
           padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 20),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
@@ -142,35 +183,52 @@ class QuickSplitTheme {
         ),
       ),
 
+      /// *** TEXT BUTTON STYLE (ADDED) ***
+      textButtonTheme: TextButtonThemeData(
+        style:
+            TextButton.styleFrom(
+              foregroundColor: primary400,
+              textStyle: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            ).copyWith(
+              overlayColor: WidgetStateProperty.all(
+                primaryDark.withOpacity(0.25),
+              ),
+            ),
+      ),
+
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: const Color(0xFF1E293B),
+        fillColor: surfaceDark,
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 16,
           vertical: 12,
         ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xFF334155)),
+          borderSide: const BorderSide(color: borderDark),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xFF334155)),
+          borderSide: const BorderSide(color: borderDark),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xFF3EA8FF), width: 2),
+          borderSide: const BorderSide(color: primaryDark, width: 2),
         ),
-        labelStyle: const TextStyle(color: Color(0xFFCBD5E1)),
+        labelStyle: const TextStyle(color: textSecondaryDark),
         hintStyle: const TextStyle(color: Color(0xFF94A3B8)),
       ),
 
       cardTheme: CardThemeData(
-        color: const Color(0xFF1E293B),
+        color: surfaceDark,
         elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
-          side: const BorderSide(color: Color(0xFF334155)),
+          side: const BorderSide(color: borderDark),
         ),
       ),
     );

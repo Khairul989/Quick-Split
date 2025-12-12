@@ -1,17 +1,20 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:quicksplit/core/router/router.dart';
 import 'package:quicksplit/features/assign/presentation/providers/session_provider.dart';
 import 'package:quicksplit/features/ocr/domain/models/receipt.dart';
+
 import '../../domain/models/person.dart';
 import '../providers/group_providers.dart';
 import '../widgets/add_person_tile.dart';
 import '../widgets/person_tile.dart';
 
 class GroupCreateScreen extends ConsumerStatefulWidget {
-  final Receipt receipt;
-  const GroupCreateScreen({required this.receipt, super.key});
+  final Receipt? receipt;
+  const GroupCreateScreen({this.receipt, super.key});
 
   @override
   ConsumerState<GroupCreateScreen> createState() => _GroupCreateScreenState();
@@ -23,6 +26,7 @@ class _GroupCreateScreenState extends ConsumerState<GroupCreateScreen> {
   bool _showAddPersonForm = false;
   bool _isLoading = false;
   String? _groupNameError;
+  String? _selectedImagePath;
 
   @override
   void dispose() {
@@ -55,6 +59,102 @@ class _GroupCreateScreenState extends ConsumerState<GroupCreateScreen> {
     });
   }
 
+  Future<void> _pickImage() async {
+    final picker = ImagePicker();
+
+    // Show dialog to choose between camera and gallery
+    return showDialog<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Select Image Source'),
+          content: const Text('Choose where to get the image from'),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: const Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.camera_alt),
+                  SizedBox(width: 8),
+                  Text('Camera'),
+                ],
+              ),
+              onPressed: () async {
+                Navigator.of(context).pop();
+                final XFile? image = await picker.pickImage(
+                  source: ImageSource.camera,
+                  imageQuality: 80,
+                );
+                if (image != null) {
+                  setState(() {
+                    _selectedImagePath = image.path;
+                  });
+                }
+              },
+            ),
+            TextButton(
+              child: const Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.photo_library),
+                  SizedBox(width: 8),
+                  Text('Gallery'),
+                ],
+              ),
+              onPressed: () async {
+                Navigator.of(context).pop();
+                final XFile? image = await picker.pickImage(
+                  source: ImageSource.gallery,
+                  imageQuality: 80,
+                );
+                if (image != null) {
+                  setState(() {
+                    _selectedImagePath = image.path;
+                  });
+                }
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _removeImage() {
+    setState(() {
+      _selectedImagePath = null;
+    });
+  }
+
+  Widget _buildDefaultIcon(ColorScheme colorScheme) {
+    return Container(
+      width: 116,
+      height: 116,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        gradient: LinearGradient(
+          colors: [
+            colorScheme.primary,
+            colorScheme.primary.withValues(alpha: 0.7),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+      ),
+      child: const Icon(
+        Icons.groups_rounded,
+        size: 48,
+        color: Colors.white,
+      ),
+    );
+  }
+
   Future<void> _handleSaveGroup() async {
     _validateGroupName();
 
@@ -82,10 +182,9 @@ class _GroupCreateScreenState extends ConsumerState<GroupCreateScreen> {
           : _groupNameController.text.trim();
 
       // Create group via provider
-      final group = await ref.read(groupsProvider.notifier).createGroup(
-            groupName,
-            _selectedPeople,
-          );
+      final group = await ref
+          .read(groupsProvider.notifier)
+          .createGroup(groupName, _selectedPeople, imagePath: _selectedImagePath);
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -95,15 +194,35 @@ class _GroupCreateScreenState extends ConsumerState<GroupCreateScreen> {
           ),
         );
 
-        // Start session with newly created group
-        ref.read(sessionProvider.notifier).startSession(
-          receipt: widget.receipt,
-          group: group,
-          participants: _selectedPeople,
-        );
+        // Only start session if coming from receipt flow
+        if (widget.receipt != null) {
+          ref
+              .read(sessionProvider.notifier)
+              .startSession(
+                receipt: widget.receipt!,
+                group: group,
+                participants: _selectedPeople,
+              );
 
-        // Navigate to assign items screen
-        context.pushNamed(RouteNames.assignItems);
+          if (mounted) {
+            context.pushReplacementNamed(RouteNames.assignItems);
+          }
+        } else {
+          // Created standalone group, show success and go back
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Group "$groupName" created successfully'),
+                backgroundColor: Colors.green,
+                behavior: SnackBarBehavior.floating,
+                duration: const Duration(seconds: 2),
+              ),
+            );
+
+            // Pop back to previous screen (GroupsList or Home)
+            context.pop();
+          }
+        }
       }
     } catch (e) {
       if (mounted) {
@@ -126,10 +245,7 @@ class _GroupCreateScreenState extends ConsumerState<GroupCreateScreen> {
     if (_selectedPeople.isEmpty) return 'New Group';
     if (_selectedPeople.length == 1) return _selectedPeople.first.name;
 
-    final names = _selectedPeople
-        .take(2)
-        .map((p) => p.name)
-        .join(' & ');
+    final names = _selectedPeople.take(2).map((p) => p.name).join(' & ');
 
     if (_selectedPeople.length > 2) {
       return '$names +${_selectedPeople.length - 2}';
@@ -172,8 +288,9 @@ class _GroupCreateScreenState extends ConsumerState<GroupCreateScreen> {
                         backgroundColor: canSave
                             ? colorScheme.primary
                             : colorScheme.primary.withValues(alpha: 0.5),
-                        disabledBackgroundColor:
-                            colorScheme.primary.withValues(alpha: 0.5),
+                        disabledBackgroundColor: colorScheme.primary.withValues(
+                          alpha: 0.5,
+                        ),
                       ),
                       child: Text(
                         'Save',
@@ -192,6 +309,106 @@ class _GroupCreateScreenState extends ConsumerState<GroupCreateScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Avatar section
+              Center(
+                child: Container(
+                  width: 120,
+                  height: 120,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: colorScheme.outlineVariant,
+                      width: 2,
+                    ),
+                  ),
+                  child: Stack(
+                    children: [
+                      // Background circle
+                      Container(
+                        width: 120,
+                        height: 120,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: colorScheme.primaryContainer.withValues(alpha: 0.5),
+                        ),
+                      ),
+                      // Image or default icon
+                      if (_selectedImagePath != null)
+                        ClipOval(
+                          child: Image.file(
+                            File(_selectedImagePath!),
+                            width: 116,
+                            height: 116,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) {
+                              return _buildDefaultIcon(colorScheme);
+                            },
+                          ),
+                        )
+                      else
+                        _buildDefaultIcon(colorScheme),
+                      // Edit button overlay
+                      Positioned(
+                        bottom: 0,
+                        right: 0,
+                        child: Container(
+                          width: 36,
+                          height: 36,
+                          decoration: BoxDecoration(
+                            color: colorScheme.primary,
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: colorScheme.surface,
+                              width: 2,
+                            ),
+                          ),
+                          child: IconButton(
+                            icon: Icon(
+                              _selectedImagePath != null
+                                  ? Icons.edit_rounded
+                                  : Icons.add_a_photo_rounded,
+                              color: Colors.white,
+                              size: 20,
+                            ),
+                            onPressed: _pickImage,
+                            visualDensity: VisualDensity.compact,
+                          ),
+                        ),
+                      ),
+                      // Remove button if image is selected
+                      if (_selectedImagePath != null)
+                        Positioned(
+                          top: 0,
+                          right: 0,
+                          child: Container(
+                            width: 28,
+                            height: 28,
+                            decoration: BoxDecoration(
+                              color: colorScheme.error,
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: colorScheme.surface,
+                                width: 2,
+                              ),
+                            ),
+                            child: IconButton(
+                              icon: const Icon(
+                                Icons.close_rounded,
+                                color: Colors.white,
+                                size: 16,
+                              ),
+                              onPressed: _removeImage,
+                              visualDensity: VisualDensity.compact,
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 16),
+
               // Group name section
               Text(
                 'Group Name',
@@ -274,20 +491,17 @@ class _GroupCreateScreenState extends ConsumerState<GroupCreateScreen> {
 
               // List of selected people
               if (_selectedPeople.isNotEmpty)
-                ...List.generate(
-                  _selectedPeople.length,
-                  (index) {
-                    final person = _selectedPeople[index];
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
-                      child: PersonTile(
-                        person: person,
-                        onRemove: () => _handleRemovePerson(index),
-                        isRemovable: true,
-                      ),
-                    );
-                  },
-                ),
+                ...List.generate(_selectedPeople.length, (index) {
+                  final person = _selectedPeople[index];
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: PersonTile(
+                      person: person,
+                      onRemove: () => _handleRemovePerson(index),
+                      isRemovable: true,
+                    ),
+                  );
+                }),
 
               // Add person form or button
               if (!_showAddPersonForm)

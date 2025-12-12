@@ -76,14 +76,11 @@ class RecentSplitCard extends StatelessWidget {
           decoration: BoxDecoration(
             color: colorScheme.surface,
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: colorScheme.outline.withValues(alpha: 0.2),
-            ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.05),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
+                color: colorScheme.shadow.withValues(alpha: 0.1),
+                blurRadius: 12,
+                offset: const Offset(0, 4),
               ),
             ],
           ),

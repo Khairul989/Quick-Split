@@ -23,12 +23,16 @@ class Group extends HiveObject {
   @HiveField(5)
   late int usageCount;
 
+  @HiveField(6)
+  String? imagePath;
+
   Group({
     String? id,
     required this.name,
     required this.personIds,
     DateTime? createdAt,
     DateTime? lastUsedAt,
+    this.imagePath,
     this.usageCount = 0,
   })  : id = id ?? const Uuid().v4(),
         createdAt = createdAt ?? DateTime.now(),
@@ -42,6 +46,7 @@ class Group extends HiveObject {
   Group copyWith({
     String? name,
     List<String>? personIds,
+    String? imagePath,
   }) {
     return Group(
       id: id,
@@ -49,6 +54,7 @@ class Group extends HiveObject {
       personIds: personIds ?? this.personIds,
       createdAt: createdAt,
       lastUsedAt: lastUsedAt,
+      imagePath: imagePath ?? this.imagePath,
       usageCount: usageCount,
     );
   }
