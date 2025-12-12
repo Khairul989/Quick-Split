@@ -840,9 +840,11 @@ class _HistoryDetailScreenState extends ConsumerState<HistoryDetailScreen> {
       }
 
       // Show success message
-      _showSnackBar(
-        '${updatedShare.personName} marked as ${updatedShare.paymentStatus.displayName}',
-      );
+      if (mounted) {
+        _showSnackBar(
+          '${updatedShare.personName} marked as ${updatedShare.paymentStatus.displayName}',
+        );
+      }
     } catch (e) {
       if (mounted) {
         _showSnackBar(
@@ -876,6 +878,7 @@ class _HistoryDetailScreenState extends ConsumerState<HistoryDetailScreen> {
     BuildContext context,
     SplitSession session,
   ) async {
+    final errorColor = Theme.of(context).colorScheme.error;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -925,7 +928,7 @@ class _HistoryDetailScreenState extends ConsumerState<HistoryDetailScreen> {
         if (mounted) {
           _showSnackBar(
             'Failed to update payments: $e',
-            backgroundColor: Theme.of(context).colorScheme.error,
+            backgroundColor: errorColor,
           );
         }
       }
@@ -936,6 +939,7 @@ class _HistoryDetailScreenState extends ConsumerState<HistoryDetailScreen> {
     BuildContext context,
     SplitSession session,
   ) async {
+    final errorColor = Theme.of(context).colorScheme.error;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -978,12 +982,14 @@ class _HistoryDetailScreenState extends ConsumerState<HistoryDetailScreen> {
         await historyBox.put(session.id, updatedSession);
 
         // Show success message
-        _showSnackBar('All payments have been reset');
+        if (mounted) {
+          _showSnackBar('All payments have been reset');
+        }
       } catch (e) {
         if (mounted) {
           _showSnackBar(
             'Failed to reset payments: $e',
-            backgroundColor: Theme.of(context).colorScheme.error,
+            backgroundColor: errorColor,
           );
         }
       }

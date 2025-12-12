@@ -125,7 +125,7 @@ class HomeGroupCard extends ConsumerWidget {
                                     height: 12,
                                     child: CircularProgressIndicator(strokeWidth: 1.5),
                                   ),
-                                  error: (_, __) => Text(
+                                  error: (error, stackTrace) => Text(
                                     'RM 0.00',
                                     style: theme.textTheme.bodyMedium?.copyWith(
                                       fontWeight: FontWeight.w700,

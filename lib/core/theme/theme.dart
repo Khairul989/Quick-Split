@@ -94,7 +94,7 @@ class QuickSplitTheme {
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             ).copyWith(
               overlayColor: WidgetStateProperty.all(
-                primary300.withOpacity(0.2),
+                primary300.withValues(alpha: 0.2),
               ),
             ),
       ),
@@ -195,7 +195,7 @@ class QuickSplitTheme {
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             ).copyWith(
               overlayColor: WidgetStateProperty.all(
-                primaryDark.withOpacity(0.25),
+                primaryDark.withValues(alpha: 0.25),
               ),
             ),
       ),

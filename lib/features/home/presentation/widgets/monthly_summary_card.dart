@@ -163,7 +163,7 @@ class MonthlySummaryCard extends ConsumerWidget {
                     ),
                     child: ref.watch(mostActiveGroupProvider).when(
                       loading: () => const SizedBox.shrink(),
-                      error: (_, __) => const SizedBox.shrink(),
+                      error: (error, stackTrace) => const SizedBox.shrink(),
                       data: (group) => group == null
                           ? Text(
                               'No active groups this month',

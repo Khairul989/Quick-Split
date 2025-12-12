@@ -59,7 +59,6 @@ final financialSummaryProvider = StreamProvider.autoDispose<FinancialSummary>((r
       );
     } catch (e) {
       // Return zero values on error
-      print('Error computing financial summary: $e');
       return const FinancialSummary(totalUnpaid: 0.0, totalPaidThisMonth: 0.0);
     }
   }
