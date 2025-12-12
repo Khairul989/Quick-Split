@@ -6,12 +6,14 @@ class PersonTile extends StatelessWidget {
   final VoidCallback? onRemove;
   final VoidCallback? onEdit;
   final bool isRemovable;
+  final bool isCurrentUser;
 
   const PersonTile({
     required this.person,
     this.onRemove,
     this.onEdit,
     this.isRemovable = true,
+    this.isCurrentUser = false,
     super.key,
   });
 
@@ -60,9 +62,9 @@ class PersonTile extends StatelessWidget {
 
               // Title with person name
               Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                child: Row(
                   children: [
+                    // Person name
                     Text(
                       person.name,
                       style: textTheme.titleSmall?.copyWith(
@@ -71,6 +73,26 @@ class PersonTile extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
+
+                    // "You" badge for current user
+                    if (isCurrentUser) ...[
+                      const SizedBox(width: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: colorScheme.primaryContainer,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Text(
+                          'You',
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                            color: colorScheme.onPrimaryContainer,
+                          ),
+                        ),
+                      ),
+                    ],
                   ],
                 ),
               ),

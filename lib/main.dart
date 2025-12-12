@@ -4,6 +4,7 @@ import 'package:hive_ce_flutter/hive_flutter.dart';
 
 import 'core/providers/theme_provider.dart';
 import 'core/router/router.dart';
+import 'core/services/firebase_service.dart';
 import 'core/theme/theme.dart';
 import 'features/assign/domain/models/split_session.dart';
 import 'features/groups/domain/models/group.dart';
@@ -16,6 +17,10 @@ void main() async {
 
   // Initialize Hive before building the app
   await _initializeHive();
+
+  // Initialize Firebase
+  await FirebaseService.initialize();
+  debugPrint('Firebase initialization successful');
 
   runApp(const ProviderScope(child: QuickSplitApp()));
 }

@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:permission_handler/permission_handler.dart';
-import '../providers/permissions_provider.dart';
+
 import '../../utils/permission_helper.dart';
+import '../providers/permissions_provider.dart';
 
 class PermissionsPage extends ConsumerWidget {
   const PermissionsPage({super.key});
@@ -14,71 +15,82 @@ class PermissionsPage extends ConsumerWidget {
 
     return Padding(
       padding: const EdgeInsets.all(24.0),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          // Title
-          Text(
-            'Grant Permissions',
-            style: theme.textTheme.headlineMedium?.copyWith(
-              fontWeight: FontWeight.bold,
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // Title
+            Text(
+              'Grant Permissions',
+              style: theme.textTheme.headlineMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
             ),
-          ),
-          const SizedBox(height: 12),
-          Text(
-            'We need a few permissions to provide the best experience',
-            style: theme.textTheme.bodyLarge?.copyWith(
-              color: theme.textTheme.bodyMedium?.color?.withValues(alpha: 0.7),
-            ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 40),
-
-          // Camera permission card
-          _PermissionCard(
-            permission: AppPermission.camera,
-            status: permissionsState.cameraStatus,
-            onRequest: () => ref.read(permissionsProvider.notifier).requestCameraPermission(),
-            onOpenSettings: () => ref.read(permissionsProvider.notifier).openSettings(),
-          ),
-          const SizedBox(height: 16),
-
-          // Contacts permission card
-          _PermissionCard(
-            permission: AppPermission.contacts,
-            status: permissionsState.contactsStatus,
-            onRequest: () => ref.read(permissionsProvider.notifier).requestContactsPermission(),
-            onOpenSettings: () => ref.read(permissionsProvider.notifier).openSettings(),
-          ),
-          const SizedBox(height: 24),
-
-          // Info text
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.blue.shade50,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Row(
-              children: [
-                Icon(
-                  Icons.info_outline,
-                  color: Colors.blue.shade700,
-                  size: 24,
+            const SizedBox(height: 12),
+            Text(
+              'We need a few permissions to provide the best experience',
+              style: theme.textTheme.bodyLarge?.copyWith(
+                color: theme.textTheme.bodyMedium?.color?.withValues(
+                  alpha: 0.7,
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    'You can change these permissions later in app settings',
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: Colors.blue.shade700,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 40),
+
+            // Camera permission card
+            _PermissionCard(
+              permission: AppPermission.camera,
+              status: permissionsState.cameraStatus,
+              onRequest: () => ref
+                  .read(permissionsProvider.notifier)
+                  .requestCameraPermission(),
+              onOpenSettings: () =>
+                  ref.read(permissionsProvider.notifier).openSettings(),
+            ),
+            const SizedBox(height: 16),
+
+            // Contacts permission card
+            _PermissionCard(
+              permission: AppPermission.contacts,
+              status: permissionsState.contactsStatus,
+              onRequest: () => ref
+                  .read(permissionsProvider.notifier)
+                  .requestContactsPermission(),
+              onOpenSettings: () =>
+                  ref.read(permissionsProvider.notifier).openSettings(),
+            ),
+            const SizedBox(height: 24),
+
+            // Info text
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: theme.colorScheme.surfaceContainerHighest,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: theme.colorScheme.outline, width: 1),
+              ),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.info_outline,
+                    color: theme.colorScheme.primary,
+                    size: 24,
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      'You can change these permissions later in app settings',
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: theme.colorScheme.onSurface,
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -107,14 +119,14 @@ class _PermissionCard extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: isGranted
-            ? Colors.green.shade50
-            : Colors.grey.shade100,
+            ? theme.colorScheme.surfaceContainerLowest
+            : theme.colorScheme.surfaceContainer,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: isGranted
-              ? Colors.green.shade200
-              : Colors.grey.shade300,
-          width: 1,
+              ? theme.colorScheme.primaryContainer
+              : theme.colorScheme.outline,
+          width: isGranted ? 2 : 1,
         ),
       ),
       child: Row(
@@ -125,14 +137,14 @@ class _PermissionCard extends StatelessWidget {
             height: 48,
             decoration: BoxDecoration(
               color: isGranted
-                  ? Colors.green.shade100
+                  ? theme.colorScheme.primaryContainer
                   : const Color(0xFF248CFF).withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(
               PermissionHelper.getPermissionIcon(permission),
               color: isGranted
-                  ? Colors.green.shade700
+                  ? theme.colorScheme.primary
                   : const Color(0xFF248CFF),
               size: 28,
             ),
@@ -150,13 +162,14 @@ class _PermissionCard extends StatelessWidget {
                       PermissionHelper.getPermissionTitle(permission),
                       style: theme.textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.w600,
+                        color: theme.colorScheme.onSurface,
                       ),
                     ),
                     if (isGranted) ...[
                       const SizedBox(width: 8),
                       Icon(
                         Icons.check_circle,
-                        color: Colors.green.shade700,
+                        color: theme.colorScheme.primary,
                         size: 20,
                       ),
                     ],
@@ -166,7 +179,9 @@ class _PermissionCard extends StatelessWidget {
                 Text(
                   PermissionHelper.getPermissionRationale(permission),
                   style: theme.textTheme.bodySmall?.copyWith(
-                    color: theme.textTheme.bodySmall?.color?.withValues(alpha: 0.7),
+                    color: theme.textTheme.bodySmall?.color?.withValues(
+                      alpha: 0.7,
+                    ),
                   ),
                 ),
               ],
@@ -180,8 +195,8 @@ class _PermissionCard extends StatelessWidget {
                 ? TextButton(
                     onPressed: onOpenSettings,
                     style: TextButton.styleFrom(
-                      backgroundColor: Colors.orange.shade100,
-                      foregroundColor: Colors.orange.shade700,
+                      backgroundColor: theme.colorScheme.tertiaryContainer,
+                      foregroundColor: theme.colorScheme.onTertiaryContainer,
                       padding: const EdgeInsets.symmetric(
                         horizontal: 16,
                         vertical: 8,

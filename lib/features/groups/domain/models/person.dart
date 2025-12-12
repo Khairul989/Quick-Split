@@ -1,5 +1,6 @@
 import 'package:hive_ce/hive.dart';
 import 'package:uuid/uuid.dart';
+import '../../../onboarding/data/models/user_profile.dart';
 
 part 'person.g.dart';
 
@@ -76,5 +77,24 @@ class Person extends HiveObject {
     final clean = phoneNumber!.replaceAll(RegExp(r'[^\d+\-\s]'), '');
     if (clean.isEmpty) return null;
     return clean;
+  }
+}
+
+/// Extension for converting UserProfile to Person
+extension PersonFromProfile on UserProfile {
+  /// Creates a Person from the current user's profile
+  /// Returns null if profile is incomplete (no name)
+  Person? toPerson() {
+    if (name.trim().isEmpty) return null;
+
+    return Person(
+      name: name,
+      emoji: emoji,
+      phoneNumber: null,
+      email: email,
+      contactId: null,
+      usageCount: 0,
+      lastUsedAt: null,
+    );
   }
 }

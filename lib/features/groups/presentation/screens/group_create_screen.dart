@@ -13,6 +13,7 @@ import '../providers/group_providers.dart';
 import '../widgets/add_person_tile.dart';
 import '../widgets/person_tile.dart';
 import '../widgets/contact_selector_bottom_sheet.dart';
+import '../../../onboarding/presentation/providers/user_profile_provider.dart';
 
 class GroupCreateScreen extends ConsumerStatefulWidget {
   final Receipt? receipt;
@@ -31,6 +32,31 @@ class _GroupCreateScreenState extends ConsumerState<GroupCreateScreen> {
   String? _selectedImagePath;
 
   @override
+  void initState() {
+    super.initState();
+
+    // Add current user as first member after frame renders
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _addCurrentUserAsMember();
+    });
+  }
+
+  /// Automatically adds the current user as the first member
+  void _addCurrentUserAsMember() {
+    try {
+      final currentUser = _getCurrentUserAsPerson();
+      if (currentUser != null && _selectedPeople.isEmpty) {
+        setState(() {
+          _selectedPeople.insert(0, currentUser);
+        });
+      }
+    } catch (e) {
+      // Silently fail if user profile cannot be loaded (e.g., in tests)
+      // The user can still manually add themselves
+    }
+  }
+
+  @override
   void dispose() {
     _groupNameController.dispose();
     super.dispose();
@@ -47,8 +73,44 @@ class _GroupCreateScreenState extends ConsumerState<GroupCreateScreen> {
     });
   }
 
+  /// Checks if a Person represents the current user
+  /// Matches by email (primary) or name+emoji (fallback)
+  bool _isCurrentUser(Person person) {
+    final userProfile = ref.read(userProfileProvider);
+    if (userProfile == null) return false;
+
+    // Primary: email matching (case-insensitive)
+    if (person.email != null && userProfile.email != null) {
+      return person.email!.toLowerCase() == userProfile.email!.toLowerCase();
+    }
+
+    // Fallback: exact name + emoji match
+    return person.name == userProfile.name && person.emoji == userProfile.emoji;
+  }
+
+  /// Gets the current user as a Person object
+  /// Returns null if user profile doesn't exist
+  Person? _getCurrentUserAsPerson() {
+    final userProfile = ref.read(userProfileProvider);
+    if (userProfile == null) return null;
+
+    return userProfile.toPerson();
+  }
+
   void _handleAddPerson(String name, String emoji) {
     final person = Person(name: name, emoji: emoji);
+
+    // Prevent adding current user manually
+    if (_isCurrentUser(person)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("You're already in this group"),
+          duration: Duration(seconds: 2),
+        ),
+      );
+      return;
+    }
+
     setState(() {
       _selectedPeople.add(person);
       _showAddPersonForm = false;
@@ -589,6 +651,7 @@ class _GroupCreateScreenState extends ConsumerState<GroupCreateScreen> {
                       person: person,
                       onRemove: () => _handleRemovePerson(index),
                       isRemovable: true,
+                      isCurrentUser: _isCurrentUser(person),
                     ),
                   );
                 }),

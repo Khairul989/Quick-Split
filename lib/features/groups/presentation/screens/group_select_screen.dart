@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:quicksplit/core/router/router.dart';
 import 'package:quicksplit/features/assign/presentation/providers/session_provider.dart';
 import 'package:quicksplit/features/ocr/domain/models/receipt.dart';
+
 import '../providers/group_providers.dart';
 import '../providers/preselected_group_provider.dart';
 import '../widgets/group_card.dart';
@@ -55,11 +56,13 @@ class _GroupSelectScreenState extends ConsumerState<GroupSelectScreen> {
       ref.read(groupsProvider.notifier).updateGroup(preselectedGroup);
 
       // Start session with the pre-selected group
-      ref.read(sessionProvider.notifier).startSession(
-        receipt: widget.receipt,
-        group: preselectedGroup,
-        participants: people,
-      );
+      ref
+          .read(sessionProvider.notifier)
+          .startSession(
+            receipt: widget.receipt,
+            group: preselectedGroup,
+            participants: people,
+          );
 
       // Clear pre-selection
       ref.read(preselectedGroupIdProvider.notifier).clear();
@@ -128,20 +131,27 @@ class _GroupSelectScreenState extends ConsumerState<GroupSelectScreen> {
                                   child: GroupCard(
                                     group: group,
                                     onTap: () {
-                                      final groupsState = ref.read(groupsProvider);
+                                      final groupsState = ref.read(
+                                        groupsProvider,
+                                      );
                                       final people = groupsState.people
-                                          .where((p) => group.personIds.contains(p.id))
+                                          .where(
+                                            (p) =>
+                                                group.personIds.contains(p.id),
+                                          )
                                           .toList();
                                       group.markUsed();
                                       ref
                                           .read(groupsProvider.notifier)
                                           .updateGroup(group);
 
-                                      ref.read(sessionProvider.notifier).startSession(
-                                        receipt: receipt,
-                                        group: group,
-                                        participants: people,
-                                      );
+                                      ref
+                                          .read(sessionProvider.notifier)
+                                          .startSession(
+                                            receipt: receipt,
+                                            group: group,
+                                            participants: people,
+                                          );
 
                                       context.pushNamed(RouteNames.assignItems);
                                     },
@@ -152,9 +162,7 @@ class _GroupSelectScreenState extends ConsumerState<GroupSelectScreen> {
                           ),
                         ),
                       ),
-                      const SliverToBoxAdapter(
-                        child: SizedBox(height: 24),
-                      ),
+                      const SliverToBoxAdapter(child: SizedBox(height: 24)),
                     ],
 
                     // All groups section
@@ -166,59 +174,54 @@ class _GroupSelectScreenState extends ConsumerState<GroupSelectScreen> {
                         ),
                       ),
                     ),
-                    const SliverToBoxAdapter(
-                      child: SizedBox(height: 12),
-                    ),
+                    const SliverToBoxAdapter(child: SizedBox(height: 12)),
                     SliverList(
-                      delegate: SliverChildBuilderDelegate(
-                        (context, index) {
-                          final group = groupsState.groups[index];
-                          return Padding(
-                            padding: const EdgeInsets.only(bottom: 12),
-                            child: GroupCard(
-                              group: group,
-                              isCompact: false,
-                              onTap: () {
-                                final groupsState = ref.read(groupsProvider);
-                                final people = groupsState.people
-                                    .where((p) => group.personIds.contains(p.id))
-                                    .toList();
-                                group.markUsed();
-                                ref
-                                    .read(groupsProvider.notifier)
-                                    .updateGroup(group);
+                      delegate: SliverChildBuilderDelegate((context, index) {
+                        final group = groupsState.groups[index];
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 12),
+                          child: GroupCard(
+                            group: group,
+                            isCompact: false,
+                            onTap: () {
+                              final groupsState = ref.read(groupsProvider);
+                              final people = groupsState.people
+                                  .where((p) => group.personIds.contains(p.id))
+                                  .toList();
+                              group.markUsed();
+                              ref
+                                  .read(groupsProvider.notifier)
+                                  .updateGroup(group);
 
-                                ref.read(sessionProvider.notifier).startSession(
-                                  receipt: receipt,
-                                  group: group,
-                                  participants: people,
-                                );
+                              ref
+                                  .read(sessionProvider.notifier)
+                                  .startSession(
+                                    receipt: receipt,
+                                    group: group,
+                                    participants: people,
+                                  );
 
-                                context.pushNamed(RouteNames.assignItems);
-                              },
-                            ),
-                          );
-                        },
-                        childCount: groupsState.groups.length,
-                      ),
+                              context.pushNamed(RouteNames.assignItems);
+                            },
+                          ),
+                        );
+                      }, childCount: groupsState.groups.length),
                     ),
-                    const SliverToBoxAdapter(
-                      child: SizedBox(height: 24),
-                    ),
+                    const SliverToBoxAdapter(child: SizedBox(height: 24)),
                   ],
                 ),
               ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          context.pushNamed(
-            RouteNames.groupCreate,
-            extra: receipt,
-          );
-        },
-        tooltip: 'Create New Group',
-        child: const Icon(Icons.add),
-      ),
+      // floatingActionButton: FloatingActionButton(
+      //   onPressed: () {
+      //     context.pushNamed(
+      //       RouteNames.groupCreate,
+      //       extra: receipt,
+      //     );
+      //   },
+      //   tooltip: 'Create New Group',
+      //   child: const Icon(Icons.add),
+      // ),
     );
   }
 }
@@ -302,10 +305,8 @@ class _EmptyState extends StatelessWidget {
 
           // CTA Button
           ElevatedButton(
-            onPressed: () => context.pushNamed(
-              RouteNames.groupCreate,
-              extra: receipt,
-            ),
+            onPressed: () =>
+                context.pushNamed(RouteNames.groupCreate, extra: receipt),
             style: ElevatedButton.styleFrom(
               padding: const EdgeInsets.symmetric(vertical: 16),
               shape: RoundedRectangleBorder(

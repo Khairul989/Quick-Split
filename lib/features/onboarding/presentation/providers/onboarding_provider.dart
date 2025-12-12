@@ -1,4 +1,5 @@
 import 'package:riverpod/riverpod.dart';
+
 import '../../data/repositories/onboarding_repository.dart';
 
 /// Immutable onboarding state
@@ -31,6 +32,21 @@ class OnboardingNotifier extends Notifier<OnboardingState> {
   @override
   OnboardingState build() {
     return const OnboardingState();
+  }
+
+  /// Update total pages dynamically (e.g., when skipping pages for
+  /// authenticated users).
+  void updateTotalPages(int totalPages) {
+    if (totalPages < 1) return;
+
+    if (state.totalPages != totalPages) {
+      state = state.copyWith(totalPages: totalPages);
+
+      // Clamp current page to valid range.
+      if (state.currentPage >= totalPages) {
+        state = state.copyWith(currentPage: totalPages - 1);
+      }
+    }
   }
 
   /// Move to the next page if available
@@ -70,6 +86,7 @@ class OnboardingNotifier extends Notifier<OnboardingState> {
 }
 
 /// Provider for onboarding state
-final onboardingProvider = NotifierProvider<OnboardingNotifier, OnboardingState>(
-  OnboardingNotifier.new,
-);
+final onboardingProvider =
+    NotifierProvider<OnboardingNotifier, OnboardingState>(
+      OnboardingNotifier.new,
+    );

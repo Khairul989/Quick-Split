@@ -1,16 +1,22 @@
+import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:quicksplit/features/auth/presentation/providers/auth_state_provider.dart';
+import 'package:quicksplit/features/onboarding/data/models/user_profile.dart';
+
 import '../../../../core/router/router.dart';
 import '../providers/onboarding_provider.dart';
 
 class OnboardingNavigationButtons extends ConsumerWidget {
   final PageController pageController;
+  final bool isAuthenticated;
   final Future<bool> Function()? onValidatePage;
 
   const OnboardingNavigationButtons({
     super.key,
     required this.pageController,
+    required this.isAuthenticated,
     this.onValidatePage,
   });
 
@@ -58,6 +64,32 @@ class OnboardingNavigationButtons extends ConsumerWidget {
                       await ref
                           .read(onboardingProvider.notifier)
                           .completeOnboarding();
+
+                      // If authenticated, create a default profile from auth
+                      // provider data and persist it immediately.
+                      if (isAuthenticated) {
+                        final firebaseUser =
+                            firebase_auth.FirebaseAuth.instance.currentUser;
+                        if (firebaseUser != null) {
+                          final derivedName =
+                              firebaseUser.displayName ??
+                              (firebaseUser.email?.split('@').first ?? 'User');
+
+                          final profile = UserProfile(
+                            name: derivedName,
+                            email: firebaseUser.email,
+                            emoji: '👤',
+                            createdAt: DateTime.now(),
+                          );
+
+                          // Saves to Firestore and also caches to Hive
+                          // (UserProfileRepository.saveUserProfile does both).
+                          await ref
+                              .read(userProfileRepositoryProvider)
+                              .saveUserProfile(firebaseUser.uid, profile);
+                        }
+                      }
+
                       if (context.mounted) {
                         context.go('/${RouteNames.home}');
                       }

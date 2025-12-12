@@ -2,23 +2,28 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hive_ce/hive.dart';
-import 'package:quicksplit/features/onboarding/presentation/screens/onboarding_screen.dart';
 import 'package:quicksplit/features/assign/presentation/screens/assign_items_screen.dart';
 import 'package:quicksplit/features/assign/presentation/screens/summary_screen.dart';
-import 'package:quicksplit/features/groups/presentation/screens/group_create_screen.dart';
-import 'package:quicksplit/features/groups/presentation/screens/group_edit_screen.dart';
-import 'package:quicksplit/features/groups/presentation/screens/group_select_screen.dart';
+import 'package:quicksplit/features/auth/presentation/providers/auth_state_provider.dart';
+import 'package:quicksplit/features/auth/presentation/screens/forgot_password_screen.dart';
+import 'package:quicksplit/features/auth/presentation/screens/login_screen.dart';
+import 'package:quicksplit/features/auth/presentation/screens/signup_screen.dart';
+import 'package:quicksplit/features/auth/presentation/screens/welcome_screen.dart';
 import 'package:quicksplit/features/groups/domain/models/group.dart';
 import 'package:quicksplit/features/groups/presentation/providers/group_providers.dart';
 import 'package:quicksplit/features/groups/presentation/providers/preselected_group_provider.dart';
+import 'package:quicksplit/features/groups/presentation/screens/group_create_screen.dart';
+import 'package:quicksplit/features/groups/presentation/screens/group_edit_screen.dart';
+import 'package:quicksplit/features/groups/presentation/screens/group_select_screen.dart';
 import 'package:quicksplit/features/groups/presentation/widgets/group_card.dart';
 import 'package:quicksplit/features/history/presentation/screens/history_detail_screen.dart';
 import 'package:quicksplit/features/history/presentation/screens/history_screen.dart';
 import 'package:quicksplit/features/home/presentation/screens/home_screen.dart';
-import 'package:quicksplit/features/settings/presentation/screens/settings_screen.dart';
 import 'package:quicksplit/features/ocr/domain/models/receipt.dart';
 import 'package:quicksplit/features/ocr/presentation/screens/item_editor_screen.dart';
+import 'package:quicksplit/features/onboarding/presentation/screens/onboarding_screen.dart';
 import 'package:quicksplit/features/scan/presentation/screens/camera_screen.dart';
+import 'package:quicksplit/features/settings/presentation/screens/settings_screen.dart';
 
 /// Route name constants - use these to navigate instead of hardcoded strings
 abstract class RouteNames {
@@ -26,11 +31,14 @@ abstract class RouteNames {
   static const String home = 'home';
   static const String splash = 'splash';
   static const String onboarding = 'onboarding';
+  static const String welcome = 'welcome';
+  static const String login = 'login';
+  static const String signup = 'signup';
+  static const String forgotPassword = 'forgotPassword';
 
   // Scan feature
   static const String scan = 'scan';
   static const String camera = 'camera';
-
 
   // Items feature
   static const String itemsEditor = 'itemsEditor';
@@ -56,33 +64,61 @@ abstract class RouteNames {
 /// Router configuration using GoRouter
 /// Centralize all navigation routes here
 final goRouterProvider = Provider<GoRouter>((ref) {
+  final authState = ref.watch(authStateProvider);
+
   return GoRouter(
     redirect: (context, state) {
       try {
         final preferencesBox = Hive.box('preferences');
-        final hasCompleted = preferencesBox.get(
-          'hasCompletedOnboarding',
-          defaultValue: false,
-        ) as bool;
-        final isOnboardingRoute = state.matchedLocation == '/onboarding';
+        final hasCompletedOnboarding =
+            preferencesBox.get('hasCompletedOnboarding', defaultValue: false)
+                as bool;
 
-        // Redirect to onboarding if not completed
-        if (!hasCompleted && !isOnboardingRoute) {
+        final currentLocation = state.matchedLocation;
+        final isOnboardingRoute = currentLocation == '/onboarding';
+        final isAuthRoute =
+            currentLocation == '/welcome' ||
+            currentLocation == '/login' ||
+            currentLocation == '/signup' ||
+            currentLocation == '/forgotPassword';
+
+        // Check if user is authenticated via Firebase
+        final isAuthenticated = authState.value != null;
+
+        // 1. If not authenticated and not on auth/onboarding routes, go to welcome
+        if (!isAuthenticated && !isAuthRoute && !isOnboardingRoute) {
+          return '/welcome';
+        }
+
+        // 2. If authenticated but hasn't completed onboarding, go to onboarding
+        if (isAuthenticated && !hasCompletedOnboarding && !isOnboardingRoute) {
           return '/onboarding';
         }
 
-        // Redirect to home if onboarding already completed
-        if (hasCompleted && isOnboardingRoute) {
+        // 3. If authenticated and completed onboarding, redirect from auth/onboarding to home
+        if (isAuthenticated &&
+            hasCompletedOnboarding &&
+            (isAuthRoute || isOnboardingRoute)) {
           return '/home';
+        }
+
+        // 4. Allow navigation to auth routes when not authenticated
+        if (!isAuthenticated && isAuthRoute) {
+          return null;
+        }
+
+        // 5. Allow onboarding route when authenticated but not completed
+        if (isAuthenticated && !hasCompletedOnboarding && isOnboardingRoute) {
+          return null;
         }
 
         return null;
       } catch (e) {
-        // If Hive box not ready, allow navigation
+        // If any error (e.g., Hive box not ready), allow navigation
         return null;
       }
     },
-    initialLocation: '/${RouteNames.home}',
+    initialLocation: '/welcome',
     errorBuilder: (context, state) => Scaffold(
       body: Center(
         child: Column(
@@ -99,6 +135,28 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       ),
     ),
     routes: <RouteBase>[
+      // Auth routes (top-level)
+      GoRoute(
+        path: '/welcome',
+        name: RouteNames.welcome,
+        builder: (context, state) => const WelcomeScreen(),
+      ),
+      GoRoute(
+        path: '/login',
+        name: RouteNames.login,
+        builder: (context, state) => const LoginScreen(),
+      ),
+      GoRoute(
+        path: '/signup',
+        name: RouteNames.signup,
+        builder: (context, state) => const SignupScreen(),
+      ),
+      GoRoute(
+        path: '/forgotPassword',
+        name: RouteNames.forgotPassword,
+        builder: (context, state) => const ForgotPasswordScreen(),
+      ),
+
       // Onboarding route (top-level)
       GoRoute(
         path: '/onboarding',
@@ -217,10 +275,7 @@ class GroupsListScreen extends ConsumerWidget {
     final groups = groupsState.groups;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Groups'),
-        centerTitle: false,
-      ),
+      appBar: AppBar(title: const Text('Groups'), centerTitle: false),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => context.pushNamed(RouteNames.groupCreate),
         backgroundColor: const Color(0xFF248CFF),
@@ -345,10 +400,7 @@ class GroupsListScreen extends ConsumerWidget {
               icon: const Icon(Icons.add, size: 24),
               label: const Text(
                 'Create Your First Group',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                ),
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
               ),
             ),
           ],
@@ -375,9 +427,7 @@ class GroupsListScreen extends ConsumerWidget {
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(true),
-            style: TextButton.styleFrom(
-              foregroundColor: Colors.red,
-            ),
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
             child: const Text('Delete'),
           ),
         ],
@@ -400,9 +450,9 @@ class GroupsListScreen extends ConsumerWidget {
             children: [
               Text(
                 group.name,
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8),
               ListTile(
@@ -423,7 +473,9 @@ class GroupsListScreen extends ConsumerWidget {
                 onTap: () {
                   Navigator.pop(context);
                   // Store the selected group for pre-selection
-                  ref.read(preselectedGroupIdProvider.notifier).setGroupId(group.id);
+                  ref
+                      .read(preselectedGroupIdProvider.notifier)
+                      .setGroupId(group.id);
                   // Navigate to home and trigger add receipt flow
                   context.go('/${RouteNames.home}');
                   // Show add receipt bottom sheet
@@ -444,19 +496,13 @@ class GroupsListScreen extends ConsumerWidget {
                     color: const Color(0xFFFFA726).withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: const Icon(
-                    Icons.edit,
-                    color: Color(0xFFFFA726),
-                  ),
+                  child: const Icon(Icons.edit, color: Color(0xFFFFA726)),
                 ),
                 title: const Text('Edit Group'),
                 subtitle: const Text('Modify group details and members'),
                 onTap: () {
                   Navigator.pop(context);
-                  context.pushNamed(
-                    RouteNames.groupEdit,
-                    extra: group,
-                  );
+                  context.pushNamed(RouteNames.groupEdit, extra: group);
                 },
               ),
               ListTile(
@@ -467,10 +513,7 @@ class GroupsListScreen extends ConsumerWidget {
                     color: Colors.red.shade50,
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: Icon(
-                    Icons.delete,
-                    color: Colors.red.shade400,
-                  ),
+                  child: Icon(Icons.delete, color: Colors.red.shade400),
                 ),
                 title: Text(
                   'Delete Group',
@@ -478,8 +521,10 @@ class GroupsListScreen extends ConsumerWidget {
                 ),
                 subtitle: const Text('This action cannot be undone'),
                 onTap: () async {
-                  final confirmed =
-                      await _showDeleteConfirmation(context, group.name);
+                  final confirmed = await _showDeleteConfirmation(
+                    context,
+                    group.name,
+                  );
                   if (confirmed == true && context.mounted) {
                     Navigator.pop(context);
                     ref.read(groupsProvider.notifier).deleteGroup(group.id);

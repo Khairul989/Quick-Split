@@ -1,20 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
-import 'package:quicksplit/core/router/router.dart';
 
 import '../providers/financial_summary_provider.dart';
 import '../providers/monthly_stats_provider.dart';
 
 class FinancialSummaryCard extends ConsumerWidget {
   const FinancialSummaryCard({super.key});
-
-  String _getGreeting() {
-    final hour = DateTime.now().hour;
-    if (hour < 12) return 'Good Morning';
-    if (hour < 17) return 'Good Afternoon';
-    return 'Good Evening';
-  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -39,37 +30,12 @@ class FinancialSummaryCard extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Greeting and settings
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                _getGreeting(),
-                style: theme.textTheme.titleLarge?.copyWith(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              IconButton(
-                icon: const Icon(
-                  Icons.settings_outlined,
-                  color: Colors.white,
-                  size: 20,
-                ),
-                onPressed: () => context.pushNamed(RouteNames.settings),
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-
           // Financial stats row
           financialSummary.when(
             loading: () => const Center(
               child: CircularProgressIndicator(color: Colors.white),
             ),
-            error: (_, __) => const SizedBox.shrink(),
+            error: (error, stackTrace) => const SizedBox.shrink(),
             data: (summary) => Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -97,7 +63,7 @@ class FinancialSummaryCard extends ConsumerWidget {
                 ),
                 monthlyStats.when(
                   loading: () => const SizedBox.shrink(),
-                  error: (_, __) => const SizedBox.shrink(),
+                  error: (error, stackTrace) => const SizedBox.shrink(),
                   data: (stats) => _buildStatColumn(
                     context,
                     'Total Spent',

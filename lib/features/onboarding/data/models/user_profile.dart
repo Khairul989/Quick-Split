@@ -52,4 +52,21 @@ class UserProfile {
   @override
   int get hashCode =>
       name.hashCode ^ email.hashCode ^ emoji.hashCode ^ createdAt.hashCode;
+
+  /// Convert UserProfile to Firestore format
+  Map<String, dynamic> toFirestore() => {
+    'name': name,
+    'email': email,
+    'emoji': emoji,
+    'createdAt': createdAt.toIso8601String(),
+    'updatedAt': DateTime.now().toIso8601String(),
+  };
+
+  /// Create UserProfile from Firestore document
+  factory UserProfile.fromFirestore(Map<String, dynamic> data) => UserProfile(
+    name: data['name'] as String,
+    email: data['email'] as String?,
+    emoji: data['emoji'] as String,
+    createdAt: DateTime.parse(data['createdAt'] as String),
+  );
 }

@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart' as img_picker;
+import 'package:intl/intl.dart';
 import 'package:quicksplit/core/router/router.dart';
+import 'package:quicksplit/features/auth/presentation/providers/auth_state_provider.dart';
 import 'package:quicksplit/features/groups/presentation/providers/group_providers.dart';
 import 'package:quicksplit/features/groups/presentation/providers/preselected_group_provider.dart';
 import 'package:quicksplit/features/ocr/domain/models/receipt.dart';
@@ -31,6 +33,13 @@ class HomeScreen extends ConsumerStatefulWidget {
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
+  String _getGreeting() {
+    final hour = DateTime.now().hour;
+    if (hour < 12) return 'Good Morning';
+    if (hour < 17) return 'Good Afternoon';
+    return 'Good Evening';
+  }
+
   /// Show bottom sheet with camera and gallery options
   void _showAddReceiptOptions(BuildContext context) {
     showModalBottomSheet(
@@ -201,9 +210,62 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final authState = ref.watch(authStateProvider);
+
+    final greeting = _getGreeting();
+    final userName = authState.maybeWhen(
+      data: (user) {
+        if (user == null) return '';
+        final name = user.name?.trim();
+        if (name != null && name.isNotEmpty) return name;
+
+        final email = user.email.trim();
+        if (email.isEmpty) return '';
+        return email.split('@').first;
+      },
+      orElse: () => '',
+    );
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
+      appBar: AppBar(
+        title: RichText(
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          text: TextSpan(
+            children: [
+              TextSpan(
+                text: greeting,
+                style: theme.textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w400,
+                ),
+              ),
+              if (userName.isNotEmpty) ...[
+                TextSpan(
+                  text: ', ',
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w400,
+                  ),
+                ),
+                TextSpan(
+                  text: toBeginningOfSentenceCase(userName),
+                  style: theme.textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.settings_outlined, size: 20),
+            onPressed: () => context.pushNamed(RouteNames.settings),
+            constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
+          ),
+          const SizedBox(width: 8),
+        ],
+      ),
       body: Stack(
         children: [
           // Main scrollable content
@@ -212,12 +274,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               // Financial summary card
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: EdgeInsets.fromLTRB(
-                    20,
-                    20 + MediaQuery.of(context).padding.top,
-                    20,
-                    20,
-                  ),
+                  padding: EdgeInsets.fromLTRB(20, 20, 20, 20),
                   child: const FinancialSummaryCard(),
                 ),
               ),
