@@ -8,9 +8,11 @@ import 'package:quicksplit/features/assign/presentation/providers/session_provid
 import 'package:quicksplit/features/ocr/domain/models/receipt.dart';
 
 import '../../domain/models/person.dart';
+import '../../domain/services/contact_service.dart';
 import '../providers/group_providers.dart';
 import '../widgets/add_person_tile.dart';
 import '../widgets/person_tile.dart';
+import '../widgets/contact_selector_bottom_sheet.dart';
 
 class GroupCreateScreen extends ConsumerStatefulWidget {
   final Receipt? receipt;
@@ -57,6 +59,94 @@ class _GroupCreateScreenState extends ConsumerState<GroupCreateScreen> {
     setState(() {
       _selectedPeople.removeAt(index);
     });
+  }
+
+  Future<void> _openContactSelector() async {
+    try {
+      final hasPermission = await ContactService.hasPermission();
+
+      if (!hasPermission) {
+        if (mounted) {
+          final granted = await _showPermissionDialog();
+          if (!granted) return;
+        }
+      }
+
+      if (mounted) {
+        showModalBottomSheet<void>(
+          context: context,
+          isScrollControlled: true,
+          builder: (context) {
+            return ContactSelectorBottomSheet(
+              existingPeople: _selectedPeople,
+              onContactsSelected: (selected) {
+                setState(() {
+                  _selectedPeople.addAll(selected);
+                });
+              },
+            );
+          },
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error opening contacts: $e'),
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
+    }
+  }
+
+  Future<bool> _showPermissionDialog() async {
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) {
+        final theme = Theme.of(dialogContext);
+        final textTheme = theme.textTheme;
+        final colorScheme = theme.colorScheme;
+
+        return AlertDialog(
+          title: const Text('Contact Permission Required'),
+          content: Text(
+            'QuickSplit needs access to your contacts to quickly add group members.',
+            style: textTheme.bodyMedium,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext, false),
+              child: Text(
+                'Cancel',
+                style: textTheme.labelLarge?.copyWith(
+                  color: colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                final granted = await ContactService.requestPermission();
+                if (mounted && dialogContext.mounted) {
+                  Navigator.pop(dialogContext, granted);
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: colorScheme.primary,
+              ),
+              child: Text(
+                'Grant Access',
+                style: textTheme.labelLarge?.copyWith(
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+
+    return result ?? false;
   }
 
   Future<void> _pickImage() async {
@@ -505,22 +595,43 @@ class _GroupCreateScreenState extends ConsumerState<GroupCreateScreen> {
 
               // Add person form or button
               if (!_showAddPersonForm)
-                ElevatedButton.icon(
-                  onPressed: () {
-                    setState(() => _showAddPersonForm = true);
-                  },
-                  icon: const Icon(Icons.person_add_rounded),
-                  label: const Text('Add Person'),
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 24,
-                      vertical: 12,
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    ElevatedButton.icon(
+                      onPressed: _openContactSelector,
+                      icon: const Icon(Icons.contacts_rounded),
+                      label: const Text('Add from Contacts'),
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 24,
+                          vertical: 12,
+                        ),
+                        backgroundColor: colorScheme.primary,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
                     ),
-                    backgroundColor: colorScheme.primary,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
+                    const SizedBox(height: 12),
+                    ElevatedButton.icon(
+                      onPressed: () {
+                        setState(() => _showAddPersonForm = true);
+                      },
+                      icon: const Icon(Icons.person_add_rounded),
+                      label: const Text('Add Person Manually'),
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 24,
+                          vertical: 12,
+                        ),
+                        backgroundColor: colorScheme.primary,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
                     ),
-                  ),
+                  ],
                 )
               else ...[
                 const SizedBox(height: 12),

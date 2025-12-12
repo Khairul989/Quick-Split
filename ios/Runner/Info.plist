@@ -51,5 +51,8 @@
 	<!-- Photo Library Usage -->
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>We need access to your photos to select receipt images for scanning.</string>
+	<!-- Contacts Usage -->
+	<key>NSContactsUsageDescription</key>
+	<string>QuickSplit needs access to your contacts to quickly add group members.</string>
 </dict>
 </plist>

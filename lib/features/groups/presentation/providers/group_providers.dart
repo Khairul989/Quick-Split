@@ -240,6 +240,31 @@ class GroupsNotifier extends Notifier<GroupsState> {
       return null;
     }
   }
+
+  /// Increment usage count for a person
+  Future<void> incrementPersonUsage(String personId) async {
+    try {
+      final person = state.people.firstWhere(
+        (p) => p.id == personId,
+        orElse: () => throw Exception('Person not found'),
+      );
+
+      final updated = person.copyWith(
+        usageCount: person.usageCount + 1,
+        lastUsedAt: DateTime.now(),
+      );
+
+      await _peopleBox.put(personId, updated);
+
+      state = state.copyWith(
+        people: _peopleBox.values.toList(),
+      );
+    } catch (e) {
+      state = state.copyWith(
+        error: 'Failed to update person usage: $e',
+      );
+    }
+  }
 }
 
 /// Main provider for groups state

@@ -459,10 +459,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         width: double.infinity,
         padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
-          color: const Color(0xFF248CFF).withValues(alpha: 0.05),
+          color: theme.colorScheme.primary.withValues(alpha: 0.05),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: const Color(0xFF248CFF).withValues(alpha: 0.1),
+            color: theme.colorScheme.primary.withValues(alpha: 0.1),
             width: 1,
           ),
         ),
@@ -473,13 +473,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               width: 64,
               height: 64,
               decoration: BoxDecoration(
-                color: const Color(0xFF248CFF).withValues(alpha: 0.1),
+                color: theme.colorScheme.primary.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.groups_rounded,
                 size: 32,
-                color: Color(0xFF248CFF),
+                color: theme.colorScheme.primary,
               ),
             ),
             const SizedBox(height: 16),
@@ -507,7 +507,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               child: ElevatedButton.icon(
                 onPressed: () => context.pushNamed(RouteNames.groupCreate),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF248CFF),
+                  backgroundColor: theme.colorScheme.primary,
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -567,7 +567,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 onTap: () {
                   Navigator.pop(context);
                   // Store the selected group for pre-selection
-                  ref.read(preselectedGroupIdProvider.notifier).setGroupId(group.id);
+                  ref
+                      .read(preselectedGroupIdProvider.notifier)
+                      .setGroupId(group.id);
                   // Show add receipt options
                   _showAddReceiptOptions(context);
                 },

@@ -9,6 +9,9 @@
     <!-- Image picker permissions -->
     <uses-permission android:name="android.permission.INTERNET" />
 
+    <!-- Contact Integration permissions -->
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
+
     <application
         android:label="quicksplit"
         android:name="${applicationName}"

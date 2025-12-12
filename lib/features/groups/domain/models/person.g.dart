@@ -21,13 +21,18 @@ class PersonAdapter extends TypeAdapter<Person> {
       name: fields[1] as String,
       emoji: fields[2] as String,
       createdAt: fields[3] as DateTime?,
+      phoneNumber: fields[4] as String?,
+      email: fields[5] as String?,
+      contactId: fields[6] as String?,
+      usageCount: fields[7] == null ? 0 : (fields[7] as num).toInt(),
+      lastUsedAt: fields[8] as DateTime?,
     );
   }
 
   @override
   void write(BinaryWriter writer, Person obj) {
     writer
-      ..writeByte(4)
+      ..writeByte(9)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -35,7 +40,17 @@ class PersonAdapter extends TypeAdapter<Person> {
       ..writeByte(2)
       ..write(obj.emoji)
       ..writeByte(3)
-      ..write(obj.createdAt);
+      ..write(obj.createdAt)
+      ..writeByte(4)
+      ..write(obj.phoneNumber)
+      ..writeByte(5)
+      ..write(obj.email)
+      ..writeByte(6)
+      ..write(obj.contactId)
+      ..writeByte(7)
+      ..write(obj.usageCount)
+      ..writeByte(8)
+      ..write(obj.lastUsedAt);
   }
 
   @override
