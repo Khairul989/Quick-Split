@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hive_ce/hive.dart';
+import 'package:quicksplit/features/onboarding/presentation/screens/onboarding_screen.dart';
 import 'package:quicksplit/features/assign/presentation/screens/assign_items_screen.dart';
 import 'package:quicksplit/features/assign/presentation/screens/summary_screen.dart';
 import 'package:quicksplit/features/groups/presentation/screens/group_create_screen.dart';
@@ -23,6 +25,7 @@ abstract class RouteNames {
   // Main flow
   static const String home = 'home';
   static const String splash = 'splash';
+  static const String onboarding = 'onboarding';
 
   // Scan feature
   static const String scan = 'scan';
@@ -54,6 +57,31 @@ abstract class RouteNames {
 /// Centralize all navigation routes here
 final goRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
+    redirect: (context, state) {
+      try {
+        final preferencesBox = Hive.box('preferences');
+        final hasCompleted = preferencesBox.get(
+          'hasCompletedOnboarding',
+          defaultValue: false,
+        ) as bool;
+        final isOnboardingRoute = state.matchedLocation == '/onboarding';
+
+        // Redirect to onboarding if not completed
+        if (!hasCompleted && !isOnboardingRoute) {
+          return '/onboarding';
+        }
+
+        // Redirect to home if onboarding already completed
+        if (hasCompleted && isOnboardingRoute) {
+          return '/home';
+        }
+
+        return null;
+      } catch (e) {
+        // If Hive box not ready, allow navigation
+        return null;
+      }
+    },
     initialLocation: '/${RouteNames.home}',
     errorBuilder: (context, state) => Scaffold(
       body: Center(
@@ -71,6 +99,13 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       ),
     ),
     routes: <RouteBase>[
+      // Onboarding route (top-level)
+      GoRoute(
+        path: '/onboarding',
+        name: RouteNames.onboarding,
+        builder: (context, state) => const OnboardingScreen(),
+      ),
+
       // Home/Root route
       GoRoute(
         path: '/${RouteNames.home}',
