@@ -1,0 +1,15 @@
+# Build configuration for build_runner
+# Exclude non-Dart directories from build process
+targets:
+  $default:
+    sources:
+      exclude:
+        - functions/**
+        - .dart_tool/**
+        - build/**
+        - ios/**
+        - android/**
+        - macos/**
+        - windows/**
+        - linux/**
+        - web/**

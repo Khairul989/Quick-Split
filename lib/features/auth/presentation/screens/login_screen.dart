@@ -53,10 +53,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   void _handleSignIn() async {
     if (_formKey.currentState!.validate()) {
-      await ref.read(authProvider.notifier).signInWithEmail(
-        _emailController.text.trim(),
-        _passwordController.text,
-      );
+      await ref
+          .read(authProvider.notifier)
+          .signInWithEmail(
+            _emailController.text.trim(),
+            _passwordController.text,
+          );
     }
   }
 
@@ -107,10 +109,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 const SizedBox(height: 8),
                 const Text(
                   'Sign in to continue using QuickSplit',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey,
-                  ),
+                  style: TextStyle(fontSize: 14, color: Colors.grey),
                 ),
                 const SizedBox(height: 32),
 
@@ -181,10 +180,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         : () => context.pushNamed('forgotPassword'),
                     child: const Text(
                       'Forgot Password?',
-                      style: TextStyle(
-                        color: Color(0xFF248CFF),
-                        fontSize: 14,
-                      ),
+                      style: TextStyle(color: Color(0xFF248CFF), fontSize: 14),
                     ),
                   ),
                 ),
@@ -208,8 +204,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             width: 24,
                             child: CircularProgressIndicator(
                               strokeWidth: 2,
-                              valueColor:
-                                  AlwaysStoppedAnimation<Color>(Colors.white),
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                Colors.white,
+                              ),
                             ),
                           )
                         : const Text(
@@ -230,10 +227,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   children: [
                     const Text(
                       "Don't have an account? ",
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey,
-                      ),
+                      style: TextStyle(fontSize: 14, color: Colors.grey),
                     ),
                     TextButton(
                       onPressed: authState.isLoading

@@ -198,9 +198,7 @@ class _GroupCreateScreenState extends ConsumerState<GroupCreateScreen> {
               ),
               child: Text(
                 'Grant Access',
-                style: textTheme.labelLarge?.copyWith(
-                  color: Colors.white,
-                ),
+                style: textTheme.labelLarge?.copyWith(color: Colors.white),
               ),
             ),
           ],
@@ -299,11 +297,7 @@ class _GroupCreateScreenState extends ConsumerState<GroupCreateScreen> {
           end: Alignment.bottomRight,
         ),
       ),
-      child: const Icon(
-        Icons.groups_rounded,
-        size: 48,
-        color: Colors.white,
-      ),
+      child: const Icon(Icons.groups_rounded, size: 48, color: Colors.white),
     );
   }
 
@@ -336,7 +330,11 @@ class _GroupCreateScreenState extends ConsumerState<GroupCreateScreen> {
       // Create group via provider
       final group = await ref
           .read(groupsProvider.notifier)
-          .createGroup(groupName, _selectedPeople, imagePath: _selectedImagePath);
+          .createGroup(
+            groupName,
+            _selectedPeople,
+            imagePath: _selectedImagePath,
+          );
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -481,7 +479,9 @@ class _GroupCreateScreenState extends ConsumerState<GroupCreateScreen> {
                         height: 120,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: colorScheme.primaryContainer.withValues(alpha: 0.5),
+                          color: colorScheme.primaryContainer.withValues(
+                            alpha: 0.5,
+                          ),
                         ),
                       ),
                       // Image or default icon

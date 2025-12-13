@@ -4,7 +4,9 @@ import 'package:hive_ce/hive.dart';
 import 'package:quicksplit/features/assign/domain/models/split_session.dart';
 import 'package:quicksplit/features/groups/domain/models/group.dart';
 
-final mostActiveGroupProvider = StreamProvider.autoDispose<Group?>((ref) async* {
+final mostActiveGroupProvider = StreamProvider.autoDispose<Group?>((
+  ref,
+) async* {
   final historyBox = Hive.box<SplitSession>('history');
   final groupsBox = Hive.box<Group>('groups');
 
@@ -14,21 +16,27 @@ final mostActiveGroupProvider = StreamProvider.autoDispose<Group?>((ref) async* 
 
   Group? computeMostActive() {
     final sessions = historyBox.values
-        .where((s) => s.isSaved &&
-                     s.createdAt.isAfter(firstDayOfMonth) &&
-                     s.createdAt.isBefore(firstDayOfNextMonth))
+        .where(
+          (s) =>
+              s.isSaved &&
+              s.createdAt.isAfter(firstDayOfMonth) &&
+              s.createdAt.isBefore(firstDayOfNextMonth),
+        )
         .toList();
 
     final Map<String, int> groupCounts = {};
     for (final session in sessions) {
       if (session.groupId != null) {
-        groupCounts[session.groupId!] = (groupCounts[session.groupId!] ?? 0) + 1;
+        groupCounts[session.groupId!] =
+            (groupCounts[session.groupId!] ?? 0) + 1;
       }
     }
 
     if (groupCounts.isEmpty) return null;
 
-    final mostActiveId = groupCounts.entries.reduce((a, b) => a.value > b.value ? a : b).key;
+    final mostActiveId = groupCounts.entries
+        .reduce((a, b) => a.value > b.value ? a : b)
+        .key;
     return groupsBox.get(mostActiveId);
   }
 

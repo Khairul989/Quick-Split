@@ -48,10 +48,7 @@ class ContactsNotifier extends Notifier<ContactsState> {
 
       final sorted = ContactSorter.sortByRecentAndFrequent(people);
 
-      state = state.copyWith(
-        contacts: sorted,
-        isLoading: false,
-      );
+      state = state.copyWith(contacts: sorted, isLoading: false);
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
@@ -86,7 +83,11 @@ class ContactDuplicateDetector {
 
     // Then by phone number (for duplicates)
     if (person.phoneNumber != null) {
-      return groupPeople.any((p) => _normalizePhone(p.phoneNumber) == _normalizePhone(person.phoneNumber));
+      return groupPeople.any(
+        (p) =>
+            _normalizePhone(p.phoneNumber) ==
+            _normalizePhone(person.phoneNumber),
+      );
     }
 
     return false;
@@ -122,9 +123,11 @@ class ContactSorter {
 
     contacts.sort((a, b) {
       // First: by recency (used in last 30 days)
-      final aIsRecent = a.lastUsedAt != null &&
+      final aIsRecent =
+          a.lastUsedAt != null &&
           a.lastUsedAt!.isAfter(now.subtract(_recentDuration));
-      final bIsRecent = b.lastUsedAt != null &&
+      final bIsRecent =
+          b.lastUsedAt != null &&
           b.lastUsedAt!.isAfter(now.subtract(_recentDuration));
 
       if (aIsRecent && !bIsRecent) return -1;
@@ -157,16 +160,13 @@ class ContactSorter {
     final recentThreshold = now.subtract(_recentDuration);
 
     final recent = contacts
-        .where((p) =>
-            p.lastUsedAt != null &&
-            p.lastUsedAt!.isAfter(recentThreshold))
+        .where(
+          (p) => p.lastUsedAt != null && p.lastUsedAt!.isAfter(recentThreshold),
+        )
         .toList();
 
     final all = contacts;
 
-    return {
-      'recent': recent,
-      'all': all,
-    };
+    return {'recent': recent, 'all': all};
   }
 }

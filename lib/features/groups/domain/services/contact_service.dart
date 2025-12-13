@@ -15,9 +15,23 @@ class ContactPermissionDeniedException implements Exception {
 /// Service for managing contact access and conversion
 class ContactService {
   static const List<String> _defaultEmojis = [
-    '👨', '👩', '👦', '👧', '👴', '👵',
-    '🧑', '👨‍🦱', '👩‍🦱', '👨‍🦲', '👩‍🦲',
-    '😊', '😄', '😎', '🤓', '😌', '🥰'
+    '👨',
+    '👩',
+    '👦',
+    '👧',
+    '👴',
+    '👵',
+    '🧑',
+    '👨‍🦱',
+    '👩‍🦱',
+    '👨‍🦲',
+    '👩‍🦲',
+    '😊',
+    '😄',
+    '😎',
+    '🤓',
+    '😌',
+    '🥰',
   ];
 
   /// Check if app has permission to read contacts
@@ -36,7 +50,9 @@ class ContactService {
       final status = await Permission.contacts.request();
       return status.isGranted;
     } catch (e) {
-      throw ContactPermissionDeniedException('Failed to request contact permission: $e');
+      throw ContactPermissionDeniedException(
+        'Failed to request contact permission: $e',
+      );
     }
   }
 
@@ -45,7 +61,9 @@ class ContactService {
     try {
       final hasPerms = await hasPermission();
       if (!hasPerms) {
-        throw ContactPermissionDeniedException('Contact permission not granted');
+        throw ContactPermissionDeniedException(
+          'Contact permission not granted',
+        );
       }
 
       final contacts = await FlutterContacts.getContacts();

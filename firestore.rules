@@ -1,0 +1,84 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper function: Check if user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Helper function: Check if user owns the resource
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+
+    // User Profiles
+    // Path: users/{userId}/profile/data
+    match /users/{userId}/profile/data {
+      // Anyone authenticated can read profiles (for discovery and matching)
+      allow read: if isAuthenticated();
+
+      // Only the owner can write their profile
+      allow write: if isOwner(userId);
+
+      // Cloud Functions can read profiles (for FCM tokens)
+      // This is allowed by the authenticated read rule above
+    }
+
+    // User Groups
+    // Path: users/{userId}/groups/{groupId}
+    match /users/{userId}/groups/{groupId} {
+      // Only the owner can read/write their groups
+      allow read, write: if isOwner(userId);
+
+      // Group Members (subcollection)
+      // Path: users/{userId}/groups/{groupId}/members/{personId}
+      match /members/{personId} {
+        // Only the group owner can read/write members
+        allow read, write: if isOwner(userId);
+
+        // Cloud Functions need access to trigger notifications
+        // Already covered by the isOwner check above for the user's data
+      }
+    }
+
+    // Split Sessions
+    // Path: users/{userId}/splitSessions/{splitSessionId}
+    match /users/{userId}/splitSessions/{splitSessionId} {
+      // Only the owner can read/write their split sessions
+      allow read, write: if isOwner(userId);
+    }
+
+    // Group Invites (global collection)
+    // Path: groupInvites/{inviteId}
+    match /groupInvites/{inviteId} {
+      // Anyone authenticated can read invites (to accept them)
+      allow read: if isAuthenticated();
+
+      // Anyone authenticated can create invites
+      allow create: if isAuthenticated();
+
+      // Only the invite creator or the invitee can update
+      allow update: if isAuthenticated() && (
+        request.auth.uid == resource.data.invitedBy ||
+        request.auth.uid == request.resource.data.acceptedBy
+      );
+
+      // Only the invite creator can delete
+      allow delete: if isAuthenticated() &&
+        request.auth.uid == resource.data.invitedBy;
+    }
+
+    // Contact Matches Cache
+    // Path: users/{userId}/contactMatches/{matchId}
+    match /users/{userId}/contactMatches/{matchId} {
+      // Only the owner can read/write their contact matches
+      allow read, write: if isOwner(userId);
+    }
+
+    // Deny all other access by default
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/utils/phone_utils.dart';
 import '../providers/user_profile_provider.dart';
 
 class ProfileSetupPage extends ConsumerStatefulWidget {
@@ -14,6 +15,9 @@ class _ProfileSetupPageState extends ConsumerState<ProfileSetupPage> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
+  final _phoneController = TextEditingController();
+
+  String _selectedCountryCode = '+60';
 
   // Default emojis to choose from
   final List<String> _emojiList = [
@@ -48,6 +52,7 @@ class _ProfileSetupPageState extends ConsumerState<ProfileSetupPage> {
   void dispose() {
     _nameController.dispose();
     _emailController.dispose();
+    _phoneController.dispose();
     super.dispose();
   }
 
@@ -58,6 +63,16 @@ class _ProfileSetupPageState extends ConsumerState<ProfileSetupPage> {
 
     setState(() => _isSaving = true);
 
+    // Normalize phone number if provided
+    String? normalizedPhone;
+    final phoneInput = _phoneController.text.trim();
+    if (phoneInput.isNotEmpty) {
+      normalizedPhone = normalizePhoneNumber(
+        '$_selectedCountryCode$phoneInput',
+        defaultCountryCode: _selectedCountryCode,
+      );
+    }
+
     final success = await ref
         .read(userProfileProvider.notifier)
         .saveProfile(
@@ -66,6 +81,7 @@ class _ProfileSetupPageState extends ConsumerState<ProfileSetupPage> {
               ? null
               : _emailController.text.trim(),
           emoji: _selectedEmoji,
+          phoneNumber: normalizedPhone,
         );
 
     if (mounted) {
@@ -252,6 +268,139 @@ class _ProfileSetupPageState extends ConsumerState<ProfileSetupPage> {
                   }
                   return null;
                 },
+              ),
+              const SizedBox(height: 16),
+
+              // Phone number field (optional)
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Phone Number (Optional)',
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Add your phone to find friends on QuickSplit',
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.textTheme.bodySmall?.color?.withValues(
+                        alpha: 0.6,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      // Country code selector
+                      Container(
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color: theme.dividerColor,
+                            width: 1,
+                          ),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: PopupMenuButton<String>(
+                          onSelected: (value) {
+                            setState(() => _selectedCountryCode = value);
+                          },
+                          itemBuilder: (context) => [
+                            const PopupMenuItem(
+                              value: '+60',
+                              child: Text('🇲🇾 +60'),
+                            ),
+                            const PopupMenuItem(
+                              value: '+1',
+                              child: Text('🇺🇸 +1'),
+                            ),
+                            const PopupMenuItem(
+                              value: '+44',
+                              child: Text('🇬🇧 +44'),
+                            ),
+                            const PopupMenuItem(
+                              value: '+91',
+                              child: Text('🇮🇳 +91'),
+                            ),
+                            const PopupMenuItem(
+                              value: '+86',
+                              child: Text('🇨🇳 +86'),
+                            ),
+                            const PopupMenuItem(
+                              value: '+65',
+                              child: Text('🇸🇬 +65'),
+                            ),
+                            const PopupMenuItem(
+                              value: '+66',
+                              child: Text('🇹🇭 +66'),
+                            ),
+                            const PopupMenuItem(
+                              value: '+62',
+                              child: Text('🇮🇩 +62'),
+                            ),
+                          ],
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 16,
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  _selectedCountryCode,
+                                  style: theme.textTheme.bodyLarge?.copyWith(
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                const Icon(Icons.arrow_drop_down, size: 20),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      // Phone number input
+                      Expanded(
+                        child: TextFormField(
+                          controller: _phoneController,
+                          decoration: InputDecoration(
+                            hintText: '123 4567 890',
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          keyboardType: TextInputType.phone,
+                          validator: (value) {
+                            if (value != null && value.isNotEmpty) {
+                              final fullPhone =
+                                  '$_selectedCountryCode${value.replaceAll(RegExp(r"[^\d]"), "")}';
+                              if (!isValidPhoneNumber(fullPhone)) {
+                                return 'Invalid format';
+                              }
+                            }
+                            return null;
+                          },
+                          onChanged: (_) {
+                            setState(() {});
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                  if (_phoneController.text.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8),
+                      child: Text(
+                        'Format: ${formatPhoneForDisplay("$_selectedCountryCode${_phoneController.text.replaceAll(RegExp(r"[^\d]"), "")}")}',
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: const Color(0xFF248CFF),
+                        ),
+                      ),
+                    ),
+                ],
               ),
 
               if (_isSaving) ...[

@@ -18,15 +18,14 @@ void main() {
   group('AssignmentState', () {
     test('getUnassignedCount returns correct count of unassigned items', () {
       final assignment1 = ItemAssignment(itemId: '1', assignedPersonIds: []);
-      final assignment2 = ItemAssignment(itemId: '2', assignedPersonIds: ['p1']);
+      final assignment2 = ItemAssignment(
+        itemId: '2',
+        assignedPersonIds: ['p1'],
+      );
       final assignment3 = ItemAssignment(itemId: '3', assignedPersonIds: []);
 
       final state = AssignmentState(
-        assignments: {
-          '1': assignment1,
-          '2': assignment2,
-          '3': assignment3,
-        },
+        assignments: {'1': assignment1, '2': assignment2, '3': assignment3},
         participantPersonIds: ['p1', 'p2'],
       );
 
@@ -34,14 +33,17 @@ void main() {
     });
 
     test('isFullyAssigned returns true when all items are assigned', () {
-      final assignment1 = ItemAssignment(itemId: '1', assignedPersonIds: ['p1']);
-      final assignment2 = ItemAssignment(itemId: '2', assignedPersonIds: ['p2']);
+      final assignment1 = ItemAssignment(
+        itemId: '1',
+        assignedPersonIds: ['p1'],
+      );
+      final assignment2 = ItemAssignment(
+        itemId: '2',
+        assignedPersonIds: ['p2'],
+      );
 
       final state = AssignmentState(
-        assignments: {
-          '1': assignment1,
-          '2': assignment2,
-        },
+        assignments: {'1': assignment1, '2': assignment2},
         participantPersonIds: ['p1', 'p2'],
       );
 
@@ -49,14 +51,14 @@ void main() {
     });
 
     test('isFullyAssigned returns false when some items are unassigned', () {
-      final assignment1 = ItemAssignment(itemId: '1', assignedPersonIds: ['p1']);
+      final assignment1 = ItemAssignment(
+        itemId: '1',
+        assignedPersonIds: ['p1'],
+      );
       final assignment2 = ItemAssignment(itemId: '2', assignedPersonIds: []);
 
       final state = AssignmentState(
-        assignments: {
-          '1': assignment1,
-          '2': assignment2,
-        },
+        assignments: {'1': assignment1, '2': assignment2},
         participantPersonIds: ['p1', 'p2'],
       );
 
@@ -73,14 +75,14 @@ void main() {
     });
 
     test('getAssignment returns correct assignment for item', () {
-      final assignment1 = ItemAssignment(itemId: '1', assignedPersonIds: ['p1']);
+      final assignment1 = ItemAssignment(
+        itemId: '1',
+        assignedPersonIds: ['p1'],
+      );
       final assignment2 = ItemAssignment(itemId: '2', assignedPersonIds: []);
 
       final state = AssignmentState(
-        assignments: {
-          '1': assignment1,
-          '2': assignment2,
-        },
+        assignments: {'1': assignment1, '2': assignment2},
         participantPersonIds: ['p1', 'p2'],
       );
 
@@ -90,14 +92,14 @@ void main() {
     });
 
     test('isItemAssigned returns true only for assigned items', () {
-      final assignment1 = ItemAssignment(itemId: '1', assignedPersonIds: ['p1']);
+      final assignment1 = ItemAssignment(
+        itemId: '1',
+        assignedPersonIds: ['p1'],
+      );
       final assignment2 = ItemAssignment(itemId: '2', assignedPersonIds: []);
 
       final state = AssignmentState(
-        assignments: {
-          '1': assignment1,
-          '2': assignment2,
-        },
+        assignments: {'1': assignment1, '2': assignment2},
         participantPersonIds: ['p1', 'p2'],
       );
 
@@ -107,14 +109,14 @@ void main() {
     });
 
     test('getAssignedPersonIds returns correct person IDs for item', () {
-      final assignment1 = ItemAssignment(itemId: '1', assignedPersonIds: ['p1', 'p2']);
+      final assignment1 = ItemAssignment(
+        itemId: '1',
+        assignedPersonIds: ['p1', 'p2'],
+      );
       final assignment2 = ItemAssignment(itemId: '2', assignedPersonIds: []);
 
       final state = AssignmentState(
-        assignments: {
-          '1': assignment1,
-          '2': assignment2,
-        },
+        assignments: {'1': assignment1, '2': assignment2},
         participantPersonIds: ['p1', 'p2'],
       );
 
@@ -124,22 +126,22 @@ void main() {
     });
 
     test('copyWith creates new state with updated fields', () {
-      final assignment1 = ItemAssignment(itemId: '1', assignedPersonIds: ['p1']);
+      final assignment1 = ItemAssignment(
+        itemId: '1',
+        assignedPersonIds: ['p1'],
+      );
       final assignment2 = ItemAssignment(itemId: '2', assignedPersonIds: []);
       final state = AssignmentState(
-        assignments: {
-          '1': assignment1,
-          '2': assignment2,
-        },
+        assignments: {'1': assignment1, '2': assignment2},
         participantPersonIds: ['p1', 'p2'],
       );
 
-      final newAssignment = ItemAssignment(itemId: '3', assignedPersonIds: ['p1']);
+      final newAssignment = ItemAssignment(
+        itemId: '3',
+        assignedPersonIds: ['p1'],
+      );
       final newState = state.copyWith(
-        assignments: {
-          ...state.assignments,
-          '3': newAssignment,
-        },
+        assignments: {...state.assignments, '3': newAssignment},
         isLoading: true,
       );
 
@@ -175,25 +177,36 @@ void main() {
       const personIds = ['p1', 'p2'];
 
       container.read(assignmentProvider.notifier).initialize(items, personIds);
-      container.read(assignmentProvider.notifier).togglePersonForItem('1', 'p1');
+      container
+          .read(assignmentProvider.notifier)
+          .togglePersonForItem('1', 'p1');
 
       final state = container.read(assignmentProvider);
       expect(state.assignments['1']?.assignedPersonIds, ['p1']);
     });
 
-    test('togglePersonForItem removes person from item when already assigned', () {
-      final items = [
-        ReceiptItem(id: '1', name: 'Pizza', quantity: 1, price: 20.0),
-      ];
-      const personIds = ['p1', 'p2'];
+    test(
+      'togglePersonForItem removes person from item when already assigned',
+      () {
+        final items = [
+          ReceiptItem(id: '1', name: 'Pizza', quantity: 1, price: 20.0),
+        ];
+        const personIds = ['p1', 'p2'];
 
-      container.read(assignmentProvider.notifier).initialize(items, personIds);
-      container.read(assignmentProvider.notifier).togglePersonForItem('1', 'p1');
-      container.read(assignmentProvider.notifier).togglePersonForItem('1', 'p1');
+        container
+            .read(assignmentProvider.notifier)
+            .initialize(items, personIds);
+        container
+            .read(assignmentProvider.notifier)
+            .togglePersonForItem('1', 'p1');
+        container
+            .read(assignmentProvider.notifier)
+            .togglePersonForItem('1', 'p1');
 
-      final state = container.read(assignmentProvider);
-      expect(state.assignments['1']?.assignedPersonIds, []);
-    });
+        final state = container.read(assignmentProvider);
+        expect(state.assignments['1']?.assignedPersonIds, []);
+      },
+    );
 
     test('togglePersonForItem handles multiple persons per item', () {
       final items = [
@@ -202,8 +215,12 @@ void main() {
       const personIds = ['p1', 'p2', 'p3'];
 
       container.read(assignmentProvider.notifier).initialize(items, personIds);
-      container.read(assignmentProvider.notifier).togglePersonForItem('1', 'p1');
-      container.read(assignmentProvider.notifier).togglePersonForItem('1', 'p2');
+      container
+          .read(assignmentProvider.notifier)
+          .togglePersonForItem('1', 'p1');
+      container
+          .read(assignmentProvider.notifier)
+          .togglePersonForItem('1', 'p2');
 
       final state = container.read(assignmentProvider);
       expect(state.assignments['1']?.assignedPersonIds, ['p1', 'p2']);
@@ -218,7 +235,9 @@ void main() {
       const personIds = ['p1', 'p2'];
 
       container.read(assignmentProvider.notifier).initialize(items, personIds);
-      container.read(assignmentProvider.notifier).togglePersonForItem('1', 'p1');
+      container
+          .read(assignmentProvider.notifier)
+          .togglePersonForItem('1', 'p1');
 
       final count = container.read(unassignedItemsCountProvider);
       expect(count, 2);
@@ -232,7 +251,9 @@ void main() {
       const personIds = ['p1', 'p2'];
 
       container.read(assignmentProvider.notifier).initialize(items, personIds);
-      container.read(assignmentProvider.notifier).togglePersonForItem('1', 'p1');
+      container
+          .read(assignmentProvider.notifier)
+          .togglePersonForItem('1', 'p1');
 
       final isFullyAssigned = container.read(isFullyAssignedProvider);
       expect(isFullyAssigned, false);
@@ -246,8 +267,12 @@ void main() {
       const personIds = ['p1', 'p2'];
 
       container.read(assignmentProvider.notifier).initialize(items, personIds);
-      container.read(assignmentProvider.notifier).togglePersonForItem('1', 'p1');
-      container.read(assignmentProvider.notifier).togglePersonForItem('2', 'p2');
+      container
+          .read(assignmentProvider.notifier)
+          .togglePersonForItem('1', 'p1');
+      container
+          .read(assignmentProvider.notifier)
+          .togglePersonForItem('2', 'p2');
 
       final isFullyAssigned = container.read(isFullyAssignedProvider);
       expect(isFullyAssigned, true);
@@ -278,9 +303,15 @@ void main() {
       const personIds = ['p1', 'p2'];
 
       container.read(assignmentProvider.notifier).initialize(items, personIds);
-      container.read(assignmentProvider.notifier).togglePersonForItem('1', 'p1');
-      container.read(assignmentProvider.notifier).togglePersonForItem('1', 'p2');
-      container.read(assignmentProvider.notifier).togglePersonForItem('2', 'p2');
+      container
+          .read(assignmentProvider.notifier)
+          .togglePersonForItem('1', 'p1');
+      container
+          .read(assignmentProvider.notifier)
+          .togglePersonForItem('1', 'p2');
+      container
+          .read(assignmentProvider.notifier)
+          .togglePersonForItem('2', 'p2');
 
       container.read(assignmentProvider.notifier).assignAllItemsToPerson('p1');
 
@@ -297,9 +328,15 @@ void main() {
       const personIds = ['p1', 'p2'];
 
       container.read(assignmentProvider.notifier).initialize(items, personIds);
-      container.read(assignmentProvider.notifier).togglePersonForItem('1', 'p1');
-      container.read(assignmentProvider.notifier).togglePersonForItem('1', 'p2');
-      container.read(assignmentProvider.notifier).togglePersonForItem('2', 'p1');
+      container
+          .read(assignmentProvider.notifier)
+          .togglePersonForItem('1', 'p1');
+      container
+          .read(assignmentProvider.notifier)
+          .togglePersonForItem('1', 'p2');
+      container
+          .read(assignmentProvider.notifier)
+          .togglePersonForItem('2', 'p1');
 
       container.read(assignmentProvider.notifier).clearAssignments();
 
@@ -316,8 +353,12 @@ void main() {
       const personIds = ['p1', 'p2'];
 
       container.read(assignmentProvider.notifier).initialize(items, personIds);
-      container.read(assignmentProvider.notifier).togglePersonForItem('1', 'p1');
-      container.read(assignmentProvider.notifier).togglePersonForItem('2', 'p2');
+      container
+          .read(assignmentProvider.notifier)
+          .togglePersonForItem('1', 'p1');
+      container
+          .read(assignmentProvider.notifier)
+          .togglePersonForItem('2', 'p2');
 
       container.read(assignmentProvider.notifier).clearItemAssignment('1');
 
@@ -333,7 +374,9 @@ void main() {
       const personIds = ['p1'];
 
       container.read(assignmentProvider.notifier).initialize(items, personIds);
-      container.read(assignmentProvider.notifier).togglePersonForItem('1', 'p1');
+      container
+          .read(assignmentProvider.notifier)
+          .togglePersonForItem('1', 'p1');
 
       container.read(assignmentProvider.notifier).clearItemAssignment('999');
 
@@ -350,7 +393,9 @@ void main() {
       container.read(assignmentProvider.notifier).initialize(items, personIds);
 
       final stateBefore = container.read(assignmentProvider);
-      container.read(assignmentProvider.notifier).togglePersonForItem('999', 'p1');
+      container
+          .read(assignmentProvider.notifier)
+          .togglePersonForItem('999', 'p1');
       final stateAfter = container.read(assignmentProvider);
 
       expect(stateBefore.assignments, stateAfter.assignments);
@@ -367,11 +412,15 @@ void main() {
       expect(container.read(unassignedItemsCountProvider), 2);
       expect(container.read(isFullyAssignedProvider), false);
 
-      container.read(assignmentProvider.notifier).togglePersonForItem('1', 'p1');
+      container
+          .read(assignmentProvider.notifier)
+          .togglePersonForItem('1', 'p1');
       expect(container.read(unassignedItemsCountProvider), 1);
       expect(container.read(isFullyAssignedProvider), false);
 
-      container.read(assignmentProvider.notifier).togglePersonForItem('2', 'p2');
+      container
+          .read(assignmentProvider.notifier)
+          .togglePersonForItem('2', 'p2');
       expect(container.read(unassignedItemsCountProvider), 0);
       expect(container.read(isFullyAssignedProvider), true);
     });
@@ -391,13 +440,19 @@ void main() {
       expect(state.getUnassignedCount(), 3);
 
       // Assign some items
-      container.read(assignmentProvider.notifier).togglePersonForItem('1', 'p1');
-      container.read(assignmentProvider.notifier).togglePersonForItem('2', 'p2');
+      container
+          .read(assignmentProvider.notifier)
+          .togglePersonForItem('1', 'p1');
+      container
+          .read(assignmentProvider.notifier)
+          .togglePersonForItem('2', 'p2');
       state = container.read(assignmentProvider);
       expect(state.getUnassignedCount(), 1);
 
       // Add more persons to an item
-      container.read(assignmentProvider.notifier).togglePersonForItem('1', 'p3');
+      container
+          .read(assignmentProvider.notifier)
+          .togglePersonForItem('1', 'p3');
       state = container.read(assignmentProvider);
       expect(state.assignments['1']?.splitCount, 2);
 

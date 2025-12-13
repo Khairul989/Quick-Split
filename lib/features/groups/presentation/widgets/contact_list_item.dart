@@ -18,7 +18,8 @@ class ContactListItem extends StatelessWidget {
     super.key,
   });
 
-  bool get _isDuplicate => ContactDuplicateDetector.existsInGroup(contact, existingPeople);
+  bool get _isDuplicate =>
+      ContactDuplicateDetector.existsInGroup(contact, existingPeople);
 
   Widget _buildHighlightedText(
     String text,
@@ -26,14 +27,24 @@ class ContactListItem extends StatelessWidget {
     TextStyle? highlightStyle,
   ) {
     if (searchQuery.isEmpty) {
-      return Text(text, style: style, maxLines: 1, overflow: TextOverflow.ellipsis);
+      return Text(
+        text,
+        style: style,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+      );
     }
 
     final query = searchQuery.toLowerCase();
     final textLower = text.toLowerCase();
 
     if (!textLower.contains(query)) {
-      return Text(text, style: style, maxLines: 1, overflow: TextOverflow.ellipsis);
+      return Text(
+        text,
+        style: style,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+      );
     }
 
     final index = textLower.indexOf(query);
@@ -63,7 +74,9 @@ class ContactListItem extends StatelessWidget {
 
     return CheckboxListTile(
       value: isSelected && !_isDuplicate,
-      onChanged: _isDuplicate ? null : (value) => onSelectionChanged(value ?? false),
+      onChanged: _isDuplicate
+          ? null
+          : (value) => onSelectionChanged(value ?? false),
       enabled: !_isDuplicate,
       controlAffinity: ListTileControlAffinity.leading,
       contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
@@ -115,14 +128,9 @@ class ContactListItem extends StatelessWidget {
             )
           : CircleAvatar(
               backgroundColor: colorScheme.primaryContainer,
-              child: Text(
-                contact.emoji,
-                style: const TextStyle(fontSize: 18),
-              ),
+              child: Text(contact.emoji, style: const TextStyle(fontSize: 18)),
             ),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       tileColor: _isDuplicate
           ? colorScheme.primaryContainer.withValues(alpha: 0.2)
           : null,

@@ -80,11 +80,13 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
 
   void _handleSignUp() async {
     if (_formKey.currentState!.validate()) {
-      await ref.read(authProvider.notifier).registerWithEmail(
-        email: _emailController.text.trim(),
-        password: _passwordController.text,
-        name: _nameController.text.trim(),
-      );
+      await ref
+          .read(authProvider.notifier)
+          .registerWithEmail(
+            email: _emailController.text.trim(),
+            password: _passwordController.text,
+            name: _nameController.text.trim(),
+          );
     }
   }
 
@@ -137,7 +139,9 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                   'Sign up to start splitting expenses',
                   style: TextStyle(
                     fontSize: 14,
-                    color: Theme.of(context).textTheme.bodyLarge?.color?.withValues(alpha: 0.7),
+                    color: Theme.of(
+                      context,
+                    ).textTheme.bodyLarge?.color?.withValues(alpha: 0.7),
                   ),
                 ),
                 const SizedBox(height: 32),
@@ -290,8 +294,9 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                             width: 24,
                             child: CircularProgressIndicator(
                               strokeWidth: 2,
-                              valueColor:
-                                  AlwaysStoppedAnimation<Color>(Colors.white),
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                Colors.white,
+                              ),
                             ),
                           )
                         : const Text(
@@ -314,7 +319,9 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                       'Already have an account? ',
                       style: TextStyle(
                         fontSize: 14,
-                        color: Theme.of(context).textTheme.bodyLarge?.color?.withValues(alpha: 0.7),
+                        color: Theme.of(
+                          context,
+                        ).textTheme.bodyLarge?.color?.withValues(alpha: 0.7),
                       ),
                     ),
                     TextButton(

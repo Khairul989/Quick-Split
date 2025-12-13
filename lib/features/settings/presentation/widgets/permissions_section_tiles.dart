@@ -42,11 +42,17 @@ class CameraPermissionTile extends ConsumerWidget {
       status: status,
       onTap: () async {
         if (status.isGranted) {
-          _showPermissionInfo(context, 'Camera', 'Camera permission is already granted');
+          _showPermissionInfo(
+            context,
+            'Camera',
+            'Camera permission is already granted',
+          );
         } else if (status.isPermanentlyDenied) {
           await ref.read(permissionsProvider.notifier).openSettings();
         } else {
-          await ref.read(permissionsProvider.notifier).requestCameraPermission();
+          await ref
+              .read(permissionsProvider.notifier)
+              .requestCameraPermission();
         }
       },
     );
@@ -91,11 +97,17 @@ class ContactsPermissionTile extends ConsumerWidget {
       status: status,
       onTap: () async {
         if (status.isGranted) {
-          _showPermissionInfo(context, 'Contacts', 'Contacts permission is already granted');
+          _showPermissionInfo(
+            context,
+            'Contacts',
+            'Contacts permission is already granted',
+          );
         } else if (status.isPermanentlyDenied) {
           await ref.read(permissionsProvider.notifier).openSettings();
         } else {
-          await ref.read(permissionsProvider.notifier).requestContactsPermission();
+          await ref
+              .read(permissionsProvider.notifier)
+              .requestContactsPermission();
         }
       },
     );
@@ -142,7 +154,9 @@ class _PermissionTile extends StatelessWidget {
               ),
               child: Icon(
                 icon,
-                color: isGranted ? theme.colorScheme.secondary : theme.colorScheme.primary,
+                color: isGranted
+                    ? theme.colorScheme.secondary
+                    : theme.colorScheme.primary,
                 size: 20,
               ),
             ),

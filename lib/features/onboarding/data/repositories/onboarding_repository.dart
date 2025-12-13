@@ -15,9 +15,10 @@ class OnboardingRepository {
   bool hasCompletedOnboarding() {
     try {
       return _preferencesBox.get(
-        _hasCompletedOnboardingKey,
-        defaultValue: false,
-      ) as bool;
+            _hasCompletedOnboardingKey,
+            defaultValue: false,
+          )
+          as bool;
     } catch (e) {
       return false;
     }

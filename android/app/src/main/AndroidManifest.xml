@@ -12,6 +12,10 @@
     <!-- Contact Integration permissions -->
     <uses-permission android:name="android.permission.READ_CONTACTS" />
 
+    <!-- Notification permissions (flutter_local_notifications) -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+
     <application
         android:label="quicksplit"
         android:name="${applicationName}"
@@ -47,6 +51,10 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+        <!-- flutter_local_notifications: Notification action receiver -->
+        <receiver
+            android:exported="false"
+            android:name="com.dexterous.flutterlocalnotifications.ActionBroadcastReceiver" />
     </application>
     <!-- Required to query activities that can process text, see:
          https://developer.android.com/training/package-visibility and

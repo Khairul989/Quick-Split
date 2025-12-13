@@ -19,7 +19,8 @@ class ThemeToggleTile extends ConsumerWidget {
           subtitle: 'Follow device theme',
           themeMode: ThemeMode.system,
           currentMode: themeState.themeMode,
-          onChanged: (mode) => ref.read(themeProvider.notifier).setThemeMode(mode),
+          onChanged: (mode) =>
+              ref.read(themeProvider.notifier).setThemeMode(mode),
         ),
         SizedBox(height: AppSpacing.sm),
         _ThemeOptionTile(
@@ -28,7 +29,8 @@ class ThemeToggleTile extends ConsumerWidget {
           subtitle: 'Light theme',
           themeMode: ThemeMode.light,
           currentMode: themeState.themeMode,
-          onChanged: (mode) => ref.read(themeProvider.notifier).setThemeMode(mode),
+          onChanged: (mode) =>
+              ref.read(themeProvider.notifier).setThemeMode(mode),
         ),
         SizedBox(height: AppSpacing.sm),
         _ThemeOptionTile(
@@ -37,7 +39,8 @@ class ThemeToggleTile extends ConsumerWidget {
           subtitle: 'Dark theme',
           themeMode: ThemeMode.dark,
           currentMode: themeState.themeMode,
-          onChanged: (mode) => ref.read(themeProvider.notifier).setThemeMode(mode),
+          onChanged: (mode) =>
+              ref.read(themeProvider.notifier).setThemeMode(mode),
         ),
       ],
     );
@@ -98,7 +101,9 @@ class _ThemeOptionTile extends StatelessWidget {
                   Text(
                     title,
                     style: theme.textTheme.bodyLarge?.copyWith(
-                      fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                      fontWeight: isSelected
+                          ? FontWeight.w600
+                          : FontWeight.normal,
                       color: isSelected
                           ? theme.colorScheme.primary
                           : theme.colorScheme.onSurface,

@@ -57,8 +57,12 @@ class PermissionsNotifier extends Notifier<PermissionsState> {
   /// Initialize and check current permission statuses
   Future<void> _initializePermissions() async {
     try {
-      final cameraStatus = await PermissionHelper.checkPermission(AppPermission.camera);
-      final contactsStatus = await PermissionHelper.checkPermission(AppPermission.contacts);
+      final cameraStatus = await PermissionHelper.checkPermission(
+        AppPermission.camera,
+      );
+      final contactsStatus = await PermissionHelper.checkPermission(
+        AppPermission.contacts,
+      );
 
       state = state.copyWith(
         cameraStatus: cameraStatus,
@@ -66,9 +70,7 @@ class PermissionsNotifier extends Notifier<PermissionsState> {
         error: null,
       );
     } catch (e) {
-      state = state.copyWith(
-        error: 'Failed to check permissions: $e',
-      );
+      state = state.copyWith(error: 'Failed to check permissions: $e');
     }
   }
 
@@ -77,11 +79,10 @@ class PermissionsNotifier extends Notifier<PermissionsState> {
     try {
       state = state.copyWith(isLoading: true, error: null);
 
-      final status = await PermissionHelper.requestPermission(AppPermission.camera);
-      state = state.copyWith(
-        cameraStatus: status,
-        isLoading: false,
+      final status = await PermissionHelper.requestPermission(
+        AppPermission.camera,
       );
+      state = state.copyWith(cameraStatus: status, isLoading: false);
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
@@ -95,11 +96,10 @@ class PermissionsNotifier extends Notifier<PermissionsState> {
     try {
       state = state.copyWith(isLoading: true, error: null);
 
-      final status = await PermissionHelper.requestPermission(AppPermission.contacts);
-      state = state.copyWith(
-        contactsStatus: status,
-        isLoading: false,
+      final status = await PermissionHelper.requestPermission(
+        AppPermission.contacts,
       );
+      state = state.copyWith(contactsStatus: status, isLoading: false);
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
@@ -136,6 +136,7 @@ class PermissionsNotifier extends Notifier<PermissionsState> {
 }
 
 /// Provider for permissions state management
-final permissionsProvider = NotifierProvider<PermissionsNotifier, PermissionsState>(
-  PermissionsNotifier.new,
-);
+final permissionsProvider =
+    NotifierProvider<PermissionsNotifier, PermissionsState>(
+      PermissionsNotifier.new,
+    );

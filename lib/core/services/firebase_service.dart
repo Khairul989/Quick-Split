@@ -20,7 +20,9 @@ class FirebaseService {
       );
     } catch (e) {
       // Web and some platforms don't support offline persistence configuration
-      _logger.w('Firestore offline persistence not available on this platform: $e');
+      _logger.w(
+        'Firestore offline persistence not available on this platform: $e',
+      );
     }
   }
 }

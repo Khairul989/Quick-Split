@@ -10,10 +10,7 @@ import 'package:quicksplit/features/assign/presentation/widgets/person_chip.dart
 class MockAssignmentNotifier extends AssignmentNotifier {
   @override
   AssignmentState build() {
-    return const AssignmentState(
-      assignments: {},
-      participantPersonIds: [],
-    );
+    return const AssignmentState(assignments: {}, participantPersonIds: []);
   }
 }
 
@@ -24,15 +21,12 @@ void main() {
       /// No setUp needed for this test
     });
 
-    testWidgets('displays AppBar with title and progress indicator',
-        (WidgetTester tester) async {
+    testWidgets('displays AppBar with title and progress indicator', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         ProviderScope(
-          child: MaterialApp(
-            home: Scaffold(
-              body: AssignItemsScreen(),
-            ),
-          ),
+          child: MaterialApp(home: Scaffold(body: AssignItemsScreen())),
         ),
       );
 
@@ -43,15 +37,12 @@ void main() {
       expect(find.byType(LinearProgressIndicator), findsOneWidget);
     });
 
-    testWidgets('displays all participants as chips',
-        (WidgetTester tester) async {
+    testWidgets('displays all participants as chips', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         ProviderScope(
-          child: MaterialApp(
-            home: Scaffold(
-              body: AssignItemsScreen(),
-            ),
-          ),
+          child: MaterialApp(home: Scaffold(body: AssignItemsScreen())),
         ),
       );
 
@@ -64,15 +55,12 @@ void main() {
       expect(find.text('Syafiq'), findsOneWidget);
     });
 
-    testWidgets('displays all receipt items with correct information',
-        (WidgetTester tester) async {
+    testWidgets('displays all receipt items with correct information', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         ProviderScope(
-          child: MaterialApp(
-            home: Scaffold(
-              body: AssignItemsScreen(),
-            ),
-          ),
+          child: MaterialApp(home: Scaffold(body: AssignItemsScreen())),
         ),
       );
 
@@ -87,15 +75,12 @@ void main() {
       expect(find.text('3x @ RM3.50'), findsOneWidget);
     });
 
-    testWidgets('displays correct unassigned count initially',
-        (WidgetTester tester) async {
+    testWidgets('displays correct unassigned count initially', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         ProviderScope(
-          child: MaterialApp(
-            home: Scaffold(
-              body: AssignItemsScreen(),
-            ),
-          ),
+          child: MaterialApp(home: Scaffold(body: AssignItemsScreen())),
         ),
       );
 
@@ -104,15 +89,12 @@ void main() {
       expect(find.text('5 items unassigned'), findsOneWidget);
     });
 
-    testWidgets('Calculate button is disabled when items are unassigned',
-        (WidgetTester tester) async {
+    testWidgets('Calculate button is disabled when items are unassigned', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         ProviderScope(
-          child: MaterialApp(
-            home: Scaffold(
-              body: AssignItemsScreen(),
-            ),
-          ),
+          child: MaterialApp(home: Scaffold(body: AssignItemsScreen())),
         ),
       );
 
@@ -125,15 +107,12 @@ void main() {
       expect(button.onPressed, isNull);
     });
 
-    testWidgets('opening item card shows bottom sheet for person selection',
-        (WidgetTester tester) async {
+    testWidgets('opening item card shows bottom sheet for person selection', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         ProviderScope(
-          child: MaterialApp(
-            home: Scaffold(
-              body: AssignItemsScreen(),
-            ),
-          ),
+          child: MaterialApp(home: Scaffold(body: AssignItemsScreen())),
         ),
       );
 
@@ -144,18 +123,18 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Who had this item?'), findsOneWidget);
-      expect(find.text('Select all people who shared this item'), findsOneWidget);
+      expect(
+        find.text('Select all people who shared this item'),
+        findsOneWidget,
+      );
     });
 
-    testWidgets('person selection updates item card visual state',
-        (WidgetTester tester) async {
+    testWidgets('person selection updates item card visual state', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         ProviderScope(
-          child: MaterialApp(
-            home: Scaffold(
-              body: AssignItemsScreen(),
-            ),
-          ),
+          child: MaterialApp(home: Scaffold(body: AssignItemsScreen())),
         ),
       );
 
@@ -178,15 +157,12 @@ void main() {
       expect(find.text('Who had this item?'), findsNothing);
     });
 
-    testWidgets('progress indicator updates when items are assigned',
-        (WidgetTester tester) async {
+    testWidgets('progress indicator updates when items are assigned', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         ProviderScope(
-          child: MaterialApp(
-            home: Scaffold(
-              body: AssignItemsScreen(),
-            ),
-          ),
+          child: MaterialApp(home: Scaffold(body: AssignItemsScreen())),
         ),
       );
 
@@ -209,15 +185,12 @@ void main() {
       expect(find.text('1/5 assigned'), findsOneWidget);
     });
 
-    testWidgets('unassigned count updates correctly',
-        (WidgetTester tester) async {
+    testWidgets('unassigned count updates correctly', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         ProviderScope(
-          child: MaterialApp(
-            home: Scaffold(
-              body: AssignItemsScreen(),
-            ),
-          ),
+          child: MaterialApp(home: Scaffold(body: AssignItemsScreen())),
         ),
       );
 
@@ -240,15 +213,12 @@ void main() {
       expect(find.text('4 items unassigned'), findsOneWidget);
     });
 
-    testWidgets('Calculate button is enabled when all items are assigned',
-        (WidgetTester tester) async {
+    testWidgets('Calculate button is enabled when all items are assigned', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         ProviderScope(
-          child: MaterialApp(
-            home: Scaffold(
-              body: AssignItemsScreen(),
-            ),
-          ),
+          child: MaterialApp(home: Scaffold(body: AssignItemsScreen())),
         ),
       );
 
@@ -273,15 +243,12 @@ void main() {
       expect(button.onPressed, isNotNull);
     });
 
-    testWidgets('Calculate button shows snackbar when pressed',
-        (WidgetTester tester) async {
+    testWidgets('Calculate button shows snackbar when pressed', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         ProviderScope(
-          child: MaterialApp(
-            home: Scaffold(
-              body: AssignItemsScreen(),
-            ),
-          ),
+          child: MaterialApp(home: Scaffold(body: AssignItemsScreen())),
         ),
       );
 
@@ -309,15 +276,12 @@ void main() {
       expect(find.text('Ready for calculation!'), findsOneWidget);
     });
 
-    testWidgets('bottom sheet shows all participants with checkboxes',
-        (WidgetTester tester) async {
+    testWidgets('bottom sheet shows all participants with checkboxes', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         ProviderScope(
-          child: MaterialApp(
-            home: Scaffold(
-              body: AssignItemsScreen(),
-            ),
-          ),
+          child: MaterialApp(home: Scaffold(body: AssignItemsScreen())),
         ),
       );
 
@@ -334,15 +298,12 @@ void main() {
       expect(find.text('Done'), findsOneWidget);
     });
 
-    testWidgets('shared item displays multiple person avatars',
-        (WidgetTester tester) async {
+    testWidgets('shared item displays multiple person avatars', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         ProviderScope(
-          child: MaterialApp(
-            home: Scaffold(
-              body: AssignItemsScreen(),
-            ),
-          ),
+          child: MaterialApp(home: Scaffold(body: AssignItemsScreen())),
         ),
       );
 
@@ -367,15 +328,10 @@ void main() {
       expect(find.byType(CircleAvatar), findsWidgets);
     });
 
-    testWidgets('items list scrolls properly',
-        (WidgetTester tester) async {
+    testWidgets('items list scrolls properly', (WidgetTester tester) async {
       await tester.pumpWidget(
         ProviderScope(
-          child: MaterialApp(
-            home: Scaffold(
-              body: AssignItemsScreen(),
-            ),
-          ),
+          child: MaterialApp(home: Scaffold(body: AssignItemsScreen())),
         ),
       );
 

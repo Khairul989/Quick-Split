@@ -1,4 +1,5 @@
 import 'package:hive_ce/hive.dart';
+
 import '../../../payments/domain/models/payment_status.dart';
 
 part 'person_share.g.dart';
@@ -98,7 +99,8 @@ class PersonShare extends HiveObject {
   /// Get payment percentage
   double get paymentPercentage {
     if (total == 0) return 1.0;
-    final paid = amountPaid ?? (paymentStatus == PaymentStatus.paid ? total : 0);
+    final paid =
+        amountPaid ?? (paymentStatus == PaymentStatus.paid ? total : 0);
     return (paid / total).clamp(0.0, 1.0);
   }
 }

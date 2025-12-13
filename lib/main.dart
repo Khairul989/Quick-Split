@@ -1,13 +1,19 @@
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hive_ce_flutter/hive_flutter.dart';
 
 import 'core/providers/theme_provider.dart';
 import 'core/router/router.dart';
+import 'core/services/deep_link_service.dart';
 import 'core/services/firebase_service.dart';
+import 'core/services/notification_service.dart';
 import 'core/theme/theme.dart';
 import 'features/assign/domain/models/split_session.dart';
+import 'features/groups/domain/models/contact_match.dart';
 import 'features/groups/domain/models/group.dart';
+import 'features/groups/domain/models/group_invite.dart';
 import 'features/groups/domain/models/person.dart';
 import 'features/ocr/domain/models/receipt.dart';
 import 'hive_registrar.g.dart';
@@ -22,7 +28,27 @@ void main() async {
   await FirebaseService.initialize();
   debugPrint('Firebase initialization successful');
 
-  runApp(const ProviderScope(child: QuickSplitApp()));
+  // Setup background message handler for Firebase Cloud Messaging
+  FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+
+  runApp(
+    ProviderScope(child: QuickSplitApp(onInitialize: _initializeDeepLinks)),
+  );
+}
+
+/// Initialize deep link handling
+/// This is called after the app is built
+Future<void> _initializeDeepLinks(GoRouter router) async {
+  final deepLinkService = DeepLinkService();
+
+  // Initialize deep link listener with a callback that navigates using GoRouter
+  await deepLinkService.initialize((uri) async {
+    final code = deepLinkService.extractInviteCode(uri);
+    if (code != null) {
+      // Navigate to invite acceptance screen
+      router.go('/invite/$code');
+    }
+  });
 }
 
 /// Initialize Hive database and create boxes
@@ -73,6 +99,18 @@ Future<void> _initializeHive() async {
       await Hive.openBox<dynamic>('cache');
     }
 
+    // Contact matches box: caches device contact to registered user matches
+    // Format: Map<String, ContactMatch> where key is personId
+    if (!Hive.isBoxOpen('contact_matches')) {
+      await Hive.openBox<ContactMatch>('contact_matches');
+    }
+
+    // Group invites box: caches received invites
+    // Format: Map<String, GroupInvite> where key is inviteId
+    if (!Hive.isBoxOpen('group_invites')) {
+      await Hive.openBox<GroupInvite>('group_invites');
+    }
+
     debugPrint('Hive initialization successful');
   } catch (e) {
     debugPrint('Error initializing Hive: $e');
@@ -81,7 +119,9 @@ Future<void> _initializeHive() async {
 }
 
 class QuickSplitApp extends ConsumerWidget {
-  const QuickSplitApp({super.key});
+  final Future<void> Function(GoRouter)? onInitialize;
+
+  const QuickSplitApp({super.key, this.onInitialize});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -89,6 +129,13 @@ class QuickSplitApp extends ConsumerWidget {
     final router = ref.watch(goRouterProvider);
     // Watch the theme mode provider
     final themeMode = ref.watch(themeModeProvider);
+
+    // Initialize deep link handler after first build
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (onInitialize != null) {
+        onInitialize!(router);
+      }
+    });
 
     return MaterialApp.router(
       title: 'QuickSplit',

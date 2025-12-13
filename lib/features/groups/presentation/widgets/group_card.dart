@@ -19,15 +19,15 @@ Widget _buildGradientIcon(ColorScheme colorScheme, {double size = 20}) {
       ),
       borderRadius: BorderRadius.circular(12),
     ),
-    child: Icon(
-      Icons.people_rounded,
-      size: size,
-      color: Colors.white,
-    ),
+    child: Icon(Icons.people_rounded, size: size, color: Colors.white),
   );
 }
 
-Widget _buildGroupImage(Group group, ColorScheme colorScheme, {double size = 40}) {
+Widget _buildGroupImage(
+  Group group,
+  ColorScheme colorScheme, {
+  double size = 40,
+}) {
   return ClipRRect(
     borderRadius: BorderRadius.circular(12),
     child: Image.file(

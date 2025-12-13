@@ -79,7 +79,9 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 32.0),
-          child: _isSuccessful ? _buildSuccessState(context) : _buildFormState(),
+          child: _isSuccessful
+              ? _buildSuccessState(context)
+              : _buildFormState(),
         ),
       ),
     );
@@ -105,10 +107,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
           const SizedBox(height: 8),
           const Text(
             'Enter your email address and we\'ll send you a link to reset your password',
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey,
-            ),
+            style: TextStyle(fontSize: 14, color: Colors.grey),
           ),
           const SizedBox(height: 32),
 
@@ -154,8 +153,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                       width: 24,
                       child: CircularProgressIndicator(
                         strokeWidth: 2,
-                        valueColor:
-                            AlwaysStoppedAnimation<Color>(Colors.white),
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                       ),
                     )
                   : const Text(
@@ -185,11 +183,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
             shape: BoxShape.circle,
             color: Colors.green.withValues(alpha: 0.1),
           ),
-          child: const Icon(
-            Icons.check_circle,
-            size: 48,
-            color: Colors.green,
-          ),
+          child: const Icon(Icons.check_circle, size: 48, color: Colors.green),
         ),
         const SizedBox(height: 32),
 
@@ -207,10 +201,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
 
         Text(
           'Check your email at ${_emailController.text} for a link to reset your password.',
-          style: const TextStyle(
-            fontSize: 14,
-            color: Colors.grey,
-          ),
+          style: const TextStyle(fontSize: 14, color: Colors.grey),
           textAlign: TextAlign.center,
         ),
         const SizedBox(height: 48),

@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-enum AppPermission {
-  camera,
-  contacts,
-}
+enum AppPermission { camera, contacts }
 
 /// Helper class for managing app permissions
 class PermissionHelper {
   /// Check current status of a permission
-  static Future<PermissionStatus> checkPermission(AppPermission permission) async {
+  static Future<PermissionStatus> checkPermission(
+    AppPermission permission,
+  ) async {
     switch (permission) {
       case AppPermission.camera:
         return await Permission.camera.status;
@@ -19,7 +18,9 @@ class PermissionHelper {
   }
 
   /// Request a permission
-  static Future<PermissionStatus> requestPermission(AppPermission permission) async {
+  static Future<PermissionStatus> requestPermission(
+    AppPermission permission,
+  ) async {
     switch (permission) {
       case AppPermission.camera:
         return await Permission.camera.request();

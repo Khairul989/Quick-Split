@@ -10,7 +10,10 @@ final paymentHistoryBoxProvider = Provider<Box<SplitSession>>((ref) {
 });
 
 /// Async provider for loading a specific split session with payment data
-final splitSessionProvider = FutureProvider.family<SplitSession, String>((ref, splitId) async {
+final splitSessionProvider = FutureProvider.family<SplitSession, String>((
+  ref,
+  splitId,
+) async {
   final box = ref.read(paymentHistoryBoxProvider);
   final session = box.get(splitId);
 
@@ -22,18 +25,24 @@ final splitSessionProvider = FutureProvider.family<SplitSession, String>((ref, s
 });
 
 /// Stream provider for watching changes to a specific split session
-final splitSessionStreamProvider = StreamProvider.family<SplitSession?, String>((ref, splitId) {
-  final box = ref.read(paymentHistoryBoxProvider);
-  return box.watch(key: splitId).map((event) => event.value);
-});
+final splitSessionStreamProvider = StreamProvider.family<SplitSession?, String>(
+  (ref, splitId) {
+    final box = ref.read(paymentHistoryBoxProvider);
+    return box.watch(key: splitId).map((event) => event.value);
+  },
+);
 
 /// Provider for payment management state
-final paymentNotifierProvider = AsyncNotifierProvider<PaymentNotifier, PaymentState>(() {
-  return PaymentNotifier();
-});
+final paymentNotifierProvider =
+    AsyncNotifierProvider<PaymentNotifier, PaymentState>(() {
+      return PaymentNotifier();
+    });
 
 /// Provider for payment statistics
-final paymentStatsProvider = Provider.family<PaymentStats, String>((ref, splitId) {
+final paymentStatsProvider = Provider.family<PaymentStats, String>((
+  ref,
+  splitId,
+) {
   final session = ref.watch(splitSessionStreamProvider(splitId)).value;
 
   if (session == null) {
@@ -56,7 +65,8 @@ final paymentStatsProvider = Provider.family<PaymentStats, String>((ref, splitId
     if (share.paymentStatus == PaymentStatus.paid) {
       totalPaid += share.total;
       peoplePaid++;
-    } else if (share.paymentStatus == PaymentStatus.partial && share.amountPaid != null) {
+    } else if (share.paymentStatus == PaymentStatus.partial &&
+        share.amountPaid != null) {
       totalPaid += share.amountPaid!;
       if (share.amountPaid! >= share.total) {
         peoplePaid++;
@@ -79,11 +89,7 @@ class PaymentState {
   final String? error;
   final String? successMessage;
 
-  const PaymentState({
-    this.isLoading = false,
-    this.error,
-    this.successMessage,
-  });
+  const PaymentState({this.isLoading = false, this.error, this.successMessage});
 
   PaymentState copyWith({
     bool? isLoading,
@@ -153,16 +159,17 @@ class PaymentNotifier extends AsyncNotifier<PaymentState> {
       }).toList();
 
       // Create updated session
-      final updatedSession = session.copyWith(
-        calculatedShares: updatedShares,
-      );
+      final updatedSession = session.copyWith(calculatedShares: updatedShares);
 
       // Save to Hive
       await box.put(splitId, updatedSession);
 
-      state = AsyncValue.data(PaymentState(
-        successMessage: '${updatedShare.personName} marked as ${updatedShare.paymentStatus.displayName}',
-      ));
+      state = AsyncValue.data(
+        PaymentState(
+          successMessage:
+              '${updatedShare.personName} marked as ${updatedShare.paymentStatus.displayName}',
+        ),
+      );
     } catch (e) {
       state = AsyncValue.error(e, StackTrace.current);
     }
@@ -194,17 +201,17 @@ class PaymentNotifier extends AsyncNotifier<PaymentState> {
       }).toList();
 
       // Create updated session
-      final updatedSession = session.copyWith(
-        calculatedShares: updatedShares,
-      );
+      final updatedSession = session.copyWith(calculatedShares: updatedShares);
 
       // Save to Hive
       await box.put(splitId, updatedSession);
 
-      final actionText = status == PaymentStatus.paid ? 'marked as paid' : 'marked as unpaid';
-      state = AsyncValue.data(PaymentState(
-        successMessage: 'All people $actionText',
-      ));
+      final actionText = status == PaymentStatus.paid
+          ? 'marked as paid'
+          : 'marked as unpaid';
+      state = AsyncValue.data(
+        PaymentState(successMessage: 'All people $actionText'),
+      );
     } catch (e) {
       state = AsyncValue.error(e, StackTrace.current);
     }
@@ -246,16 +253,17 @@ class PaymentNotifier extends AsyncNotifier<PaymentState> {
       }).toList();
 
       // Create updated session
-      final updatedSession = session.copyWith(
-        calculatedShares: updatedShares,
-      );
+      final updatedSession = session.copyWith(calculatedShares: updatedShares);
 
       // Save to Hive
       await box.put(splitId, updatedSession);
 
-      state = AsyncValue.data(PaymentState(
-        successMessage: 'Payment of RM ${amountPaid.toStringAsFixed(2)} recorded for ${share.personName}',
-      ));
+      state = AsyncValue.data(
+        PaymentState(
+          successMessage:
+              'Payment of RM ${amountPaid.toStringAsFixed(2)} recorded for ${share.personName}',
+        ),
+      );
     } catch (e) {
       state = AsyncValue.error(e, StackTrace.current);
     }
@@ -284,16 +292,14 @@ class PaymentNotifier extends AsyncNotifier<PaymentState> {
       }).toList();
 
       // Create updated session
-      final updatedSession = session.copyWith(
-        calculatedShares: updatedShares,
-      );
+      final updatedSession = session.copyWith(calculatedShares: updatedShares);
 
       // Save to Hive
       await box.put(splitId, updatedSession);
 
-      state = AsyncValue.data(const PaymentState(
-        successMessage: 'All payments have been reset',
-      ));
+      state = AsyncValue.data(
+        const PaymentState(successMessage: 'All payments have been reset'),
+      );
     } catch (e) {
       state = AsyncValue.error(e, StackTrace.current);
     }

@@ -85,17 +85,19 @@ class CalculatorNotifier extends Notifier<CalculatorState> {
       // Handle empty receipt
       if (receipt.items.isEmpty) {
         final shares = participants
-            .map((person) => PersonShare(
-                  personId: person.id,
-                  personName: person.name,
-                  personEmoji: person.emoji,
-                  itemsSubtotal: 0.0,
-                  sst: 0.0,
-                  serviceCharge: 0.0,
-                  rounding: 0.0,
-                  total: 0.0,
-                  assignedItemIds: [],
-                ))
+            .map(
+              (person) => PersonShare(
+                personId: person.id,
+                personName: person.name,
+                personEmoji: person.emoji,
+                itemsSubtotal: 0.0,
+                sst: 0.0,
+                serviceCharge: 0.0,
+                rounding: 0.0,
+                total: 0.0,
+                assignedItemIds: [],
+              ),
+            )
             .toList();
 
         state = state.copyWith(
@@ -176,7 +178,9 @@ class CalculatorNotifier extends Notifier<CalculatorState> {
     }
 
     // Calculate proportion of receipt (handle division by zero)
-    final proportion = calculatedSubtotal > 0 ? itemsSubtotal / calculatedSubtotal : 0.0;
+    final proportion = calculatedSubtotal > 0
+        ? itemsSubtotal / calculatedSubtotal
+        : 0.0;
 
     // Apply proportional taxes and charges
     final personSst = receipt.sst * proportion;
@@ -184,7 +188,8 @@ class CalculatorNotifier extends Notifier<CalculatorState> {
     final personRounding = receipt.rounding * proportion;
 
     // Calculate final total
-    final personTotal = itemsSubtotal + personSst + personServiceCharge + personRounding;
+    final personTotal =
+        itemsSubtotal + personSst + personServiceCharge + personRounding;
 
     return PersonShare(
       personId: person.id,
@@ -210,9 +215,10 @@ class CalculatorNotifier extends Notifier<CalculatorState> {
 }
 
 /// Provider for the calculator notifier and state.
-final calculatorProvider = NotifierProvider<CalculatorNotifier, CalculatorState>(
-  CalculatorNotifier.new,
-);
+final calculatorProvider =
+    NotifierProvider<CalculatorNotifier, CalculatorState>(
+      CalculatorNotifier.new,
+    );
 
 /// Computed provider for sum of all calculated shares.
 /// Used to validate that sum equals receipt total (within tolerance).

@@ -15,15 +15,35 @@ class UserProfileNotifier extends Notifier<UserProfile?> {
     required String name,
     String? email,
     String? emoji,
+    String? phoneNumber,
   }) async {
     try {
+      final now = DateTime.now();
       final profile = UserProfile(
         name: name,
         email: email,
         emoji: emoji ?? '😊',
-        createdAt: DateTime.now(),
+        createdAt: now,
+        phoneNumber: phoneNumber,
+        updatedAt: now,
       );
 
+      final repository = ref.read(onboardingRepositoryProvider);
+      final success = await repository.saveUserProfile(profile);
+
+      if (success) {
+        state = profile;
+      }
+
+      return success;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Update existing user profile
+  Future<bool> updateProfile(UserProfile profile) async {
+    try {
       final repository = ref.read(onboardingRepositoryProvider);
       final success = await repository.saveUserProfile(profile);
 

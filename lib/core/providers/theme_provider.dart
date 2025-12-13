@@ -7,10 +7,7 @@ class ThemeState {
   final ThemeMode themeMode;
   final bool isLoading;
 
-  const ThemeState({
-    this.themeMode = ThemeMode.system,
-    this.isLoading = false,
-  });
+  const ThemeState({this.themeMode = ThemeMode.system, this.isLoading = false});
 
   ThemeState copyWith({ThemeMode? themeMode, bool? isLoading}) {
     return ThemeState(

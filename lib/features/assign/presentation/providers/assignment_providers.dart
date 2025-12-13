@@ -49,7 +49,9 @@ class AssignmentState {
 
   /// Get the count of unassigned items.
   int getUnassignedCount() {
-    return assignments.values.where((assignment) => !assignment.isAssigned).length;
+    return assignments.values
+        .where((assignment) => !assignment.isAssigned)
+        .length;
   }
 
   /// Check if all items are assigned to at least one person.
@@ -60,10 +62,7 @@ class AssignmentState {
 class AssignmentNotifier extends Notifier<AssignmentState> {
   @override
   AssignmentState build() {
-    return const AssignmentState(
-      assignments: {},
-      participantPersonIds: [],
-    );
+    return const AssignmentState(assignments: {}, participantPersonIds: []);
   }
 
   /// Initialize assignments with items and participants.
@@ -94,9 +93,7 @@ class AssignmentNotifier extends Notifier<AssignmentState> {
 
     assignment.togglePerson(personId);
 
-    state = state.copyWith(
-      assignments: {...state.assignments},
-    );
+    state = state.copyWith(assignments: {...state.assignments});
   }
 
   /// Assign all items to a single person.
@@ -121,9 +118,7 @@ class AssignmentNotifier extends Notifier<AssignmentState> {
     final assignments = <String, ItemAssignment>{};
 
     for (final entry in state.assignments.entries) {
-      assignments[entry.key] = entry.value.copyWith(
-        assignedPersonIds: [],
-      );
+      assignments[entry.key] = entry.value.copyWith(assignedPersonIds: []);
     }
 
     state = state.copyWith(assignments: assignments);
@@ -146,9 +141,10 @@ class AssignmentNotifier extends Notifier<AssignmentState> {
 }
 
 /// Provider for managing item-to-person assignments.
-final assignmentProvider = NotifierProvider<AssignmentNotifier, AssignmentState>(
-  () => AssignmentNotifier(),
-);
+final assignmentProvider =
+    NotifierProvider<AssignmentNotifier, AssignmentState>(
+      () => AssignmentNotifier(),
+    );
 
 /// Computed provider for the count of unassigned items.
 final unassignedItemsCountProvider = Provider<int>((ref) {

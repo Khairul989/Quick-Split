@@ -20,6 +20,7 @@ class PreselectedGroupNotifier extends Notifier<String?> {
 /// Used when user taps "Use for New Split" from home screen.
 ///
 /// The provider is automatically cleared after the group is used in GroupSelectScreen.
-final preselectedGroupIdProvider = NotifierProvider<PreselectedGroupNotifier, String?>(
-  PreselectedGroupNotifier.new,
-);
+final preselectedGroupIdProvider =
+    NotifierProvider<PreselectedGroupNotifier, String?>(
+      PreselectedGroupNotifier.new,
+    );

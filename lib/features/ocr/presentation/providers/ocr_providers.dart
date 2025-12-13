@@ -48,10 +48,14 @@ class OcrStateNotifier extends Notifier<OcrState> {
 
       logger.i('📝 [OCR] Raw text extracted:');
       logger.i('  - Blocks: ${recognizedText.blocks.length}');
-      logger.i('  - Lines: ${recognizedText.blocks.fold(0, (sum, block) => sum + block.lines.length)}');
+      logger.i(
+        '  - Lines: ${recognizedText.blocks.fold(0, (sum, block) => sum + block.lines.length)}',
+      );
       logger.t('  - Full text:\n${recognizedText.text}');
 
-      final parsedReceipt = ReceiptParser.parseReceiptFromRecognizedText(recognizedText);
+      final parsedReceipt = ReceiptParser.parseReceiptFromRecognizedText(
+        recognizedText,
+      );
 
       logger.i('✅ [OCR] Parsing complete:');
       logger.i('  - Items found: ${parsedReceipt.items.length}');

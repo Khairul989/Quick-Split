@@ -10,10 +10,7 @@ class ItemAssignment extends HiveObject {
   @HiveField(1)
   late List<String> assignedPersonIds;
 
-  ItemAssignment({
-    required this.itemId,
-    required this.assignedPersonIds,
-  });
+  ItemAssignment({required this.itemId, required this.assignedPersonIds});
 
   bool get isAssigned => assignedPersonIds.isNotEmpty;
   bool get isShared => assignedPersonIds.length > 1;

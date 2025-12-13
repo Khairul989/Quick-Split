@@ -37,10 +37,7 @@ void main() {
         isCalculated: false,
       );
 
-      final newState = state.copyWith(
-        totalAmount: 150,
-        isCalculated: true,
-      );
+      final newState = state.copyWith(totalAmount: 150, isCalculated: true);
 
       expect(newState.totalAmount, 150);
       expect(newState.isCalculated, true);
@@ -52,9 +49,7 @@ void main() {
     /// Test Case 1: Single person, single item -> correct total
     test('single person single item calculates correct total', () {
       final receipt = Receipt(
-        items: [
-          ReceiptItem(id: '1', name: 'Pizza', quantity: 1, price: 40.00),
-        ],
+        items: [ReceiptItem(id: '1', name: 'Pizza', quantity: 1, price: 40.00)],
         subtotal: 40.00,
         sst: 0,
         serviceCharge: 0,
@@ -62,15 +57,15 @@ void main() {
         total: 40.00,
       );
 
-      final people = [
-        Person(id: 'p1', name: 'Alice', emoji: '😊'),
-      ];
+      final people = [Person(id: 'p1', name: 'Alice', emoji: '😊')];
 
       final assignments = {
         '1': ItemAssignment(itemId: '1', assignedPersonIds: ['p1']),
       };
 
-      container.read(calculatorProvider.notifier).calculate(
+      container
+          .read(calculatorProvider.notifier)
+          .calculate(
             receipt: receipt,
             participants: people,
             assignments: assignments,
@@ -107,7 +102,9 @@ void main() {
         '2': ItemAssignment(itemId: '2', assignedPersonIds: ['p2']),
       };
 
-      container.read(calculatorProvider.notifier).calculate(
+      container
+          .read(calculatorProvider.notifier)
+          .calculate(
             receipt: receipt,
             participants: people,
             assignments: assignments,
@@ -132,9 +129,7 @@ void main() {
     /// Test Case 3: Shared item (2 people) -> price divided by 2
     test('shared item splits price equally between 2 people', () {
       final receipt = Receipt(
-        items: [
-          ReceiptItem(id: '1', name: 'Pizza', quantity: 1, price: 40.00),
-        ],
+        items: [ReceiptItem(id: '1', name: 'Pizza', quantity: 1, price: 40.00)],
         subtotal: 40.00,
         sst: 0,
         serviceCharge: 0,
@@ -151,7 +146,9 @@ void main() {
         '1': ItemAssignment(itemId: '1', assignedPersonIds: ['p1', 'p2']),
       };
 
-      container.read(calculatorProvider.notifier).calculate(
+      container
+          .read(calculatorProvider.notifier)
+          .calculate(
             receipt: receipt,
             participants: people,
             assignments: assignments,
@@ -168,9 +165,7 @@ void main() {
     /// Test Case 4: Shared item (3 people) -> price divided by 3
     test('shared item splits price equally between 3 people', () {
       final receipt = Receipt(
-        items: [
-          ReceiptItem(id: '1', name: 'Pizza', quantity: 1, price: 30.00),
-        ],
+        items: [ReceiptItem(id: '1', name: 'Pizza', quantity: 1, price: 30.00)],
         subtotal: 30.00,
         sst: 0,
         serviceCharge: 0,
@@ -185,13 +180,12 @@ void main() {
       ];
 
       final assignments = {
-        '1': ItemAssignment(
-          itemId: '1',
-          assignedPersonIds: ['p1', 'p2', 'p3'],
-        ),
+        '1': ItemAssignment(itemId: '1', assignedPersonIds: ['p1', 'p2', 'p3']),
       };
 
-      container.read(calculatorProvider.notifier).calculate(
+      container
+          .read(calculatorProvider.notifier)
+          .calculate(
             receipt: receipt,
             participants: people,
             assignments: assignments,
@@ -207,9 +201,7 @@ void main() {
     /// Test Case 5: Person with no items -> total = 0.00
     test('person with no assigned items has zero total', () {
       final receipt = Receipt(
-        items: [
-          ReceiptItem(id: '1', name: 'Pizza', quantity: 1, price: 40.00),
-        ],
+        items: [ReceiptItem(id: '1', name: 'Pizza', quantity: 1, price: 40.00)],
         subtotal: 40.00,
         sst: 4.00,
         serviceCharge: 0,
@@ -226,7 +218,9 @@ void main() {
         '1': ItemAssignment(itemId: '1', assignedPersonIds: ['p1']),
       };
 
-      container.read(calculatorProvider.notifier).calculate(
+      container
+          .read(calculatorProvider.notifier)
+          .calculate(
             receipt: receipt,
             participants: people,
             assignments: assignments,
@@ -259,16 +253,16 @@ void main() {
         total: 50.00,
       );
 
-      final people = [
-        Person(id: 'p1', name: 'Alice', emoji: '😊'),
-      ];
+      final people = [Person(id: 'p1', name: 'Alice', emoji: '😊')];
 
       final assignments = {
         '1': ItemAssignment(itemId: '1', assignedPersonIds: ['p1']),
         '2': ItemAssignment(itemId: '2', assignedPersonIds: []), // Not assigned
       };
 
-      container.read(calculatorProvider.notifier).calculate(
+      container
+          .read(calculatorProvider.notifier)
+          .calculate(
             receipt: receipt,
             participants: people,
             assignments: assignments,
@@ -306,7 +300,9 @@ void main() {
         '2': ItemAssignment(itemId: '2', assignedPersonIds: ['p2']),
       };
 
-      container.read(calculatorProvider.notifier).calculate(
+      container
+          .read(calculatorProvider.notifier)
+          .calculate(
             receipt: receipt,
             participants: people,
             assignments: assignments,
@@ -345,7 +341,9 @@ void main() {
         '2': ItemAssignment(itemId: '2', assignedPersonIds: ['p2']),
       };
 
-      container.read(calculatorProvider.notifier).calculate(
+      container
+          .read(calculatorProvider.notifier)
+          .calculate(
             receipt: receipt,
             participants: people,
             assignments: assignments,
@@ -384,7 +382,9 @@ void main() {
         '2': ItemAssignment(itemId: '2', assignedPersonIds: ['p2']),
       };
 
-      container.read(calculatorProvider.notifier).calculate(
+      container
+          .read(calculatorProvider.notifier)
+          .calculate(
             receipt: receipt,
             participants: people,
             assignments: assignments,
@@ -424,7 +424,9 @@ void main() {
         '3': ItemAssignment(itemId: '3', assignedPersonIds: ['p1', 'p3']),
       };
 
-      container.read(calculatorProvider.notifier).calculate(
+      container
+          .read(calculatorProvider.notifier)
+          .calculate(
             receipt: receipt,
             participants: people,
             assignments: assignments,
@@ -440,9 +442,7 @@ void main() {
     /// Test Case 11: Receipt with SST=0, Service=0 -> handles gracefully
     test('receipt with zero taxes and service charges handles gracefully', () {
       final receipt = Receipt(
-        items: [
-          ReceiptItem(id: '1', name: 'Item', quantity: 1, price: 25.00),
-        ],
+        items: [ReceiptItem(id: '1', name: 'Item', quantity: 1, price: 25.00)],
         subtotal: 25.00,
         sst: 0,
         serviceCharge: 0,
@@ -459,7 +459,9 @@ void main() {
         '1': ItemAssignment(itemId: '1', assignedPersonIds: ['p1', 'p2']),
       };
 
-      container.read(calculatorProvider.notifier).calculate(
+      container
+          .read(calculatorProvider.notifier)
+          .calculate(
             receipt: receipt,
             participants: people,
             assignments: assignments,
@@ -492,7 +494,9 @@ void main() {
 
       final assignments = <String, ItemAssignment>{};
 
-      container.read(calculatorProvider.notifier).calculate(
+      container
+          .read(calculatorProvider.notifier)
+          .calculate(
             receipt: receipt,
             participants: people,
             assignments: assignments,
@@ -516,9 +520,7 @@ void main() {
   group('CalculatorNotifier - Additional Edge Cases', () {
     test('empty participants list returns empty shares', () {
       final receipt = Receipt(
-        items: [
-          ReceiptItem(id: '1', name: 'Pizza', quantity: 1, price: 40.00),
-        ],
+        items: [ReceiptItem(id: '1', name: 'Pizza', quantity: 1, price: 40.00)],
         subtotal: 40.00,
         sst: 0,
         serviceCharge: 0,
@@ -530,7 +532,9 @@ void main() {
         '1': ItemAssignment(itemId: '1', assignedPersonIds: []),
       };
 
-      container.read(calculatorProvider.notifier).calculate(
+      container
+          .read(calculatorProvider.notifier)
+          .calculate(
             receipt: receipt,
             participants: [],
             assignments: assignments,
@@ -569,7 +573,9 @@ void main() {
         '4': ItemAssignment(itemId: '4', assignedPersonIds: ['p1', 'p2', 'p3']),
       };
 
-      container.read(calculatorProvider.notifier).calculate(
+      container
+          .read(calculatorProvider.notifier)
+          .calculate(
             receipt: receipt,
             participants: people,
             assignments: assignments,
@@ -586,9 +592,7 @@ void main() {
 
     test('reset clears calculator state', () {
       final receipt = Receipt(
-        items: [
-          ReceiptItem(id: '1', name: 'Pizza', quantity: 1, price: 40.00),
-        ],
+        items: [ReceiptItem(id: '1', name: 'Pizza', quantity: 1, price: 40.00)],
         subtotal: 40.00,
         sst: 0,
         serviceCharge: 0,
@@ -602,7 +606,9 @@ void main() {
       };
 
       // Perform calculation
-      container.read(calculatorProvider.notifier).calculate(
+      container
+          .read(calculatorProvider.notifier)
+          .calculate(
             receipt: receipt,
             participants: people,
             assignments: assignments,
@@ -622,38 +628,43 @@ void main() {
       expect(state.error, null);
     });
 
-    test('calculation with assigned items list tracks which items are assigned', () {
-      final receipt = Receipt(
-        items: [
-          ReceiptItem(id: '1', name: 'Pizza', quantity: 1, price: 40.00),
-          ReceiptItem(id: '2', name: 'Coke', quantity: 1, price: 10.00),
-        ],
-        subtotal: 50.00,
-        sst: 0,
-        serviceCharge: 0,
-        rounding: 0,
-        total: 50.00,
-      );
+    test(
+      'calculation with assigned items list tracks which items are assigned',
+      () {
+        final receipt = Receipt(
+          items: [
+            ReceiptItem(id: '1', name: 'Pizza', quantity: 1, price: 40.00),
+            ReceiptItem(id: '2', name: 'Coke', quantity: 1, price: 10.00),
+          ],
+          subtotal: 50.00,
+          sst: 0,
+          serviceCharge: 0,
+          rounding: 0,
+          total: 50.00,
+        );
 
-      final people = [Person(id: 'p1', name: 'Alice', emoji: '😊')];
-      final assignments = {
-        '1': ItemAssignment(itemId: '1', assignedPersonIds: ['p1']),
-        '2': ItemAssignment(itemId: '2', assignedPersonIds: []),
-      };
+        final people = [Person(id: 'p1', name: 'Alice', emoji: '😊')];
+        final assignments = {
+          '1': ItemAssignment(itemId: '1', assignedPersonIds: ['p1']),
+          '2': ItemAssignment(itemId: '2', assignedPersonIds: []),
+        };
 
-      container.read(calculatorProvider.notifier).calculate(
-            receipt: receipt,
-            participants: people,
-            assignments: assignments,
-          );
+        container
+            .read(calculatorProvider.notifier)
+            .calculate(
+              receipt: receipt,
+              participants: people,
+              assignments: assignments,
+            );
 
-      final state = container.read(calculatorProvider);
-      final share = state.shares[0];
+        final state = container.read(calculatorProvider);
+        final share = state.shares[0];
 
-      // Should only track item 1 as assigned
-      expect(share.assignedItemIds, ['1']);
-      expect(share.assignedItemIds, isNot(contains('2')));
-    });
+        // Should only track item 1 as assigned
+        expect(share.assignedItemIds, ['1']);
+        expect(share.assignedItemIds, isNot(contains('2')));
+      },
+    );
   });
 
   group('CalculatorNotifier - Computed Providers', () {
@@ -680,7 +691,9 @@ void main() {
         '2': ItemAssignment(itemId: '2', assignedPersonIds: ['p2']),
       };
 
-      container.read(calculatorProvider.notifier).calculate(
+      container
+          .read(calculatorProvider.notifier)
+          .calculate(
             receipt: receipt,
             participants: people,
             assignments: assignments,
@@ -697,9 +710,7 @@ void main() {
 
     test('calculatorValidProvider returns true when sum equals total', () {
       final receipt = Receipt(
-        items: [
-          ReceiptItem(id: '1', name: 'Pizza', quantity: 1, price: 40.00),
-        ],
+        items: [ReceiptItem(id: '1', name: 'Pizza', quantity: 1, price: 40.00)],
         subtotal: 40.00,
         sst: 0,
         serviceCharge: 0,
@@ -712,7 +723,9 @@ void main() {
         '1': ItemAssignment(itemId: '1', assignedPersonIds: ['p1']),
       };
 
-      container.read(calculatorProvider.notifier).calculate(
+      container
+          .read(calculatorProvider.notifier)
+          .calculate(
             receipt: receipt,
             participants: people,
             assignments: assignments,
@@ -722,40 +735,45 @@ void main() {
       expect(isValid, true);
     });
 
-    test('calculatorValidProvider returns false when sum exceeds tolerance', () {
-      final receipt = Receipt(
-        items: [
-          ReceiptItem(id: '1', name: 'Pizza', quantity: 1, price: 100.00),
-        ],
-        subtotal: 100.00,
-        sst: 0,
-        serviceCharge: 0,
-        rounding: 0,
-        total: 100.00,
-      );
+    test(
+      'calculatorValidProvider returns false when sum exceeds tolerance',
+      () {
+        final receipt = Receipt(
+          items: [
+            ReceiptItem(id: '1', name: 'Pizza', quantity: 1, price: 100.00),
+          ],
+          subtotal: 100.00,
+          sst: 0,
+          serviceCharge: 0,
+          rounding: 0,
+          total: 100.00,
+        );
 
-      final people = [
-        Person(id: 'p1', name: 'Alice', emoji: '😊'),
-        Person(id: 'p2', name: 'Bob', emoji: '😎'),
-      ];
+        final people = [
+          Person(id: 'p1', name: 'Alice', emoji: '😊'),
+          Person(id: 'p2', name: 'Bob', emoji: '😎'),
+        ];
 
-      // Alice gets whole item, Bob gets nothing
-      final assignments = {
-        '1': ItemAssignment(itemId: '1', assignedPersonIds: ['p1']),
-      };
+        // Alice gets whole item, Bob gets nothing
+        final assignments = {
+          '1': ItemAssignment(itemId: '1', assignedPersonIds: ['p1']),
+        };
 
-      container.read(calculatorProvider.notifier).calculate(
-            receipt: receipt,
-            participants: people,
-            assignments: assignments,
-          );
+        container
+            .read(calculatorProvider.notifier)
+            .calculate(
+              receipt: receipt,
+              participants: people,
+              assignments: assignments,
+            );
 
-      final state = container.read(calculatorProvider);
-      final sum = state.shares.fold(0.0, (sum, share) => sum + share.total);
+        final state = container.read(calculatorProvider);
+        final sum = state.shares.fold(0.0, (sum, share) => sum + share.total);
 
-      // Manually verify sum doesn't equal total (Bob gets 0, so sum = 100)
-      // but receipt total should be 100, so they match
-      expect((sum - state.totalAmount).abs(), lessThanOrEqualTo(0.10));
-    });
+        // Manually verify sum doesn't equal total (Bob gets 0, so sum = 100)
+        // but receipt total should be 100, so they match
+        expect((sum - state.totalAmount).abs(), lessThanOrEqualTo(0.10));
+      },
+    );
   });
 }

@@ -18,11 +18,51 @@ class _EditPersonBottomSheetState extends State<EditPersonBottomSheet> {
 
   // List of common emojis
   static const List<String> _emojiOptions = [
-    '😀', '😃', '😄', '😁', '😊', '😎', '🤩', '🥳', '😍', '🤗',
-    '🤔', '😴', '😭', '😡', '🤬', '🤯', '😱', '🥶', '😇', '🥸',
-    '🤠', '🤡', '👻', '💀', '👽', '🤖', '🎃', '😈', '👹', '👺',
-    '🤡', '💩', '👻', '👾', '🤖', '🎃', '😺', '😸', '😹', '😻',
-    '😼', '😽', '🙀', '😿', '😾'
+    '😀',
+    '😃',
+    '😄',
+    '😁',
+    '😊',
+    '😎',
+    '🤩',
+    '🥳',
+    '😍',
+    '🤗',
+    '🤔',
+    '😴',
+    '😭',
+    '😡',
+    '🤬',
+    '🤯',
+    '😱',
+    '🥶',
+    '😇',
+    '🥸',
+    '🤠',
+    '🤡',
+    '👻',
+    '💀',
+    '👽',
+    '🤖',
+    '🎃',
+    '😈',
+    '👹',
+    '👺',
+    '🤡',
+    '💩',
+    '👻',
+    '👾',
+    '🤖',
+    '🎃',
+    '😺',
+    '😸',
+    '😹',
+    '😻',
+    '😼',
+    '😽',
+    '🙀',
+    '😿',
+    '😾',
   ];
 
   @override
@@ -76,9 +116,7 @@ class _EditPersonBottomSheetState extends State<EditPersonBottomSheet> {
       ),
       decoration: BoxDecoration(
         color: theme.colorScheme.surface,
-        borderRadius: const BorderRadius.vertical(
-          top: Radius.circular(20),
-        ),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -152,10 +190,7 @@ class _EditPersonBottomSheetState extends State<EditPersonBottomSheet> {
                     child: Center(
                       child: Text(
                         emoji,
-                        style: TextStyle(
-                          fontSize: 24,
-                          height: 1,
-                        ),
+                        style: TextStyle(fontSize: 24, height: 1),
                       ),
                     ),
                   ),
@@ -202,18 +237,13 @@ class _EditPersonBottomSheetState extends State<EditPersonBottomSheet> {
                 onPressed: () => Navigator.of(context).pop(),
                 child: Text(
                   'Cancel',
-                  style: TextStyle(
-                    color: theme.colorScheme.onSurface,
-                  ),
+                  style: TextStyle(color: theme.colorScheme.onSurface),
                 ),
               ),
               SizedBox(width: 8),
 
               // Save button
-              ElevatedButton(
-                onPressed: _handleSave,
-                child: const Text('Save'),
-              ),
+              ElevatedButton(onPressed: _handleSave, child: const Text('Save')),
             ],
           ),
           SizedBox(height: 24),

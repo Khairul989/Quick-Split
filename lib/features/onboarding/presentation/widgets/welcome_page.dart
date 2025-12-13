@@ -55,17 +55,9 @@ class WelcomePage extends StatelessWidget {
             'Scan receipts with OCR',
           ),
           const SizedBox(height: 16),
-          _buildFeatureItem(
-            context,
-            Icons.groups,
-            'Split with groups',
-          ),
+          _buildFeatureItem(context, Icons.groups, 'Split with groups'),
           const SizedBox(height: 16),
-          _buildFeatureItem(
-            context,
-            Icons.payments,
-            'Track payments easily',
-          ),
+          _buildFeatureItem(context, Icons.payments, 'Track payments easily'),
         ],
       ),
     );
@@ -77,10 +69,7 @@ class WelcomePage extends StatelessWidget {
       children: [
         Icon(icon, size: 24, color: const Color(0xFF248CFF)),
         const SizedBox(width: 12),
-        Text(
-          text,
-          style: Theme.of(context).textTheme.bodyLarge,
-        ),
+        Text(text, style: Theme.of(context).textTheme.bodyLarge),
       ],
     );
   }

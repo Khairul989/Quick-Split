@@ -222,9 +222,7 @@ class _AddPersonTileState extends State<AddPersonTile> {
                     backgroundColor: colorScheme.surface,
                     columns: 8,
                   ),
-                  skinToneConfig: SkinToneConfig(
-                    enabled: true,
-                  ),
+                  skinToneConfig: SkinToneConfig(enabled: true),
                 ),
               ),
             ),

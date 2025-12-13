@@ -21,7 +21,11 @@ import 'package:quicksplit/features/ocr/domain/models/receipt.dart';
 import 'package:quicksplit/features/ocr/presentation/screens/item_editor_screen.dart';
 import 'package:quicksplit/features/onboarding/presentation/screens/onboarding_screen.dart';
 import 'package:quicksplit/features/scan/presentation/screens/camera_screen.dart';
+import 'package:quicksplit/features/settings/presentation/screens/edit_profile_screen.dart';
 import 'package:quicksplit/features/settings/presentation/screens/settings_screen.dart';
+import 'package:quicksplit/features/groups/presentation/screens/find_friends_screen.dart';
+import 'package:quicksplit/features/groups/presentation/screens/invite_screen.dart';
+import 'package:quicksplit/features/groups/presentation/screens/accept_invite_screen.dart';
 
 /// Route name constants - use these to navigate instead of hardcoded strings
 abstract class RouteNames {
@@ -50,6 +54,9 @@ abstract class RouteNames {
   static const String groupsList = 'groupsList';
   static const String groupCreate = 'groupCreate';
   static const String groupEdit = 'groupEdit';
+  static const String findFriends = 'findFriends';
+  static const String invite = 'invite';
+  static const String acceptInvite = 'acceptInvite';
 
   // History feature
   static const String history = 'history';
@@ -57,6 +64,7 @@ abstract class RouteNames {
 
   // Settings feature
   static const String settings = 'settings';
+  static const String editProfile = 'editProfile';
 }
 
 /// Router configuration using GoRouter
@@ -79,33 +87,39 @@ final goRouterProvider = Provider<GoRouter>((ref) {
             currentLocation == '/login' ||
             currentLocation == '/signup' ||
             currentLocation == '/forgotPassword';
+        final isInviteRoute = currentLocation.startsWith('/invite/');
 
         // Check if user is authenticated via Firebase
         final isAuthenticated = authState.value != null;
 
-        // 1. If not authenticated and not on auth/onboarding routes, go to welcome
+        // 1. Allow invite routes regardless of auth state
+        if (isInviteRoute) {
+          return null;
+        }
+
+        // 2. If not authenticated and not on auth/onboarding routes, go to welcome
         if (!isAuthenticated && !isAuthRoute && !isOnboardingRoute) {
           return '/welcome';
         }
 
-        // 2. If authenticated but hasn't completed onboarding, go to onboarding
+        // 3. If authenticated but hasn't completed onboarding, go to onboarding
         if (isAuthenticated && !hasCompletedOnboarding && !isOnboardingRoute) {
           return '/onboarding';
         }
 
-        // 3. If authenticated and completed onboarding, redirect from auth/onboarding to home
+        // 4. If authenticated and completed onboarding, redirect from auth/onboarding to home
         if (isAuthenticated &&
             hasCompletedOnboarding &&
             (isAuthRoute || isOnboardingRoute)) {
           return '/home';
         }
 
-        // 4. Allow navigation to auth routes when not authenticated
+        // 5. Allow navigation to auth routes when not authenticated
         if (!isAuthenticated && isAuthRoute) {
           return null;
         }
 
-        // 5. Allow onboarding route when authenticated but not completed
+        // 6. Allow onboarding route when authenticated but not completed
         if (isAuthenticated && !hasCompletedOnboarding && isOnboardingRoute) {
           return null;
         }
@@ -234,6 +248,12 @@ final goRouterProvider = Provider<GoRouter>((ref) {
             },
           ),
 
+          GoRoute(
+            path: RouteNames.findFriends,
+            name: RouteNames.findFriends,
+            builder: (context, state) => const FindFriendsScreen(),
+          ),
+
           // History
           GoRoute(
             path: RouteNames.history,
@@ -256,8 +276,50 @@ final goRouterProvider = Provider<GoRouter>((ref) {
             path: RouteNames.settings,
             name: RouteNames.settings,
             builder: (context, state) => const SettingsScreen(),
+            routes: [
+              GoRoute(
+                path: RouteNames.editProfile,
+                name: RouteNames.editProfile,
+                builder: (context, state) => const EditProfileScreen(),
+              ),
+            ],
+          ),
+
+          // Invite screen - show invite code and share options
+          GoRoute(
+            path: RouteNames.invite,
+            name: RouteNames.invite,
+            builder: (context, state) {
+              final Map<String, dynamic> data =
+                  state.extra as Map<String, dynamic>? ?? {};
+              final group = data['group'] as Group?;
+              final userId = data['userId'] as String? ?? '';
+              final userName = data['userName'] as String? ?? '';
+
+              if (group == null) {
+                return const Scaffold(
+                  body: Center(child: Text('Group not found')),
+                );
+              }
+
+              return InviteScreen(
+                group: group,
+                currentUserId: userId,
+                currentUserName: userName,
+              );
+            },
           ),
         ],
+      ),
+
+      // Accept invite route (top-level for deep links)
+      GoRoute(
+        path: '/invite/:code',
+        name: RouteNames.acceptInvite,
+        builder: (context, state) {
+          final code = state.pathParameters['code'] ?? '';
+          return AcceptInviteScreen(inviteCode: code);
+        },
       ),
     ],
   );

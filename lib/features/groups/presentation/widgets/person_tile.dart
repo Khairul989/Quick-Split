@@ -28,10 +28,7 @@ class PersonTile extends StatelessWidget {
       child: Container(
         decoration: BoxDecoration(
           color: colorScheme.surface,
-          border: Border.all(
-            color: colorScheme.outlineVariant,
-            width: 1,
-          ),
+          border: Border.all(color: colorScheme.outlineVariant, width: 1),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Padding(
@@ -78,7 +75,10 @@ class PersonTile extends StatelessWidget {
                     if (isCurrentUser) ...[
                       const SizedBox(width: 8),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 2,
+                        ),
                         decoration: BoxDecoration(
                           color: colorScheme.primaryContainer,
                           borderRadius: BorderRadius.circular(12),
@@ -122,10 +122,7 @@ class PersonTile extends StatelessWidget {
                 )
               else if (isRemovable)
                 IconButton(
-                  icon: Icon(
-                    Icons.close_rounded,
-                    color: colorScheme.error,
-                  ),
+                  icon: Icon(Icons.close_rounded, color: colorScheme.error),
                   onPressed: onRemove,
                   tooltip: 'Remove ${person.name}',
                   constraints: const BoxConstraints(

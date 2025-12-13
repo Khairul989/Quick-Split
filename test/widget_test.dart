@@ -3,13 +3,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 void main() {
-  testWidgets('QuickSplit app home screen renders', (WidgetTester tester) async {
+  testWidgets('QuickSplit app home screen renders', (
+    WidgetTester tester,
+  ) async {
     // Create a test harness for the app
-    await tester.pumpWidget(
-      const ProviderScope(
-        child: QuickSplitTestApp(),
-      ),
-    );
+    await tester.pumpWidget(const ProviderScope(child: QuickSplitTestApp()));
 
     // Wait for initialization
     await tester.pumpAndSettle();
@@ -30,9 +28,7 @@ class QuickSplitTestApp extends StatelessWidget {
       title: 'QuickSplit',
       home: Scaffold(
         appBar: AppBar(title: const Text('QuickSplit')),
-        body: const Center(
-          child: Text('Welcome to QuickSplit'),
-        ),
+        body: const Center(child: Text('Welcome to QuickSplit')),
       ),
     );
   }

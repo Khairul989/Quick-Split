@@ -191,4 +191,44 @@ class UserProfileRepository {
       rethrow;
     }
   }
+
+  /// Add FCM token to user's fcmTokens array in Firestore
+  /// Uses arrayUnion to add token only if not already present
+  /// Succeeds if Firestore update is successful
+  Future<void> addFcmToken(String userId, String token) async {
+    try {
+      await _firestore
+          .collection(_usersCollectionPath)
+          .doc(userId)
+          .collection(_profileSubcollectionPath)
+          .doc(_profileDocId)
+          .update({
+            'fcmTokens': FieldValue.arrayUnion([token]),
+          });
+      _logger.d('FCM token added to user profile: $token');
+    } catch (e) {
+      _logger.w('Error adding FCM token to user profile: $e');
+      rethrow;
+    }
+  }
+
+  /// Remove FCM token from user's fcmTokens array in Firestore
+  /// Uses arrayRemove to remove token from array
+  /// Succeeds if Firestore update is successful
+  Future<void> removeFcmToken(String userId, String token) async {
+    try {
+      await _firestore
+          .collection(_usersCollectionPath)
+          .doc(userId)
+          .collection(_profileSubcollectionPath)
+          .doc(_profileDocId)
+          .update({
+            'fcmTokens': FieldValue.arrayRemove([token]),
+          });
+      _logger.d('FCM token removed from user profile: $token');
+    } catch (e) {
+      _logger.w('Error removing FCM token from user profile: $e');
+      rethrow;
+    }
+  }
 }

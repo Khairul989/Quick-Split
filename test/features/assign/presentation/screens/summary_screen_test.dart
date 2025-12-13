@@ -8,11 +8,7 @@ void main() {
   group('SummaryScreen', () {
     testWidgets('displays AppBar with title', (WidgetTester tester) async {
       await tester.pumpWidget(
-        ProviderScope(
-          child: MaterialApp(
-            home: const SummaryScreen(),
-          ),
-        ),
+        ProviderScope(child: MaterialApp(home: const SummaryScreen())),
       );
 
       await tester.pumpAndSettle();
@@ -21,13 +17,11 @@ void main() {
       expect(find.byType(AppBar), findsOneWidget);
     });
 
-    testWidgets('displays receipt information card', (WidgetTester tester) async {
+    testWidgets('displays receipt information card', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
-        ProviderScope(
-          child: MaterialApp(
-            home: const SummaryScreen(),
-          ),
-        ),
+        ProviderScope(child: MaterialApp(home: const SummaryScreen())),
       );
 
       await tester.pumpAndSettle();
@@ -38,13 +32,11 @@ void main() {
       expect(find.textContaining('RM'), findsWidgets);
     });
 
-    testWidgets('displays Individual Shares section', (WidgetTester tester) async {
+    testWidgets('displays Individual Shares section', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
-        ProviderScope(
-          child: MaterialApp(
-            home: const SummaryScreen(),
-          ),
-        ),
+        ProviderScope(child: MaterialApp(home: const SummaryScreen())),
       );
 
       await tester.pumpAndSettle();
@@ -52,13 +44,11 @@ void main() {
       expect(find.text('Individual Shares'), findsOneWidget);
     });
 
-    testWidgets('renders PersonShareCard for each person', (WidgetTester tester) async {
+    testWidgets('renders PersonShareCard for each person', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
-        ProviderScope(
-          child: MaterialApp(
-            home: const SummaryScreen(),
-          ),
-        ),
+        ProviderScope(child: MaterialApp(home: const SummaryScreen())),
       );
 
       await tester.pumpAndSettle();
@@ -70,11 +60,7 @@ void main() {
 
     testWidgets('displays action buttons', (WidgetTester tester) async {
       await tester.pumpWidget(
-        ProviderScope(
-          child: MaterialApp(
-            home: const SummaryScreen(),
-          ),
-        ),
+        ProviderScope(child: MaterialApp(home: const SummaryScreen())),
       );
 
       await tester.pumpAndSettle();
@@ -85,13 +71,11 @@ void main() {
       expect(find.byType(OutlinedButton), findsOneWidget);
     });
 
-    testWidgets('copy button shows snackbar when tapped', (WidgetTester tester) async {
+    testWidgets('copy button shows snackbar when tapped', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
-        ProviderScope(
-          child: MaterialApp(
-            home: const SummaryScreen(),
-          ),
-        ),
+        ProviderScope(child: MaterialApp(home: const SummaryScreen())),
       );
 
       await tester.pumpAndSettle();
@@ -105,13 +89,11 @@ void main() {
       expect(find.text('Copied to clipboard'), findsOneWidget);
     });
 
-    testWidgets('displays SST value in receipt info', (WidgetTester tester) async {
+    testWidgets('displays SST value in receipt info', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
-        ProviderScope(
-          child: MaterialApp(
-            home: const SummaryScreen(),
-          ),
-        ),
+        ProviderScope(child: MaterialApp(home: const SummaryScreen())),
       );
 
       await tester.pumpAndSettle();
@@ -120,13 +102,11 @@ void main() {
       expect(find.text('RM 2.07'), findsOneWidget);
     });
 
-    testWidgets('displays service charge in receipt info', (WidgetTester tester) async {
+    testWidgets('displays service charge in receipt info', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
-        ProviderScope(
-          child: MaterialApp(
-            home: const SummaryScreen(),
-          ),
-        ),
+        ProviderScope(child: MaterialApp(home: const SummaryScreen())),
       );
 
       await tester.pumpAndSettle();
@@ -135,13 +115,11 @@ void main() {
       expect(find.text('RM 3.45'), findsOneWidget);
     });
 
-    testWidgets('PersonShareCard expands to show breakdown', (WidgetTester tester) async {
+    testWidgets('PersonShareCard expands to show breakdown', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
-        ProviderScope(
-          child: MaterialApp(
-            home: const SummaryScreen(),
-          ),
-        ),
+        ProviderScope(child: MaterialApp(home: const SummaryScreen())),
       );
 
       await tester.pumpAndSettle();
@@ -158,13 +136,11 @@ void main() {
       expect(find.text('Items Subtotal'), findsWidgets);
     });
 
-    testWidgets('displays emoji avatars for each person', (WidgetTester tester) async {
+    testWidgets('displays emoji avatars for each person', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
-        ProviderScope(
-          child: MaterialApp(
-            home: const SummaryScreen(),
-          ),
-        ),
+        ProviderScope(child: MaterialApp(home: const SummaryScreen())),
       );
 
       await tester.pumpAndSettle();
@@ -173,13 +149,11 @@ void main() {
       expect(find.text('😎'), findsOneWidget);
     });
 
-    testWidgets('scroll view contains all content', (WidgetTester tester) async {
+    testWidgets('scroll view contains all content', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
-        ProviderScope(
-          child: MaterialApp(
-            home: const SummaryScreen(),
-          ),
-        ),
+        ProviderScope(child: MaterialApp(home: const SummaryScreen())),
       );
 
       await tester.pumpAndSettle();

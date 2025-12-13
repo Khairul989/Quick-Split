@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:hive_ce/hive.dart';
 import 'package:intl/intl.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:quicksplit/core/utils/whatsapp_helper.dart';
 
 import '../../../assign/domain/models/person_share.dart';
 import '../../../assign/domain/models/split_session.dart';
@@ -744,6 +745,32 @@ class _HistoryDetailScreenState extends ConsumerState<HistoryDetailScreen> {
                   label: const Text('Share Details'),
                 ),
               ),
+
+              // NEW: Payment Reminder Button (only show if not fully paid)
+              if (share.paymentStatus != PaymentStatus.paid) ...[
+                const SizedBox(height: 8),
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    onPressed: () {
+                      final receiptsBox = Hive.box<Receipt>('receipts');
+                      final session = ref.read(reactiveSessionProvider).requireValue;
+                      final receipt = receiptsBox.get(session!.receiptId);
+                      if (receipt != null) {
+                        _handlePaymentReminder(share, receipt);
+                      }
+                    },
+                    style: OutlinedButton.styleFrom(
+                      side: const BorderSide(color: Color(0xFF25D366)),
+                    ),
+                    icon: const Icon(Icons.chat_bubble_outline, size: 18, color: Color(0xFF25D366)),
+                    label: const Text(
+                      'Send Payment Reminder',
+                      style: TextStyle(color: Color(0xFF25D366)),
+                    ),
+                  ),
+                ),
+              ],
             ],
           ),
         ),
@@ -810,6 +837,53 @@ class _HistoryDetailScreenState extends ConsumerState<HistoryDetailScreen> {
         subject: '${share.personName} Share from QuickSplit',
       ),
     );
+  }
+
+  Future<void> _handlePaymentReminder(PersonShare share, Receipt receipt) async {
+    // Show confirmation dialog
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Send Payment Reminder?'),
+        content: Text(
+          'Send a WhatsApp reminder to ${share.personName} for RM ${share.remainingAmount.toStringAsFixed(2)}?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Send'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true || !mounted) return;
+
+    try {
+      // Note: In a real implementation, you would get the phone number from contact matching
+      // For now, we'll open WhatsApp contact picker
+      await WhatsAppHelper.sendPaymentReminder(
+        phoneNumber: '', // Empty string opens contact picker
+        personName: share.personName,
+        amount: share.remainingAmount,
+        merchantName: receipt.merchantName,
+      );
+
+      if (!mounted) return;
+
+      _showSnackBar('Reminder sent to ${share.personName}');
+    } catch (e) {
+      if (!mounted) return;
+
+      _showSnackBar(
+        'Failed to send reminder: ${e.toString().contains('not installed') ? 'WhatsApp is not installed' : 'An error occurred'}',
+        backgroundColor: Theme.of(context).colorScheme.error,
+      );
+    }
   }
 
   // NEW: Payment update handler

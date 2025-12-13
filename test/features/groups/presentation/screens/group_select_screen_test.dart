@@ -8,20 +8,18 @@ import 'package:quicksplit/features/groups/presentation/screens/group_select_scr
 import 'package:quicksplit/features/ocr/domain/models/receipt.dart';
 
 /// Mock Receipt for testing
-final mockReceipt = Receipt(
-  items: [],
-  subtotal: 0.0,
-  total: 0.0,
-);
+final mockReceipt = Receipt(items: [], subtotal: 0.0, total: 0.0);
 
 /// Mock notifier for testing
 class MockGroupsNotifier extends GroupsNotifier {
   final List<Group> _groups;
   final List<Person> _people;
 
-  MockGroupsNotifier({required List<Group> groups, required List<Person> people})
-      : _groups = groups,
-        _people = people;
+  MockGroupsNotifier({
+    required List<Group> groups,
+    required List<Person> people,
+  }) : _groups = groups,
+       _people = people;
 
   @override
   GroupsState build() {
@@ -31,8 +29,9 @@ class MockGroupsNotifier extends GroupsNotifier {
 
 void main() {
   group('GroupSelectScreen', () {
-    testWidgets('displays empty state when no groups exist',
-        (WidgetTester tester) async {
+    testWidgets('displays empty state when no groups exist', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
@@ -41,9 +40,7 @@ void main() {
             ),
           ],
           child: MaterialApp(
-            home: Scaffold(
-              body: GroupSelectScreen(receipt: mockReceipt),
-            ),
+            home: Scaffold(body: GroupSelectScreen(receipt: mockReceipt)),
           ),
         ),
       );
@@ -56,18 +53,16 @@ void main() {
       expect(find.text('Create Your First Group'), findsOneWidget);
     });
 
-    testWidgets('displays all groups in vertical list',
-        (WidgetTester tester) async {
+    testWidgets('displays all groups in vertical list', (
+      WidgetTester tester,
+    ) async {
       final person1 = Person(name: 'Alice', emoji: '👩');
       final person2 = Person(name: 'Bob', emoji: '👨');
       final group1 = Group(
         name: 'Weekend Trip',
         personIds: [person1.id, person2.id],
       );
-      final group2 = Group(
-        name: 'Lunch',
-        personIds: [person1.id],
-      );
+      final group2 = Group(name: 'Lunch', personIds: [person1.id]);
 
       await tester.pumpWidget(
         ProviderScope(
@@ -80,9 +75,7 @@ void main() {
             ),
           ],
           child: MaterialApp(
-            home: Scaffold(
-              body: GroupSelectScreen(receipt: mockReceipt),
-            ),
+            home: Scaffold(body: GroupSelectScreen(receipt: mockReceipt)),
           ),
         ),
       );
@@ -92,8 +85,9 @@ void main() {
       expect(find.text('Lunch'), findsOneWidget);
     });
 
-    testWidgets('displays frequent groups horizontal list',
-        (WidgetTester tester) async {
+    testWidgets('displays frequent groups horizontal list', (
+      WidgetTester tester,
+    ) async {
       final person1 = Person(name: 'Alice', emoji: '👩');
       final person2 = Person(name: 'Bob', emoji: '👨');
       final group1 = Group(
@@ -118,9 +112,7 @@ void main() {
             ),
           ],
           child: MaterialApp(
-            home: Scaffold(
-              body: GroupSelectScreen(receipt: mockReceipt),
-            ),
+            home: Scaffold(body: GroupSelectScreen(receipt: mockReceipt)),
           ),
         ),
       );
@@ -129,8 +121,9 @@ void main() {
       expect(find.text('Weekend Trip'), findsWidgets);
     });
 
-    testWidgets('FAB is present for creating new group',
-        (WidgetTester tester) async {
+    testWidgets('FAB is present for creating new group', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
@@ -139,9 +132,7 @@ void main() {
             ),
           ],
           child: MaterialApp(
-            home: Scaffold(
-              body: GroupSelectScreen(receipt: mockReceipt),
-            ),
+            home: Scaffold(body: GroupSelectScreen(receipt: mockReceipt)),
           ),
         ),
       );
@@ -149,28 +140,21 @@ void main() {
       expect(find.byIcon(Icons.add), findsOneWidget);
     });
 
-    testWidgets('shows snackbar on group selection',
-        (WidgetTester tester) async {
+    testWidgets('shows snackbar on group selection', (
+      WidgetTester tester,
+    ) async {
       final person1 = Person(name: 'Alice', emoji: '👩');
-      final group1 = Group(
-        name: 'Weekend Trip',
-        personIds: [person1.id],
-      );
+      final group1 = Group(name: 'Weekend Trip', personIds: [person1.id]);
 
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
             groupsProvider.overrideWith(
-              () => MockGroupsNotifier(
-                groups: [group1],
-                people: [person1],
-              ),
+              () => MockGroupsNotifier(groups: [group1], people: [person1]),
             ),
           ],
           child: MaterialApp(
-            home: Scaffold(
-              body: GroupSelectScreen(receipt: mockReceipt),
-            ),
+            home: Scaffold(body: GroupSelectScreen(receipt: mockReceipt)),
           ),
         ),
       );
@@ -182,8 +166,7 @@ void main() {
       expect(find.text('Selected: Weekend Trip'), findsOneWidget);
     });
 
-    testWidgets('member count displays correctly',
-        (WidgetTester tester) async {
+    testWidgets('member count displays correctly', (WidgetTester tester) async {
       final person1 = Person(name: 'Alice', emoji: '👩');
       final person2 = Person(name: 'Bob', emoji: '👨');
       final group1 = Group(
@@ -202,9 +185,7 @@ void main() {
             ),
           ],
           child: MaterialApp(
-            home: Scaffold(
-              body: GroupSelectScreen(receipt: mockReceipt),
-            ),
+            home: Scaffold(body: GroupSelectScreen(receipt: mockReceipt)),
           ),
         ),
       );
@@ -212,34 +193,25 @@ void main() {
       expect(find.text('2 members'), findsOneWidget);
     });
 
-    testWidgets('scrolls through groups list',
-        (WidgetTester tester) async {
+    testWidgets('scrolls through groups list', (WidgetTester tester) async {
       final people = List.generate(
         5,
         (i) => Person(name: 'Person $i', emoji: '👤'),
       );
       final groups = List.generate(
         10,
-        (i) => Group(
-          name: 'Group $i',
-          personIds: [people[i % 5].id],
-        ),
+        (i) => Group(name: 'Group $i', personIds: [people[i % 5].id]),
       );
 
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
             groupsProvider.overrideWith(
-              () => MockGroupsNotifier(
-                groups: groups,
-                people: people,
-              ),
+              () => MockGroupsNotifier(groups: groups, people: people),
             ),
           ],
           child: MaterialApp(
-            home: Scaffold(
-              body: GroupSelectScreen(receipt: mockReceipt),
-            ),
+            home: Scaffold(body: GroupSelectScreen(receipt: mockReceipt)),
           ),
         ),
       );

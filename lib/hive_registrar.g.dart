@@ -6,14 +6,18 @@ import 'package:hive_ce/hive.dart';
 import 'package:quicksplit/features/assign/domain/models/item_assignment.dart';
 import 'package:quicksplit/features/assign/domain/models/person_share.dart';
 import 'package:quicksplit/features/assign/domain/models/split_session.dart';
+import 'package:quicksplit/features/groups/domain/models/contact_match.dart';
 import 'package:quicksplit/features/groups/domain/models/group.dart';
+import 'package:quicksplit/features/groups/domain/models/group_invite.dart';
 import 'package:quicksplit/features/groups/domain/models/person.dart';
 import 'package:quicksplit/features/ocr/domain/models/receipt.dart';
 import 'package:quicksplit/features/payments/domain/models/payment_status.dart';
 
 extension HiveRegistrar on HiveInterface {
   void registerAdapters() {
+    registerAdapter(ContactMatchAdapter());
     registerAdapter(GroupAdapter());
+    registerAdapter(GroupInviteAdapter());
     registerAdapter(ItemAssignmentAdapter());
     registerAdapter(PaymentStatusAdapter());
     registerAdapter(PersonAdapter());
@@ -26,7 +30,9 @@ extension HiveRegistrar on HiveInterface {
 
 extension IsolatedHiveRegistrar on IsolatedHiveInterface {
   void registerAdapters() {
+    registerAdapter(ContactMatchAdapter());
     registerAdapter(GroupAdapter());
+    registerAdapter(GroupInviteAdapter());
     registerAdapter(ItemAssignmentAdapter());
     registerAdapter(PaymentStatusAdapter());
     registerAdapter(PersonAdapter());

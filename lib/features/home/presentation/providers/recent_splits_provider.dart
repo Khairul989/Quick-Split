@@ -10,10 +10,7 @@ class RecentSplitEntry {
   final SplitSession session;
   final Receipt? receipt;
 
-  const RecentSplitEntry({
-    required this.session,
-    required this.receipt,
-  });
+  const RecentSplitEntry({required this.session, required this.receipt});
 
   /// Get emoji representation based on merchant name
   String get emoji {
@@ -76,58 +73,56 @@ class RecentSplitEntry {
 ///
 /// Returns the 5 most recent splits sorted by creation date (newest first).
 /// Automatically refreshes when either the history or receipts Hive boxes change.
-final recentSplitsProvider = StreamProvider.autoDispose<List<RecentSplitEntry>>((ref) async* {
-  // Get the Hive boxes
-  final historyBox = Hive.box<SplitSession>('history');
-  final receiptsBox = Hive.box<Receipt>('receipts');
+final recentSplitsProvider = StreamProvider.autoDispose<List<RecentSplitEntry>>(
+  (ref) async* {
+    // Get the Hive boxes
+    final historyBox = Hive.box<SplitSession>('history');
+    final receiptsBox = Hive.box<Receipt>('receipts');
 
-  // Helper function to compute recent splits
-  List<RecentSplitEntry> computeRecentSplits() {
-    try {
-      // Get all sessions and sort by createdAt descending
-      final sessions = historyBox.values.toList()
-        ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    // Helper function to compute recent splits
+    List<RecentSplitEntry> computeRecentSplits() {
+      try {
+        // Get all sessions and sort by createdAt descending
+        final sessions = historyBox.values.toList()
+          ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
 
-      // Take the top 5 most recent splits
-      final recentSessions = sessions.take(5).toList();
+        // Take the top 5 most recent splits
+        final recentSessions = sessions.take(5).toList();
 
-      // Map sessions to RecentSplitEntry by looking up receipts
-      return recentSessions.map((session) {
-        final receipt = receiptsBox.get(session.receiptId);
-        return RecentSplitEntry(
-          session: session,
-          receipt: receipt,
-        );
-      }).toList();
-    } catch (e) {
-      // Return empty list on error
-      return <RecentSplitEntry>[];
+        // Map sessions to RecentSplitEntry by looking up receipts
+        return recentSessions.map((session) {
+          final receipt = receiptsBox.get(session.receiptId);
+          return RecentSplitEntry(session: session, receipt: receipt);
+        }).toList();
+      } catch (e) {
+        // Return empty list on error
+        return <RecentSplitEntry>[];
+      }
     }
-  }
 
-  // Create a completer to handle async callbacks from Hive listeners
-  final streamController = StreamController<List<RecentSplitEntry>>();
+    // Create a completer to handle async callbacks from Hive listeners
+    final streamController = StreamController<List<RecentSplitEntry>>();
 
-  // Add initial data
-  streamController.add(computeRecentSplits());
-
-  // Set up listeners for both Hive boxes
-  final historyListener = historyBox.watch().listen((_) {
+    // Add initial data
     streamController.add(computeRecentSplits());
-  });
 
-  final receiptsListener = receiptsBox.watch().listen((_) {
-    streamController.add(computeRecentSplits());
-  });
+    // Set up listeners for both Hive boxes
+    final historyListener = historyBox.watch().listen((_) {
+      streamController.add(computeRecentSplits());
+    });
 
-  // Clean up subscriptions when provider is disposed
-  ref.onDispose(() {
-    historyListener.cancel();
-    receiptsListener.cancel();
-    streamController.close();
-  });
+    final receiptsListener = receiptsBox.watch().listen((_) {
+      streamController.add(computeRecentSplits());
+    });
 
-  // Return the stream
-  yield* streamController.stream;
-});
+    // Clean up subscriptions when provider is disposed
+    ref.onDispose(() {
+      historyListener.cancel();
+      receiptsListener.cancel();
+      streamController.close();
+    });
 
+    // Return the stream
+    yield* streamController.stream;
+  },
+);

@@ -14,7 +14,9 @@ class FinancialSummary {
   });
 }
 
-final financialSummaryProvider = StreamProvider.autoDispose<FinancialSummary>((ref) async* {
+final financialSummaryProvider = StreamProvider.autoDispose<FinancialSummary>((
+  ref,
+) async* {
   final historyBox = Hive.box<SplitSession>('history');
 
   final now = DateTime.now();

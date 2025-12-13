@@ -46,8 +46,8 @@ class AuthUser {
     emoji: json['emoji'] as String?,
     photoUrl: json['photoUrl'] as String?,
     createdAt: json['createdAt'] != null
-      ? DateTime.parse(json['createdAt'] as String)
-      : null,
+        ? DateTime.parse(json['createdAt'] as String)
+        : null,
   );
 
   /// Copy with method for updates

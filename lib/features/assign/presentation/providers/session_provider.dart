@@ -1,10 +1,14 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_ce/hive.dart';
+import 'package:logger/logger.dart';
 import '../../domain/models/split_session.dart';
+import '../../data/repositories/firebase_split_session_repository.dart';
 import '../../../ocr/domain/models/receipt.dart';
 import '../../../groups/domain/models/group.dart';
 import '../../../groups/domain/models/person.dart';
+import '../../../auth/presentation/providers/auth_state_provider.dart';
 import 'assignment_providers.dart';
 import 'calculator_provider.dart';
 
@@ -64,9 +68,17 @@ class SessionState {
 ///
 /// This notifier orchestrates the entire session, coordinating with
 /// assignment and calculator providers to manage state across the split flow.
+/// Also handles Firestore sync for offline-first functionality.
 class SessionNotifier extends Notifier<SessionState> {
+  static final _logger = Logger();
+  late FirebaseSplitSessionRepository _firebaseRepository;
+
   @override
   SessionState build() {
+    // Initialize Firebase repository
+    _firebaseRepository = FirebaseSplitSessionRepository(
+      FirebaseFirestore.instance,
+    );
     return const SessionState();
   }
 
@@ -108,12 +120,14 @@ class SessionNotifier extends Notifier<SessionState> {
 
   /// Save the current session to Hive history and update group usage.
   ///
-  /// Performs the following operations:
+  /// Performs the following operations (offline-first approach):
   /// 1. Retrieves current assignments from assignment provider
   /// 2. Calculates final shares using calculator provider
   /// 3. Updates session with assignments and calculated shares
-  /// 4. Saves session to Hive history box
+  /// 4. Saves session to Hive history box (local storage - immediate)
   /// 5. Updates group lastUsedAt and usageCount if a group was used
+  /// 6. Syncs session to Firestore in background (if authenticated)
+  /// 7. Triggers Firebase Cloud Functions for notifications
   ///
   /// Throws an exception if save fails; the error is also stored in state.
   /// Sets isSaving to true during the operation.
@@ -150,25 +164,33 @@ class SessionNotifier extends Notifier<SessionState> {
         isSaved: true,
       );
 
-      // Save session to Hive history box
+      // Save session to Hive history box (local storage first - offline-first)
       final historyBox = Hive.box<SplitSession>('history');
       debugPrint('[SessionProvider] Saving session ID: ${updatedSession.id}');
       await historyBox.put(updatedSession.id, updatedSession);
-      debugPrint('[SessionProvider] Session saved successfully');
+      debugPrint('[SessionProvider] Session saved to local storage');
 
       // Save receipt to receipts box so recent splits can display it
       final receiptsBox = Hive.box<Receipt>('receipts');
-      debugPrint('[SessionProvider] Saving receipt ID: ${state.currentReceipt!.id}');
-      debugPrint('[SessionProvider] Receipt details - merchant: ${state.currentReceipt!.merchantName}, items: ${state.currentReceipt!.items.length}, total: ${state.currentReceipt!.total}');
+      debugPrint(
+        '[SessionProvider] Saving receipt ID: ${state.currentReceipt!.id}',
+      );
+      debugPrint(
+        '[SessionProvider] Receipt details - merchant: ${state.currentReceipt!.merchantName}, items: ${state.currentReceipt!.items.length}, total: ${state.currentReceipt!.total}',
+      );
       try {
         await receiptsBox.put(state.currentReceipt!.id, state.currentReceipt!);
         debugPrint('[SessionProvider] Receipt saved successfully');
-        debugPrint('[SessionProvider] All receipt keys in box after save: ${receiptsBox.keys.toList()}');
+        debugPrint(
+          '[SessionProvider] All receipt keys in box after save: ${receiptsBox.keys.toList()}',
+        );
 
         // Verify receipt was actually saved
         final verifyReceipt = receiptsBox.get(state.currentReceipt!.id);
         if (verifyReceipt != null) {
-          debugPrint('[SessionProvider] Receipt verified in box: ${verifyReceipt.id}');
+          debugPrint(
+            '[SessionProvider] Receipt verified in box: ${verifyReceipt.id}',
+          );
         } else {
           debugPrint('[SessionProvider] ERROR: Receipt not found after save!');
         }
@@ -184,6 +206,10 @@ class SessionNotifier extends Notifier<SessionState> {
         await groupsBox.put(state.selectedGroup!.id, state.selectedGroup!);
       }
 
+      // Sync to Firestore in background (if user is authenticated)
+      // This enables Cloud Functions to send notifications to participants
+      _syncSessionToFirestoreInBackground(updatedSession);
+
       // Update state with saved session
       state = state.copyWith(currentSession: updatedSession, isSaving: false);
     } catch (e) {
@@ -192,6 +218,25 @@ class SessionNotifier extends Notifier<SessionState> {
         error: 'Failed to save session: $e',
       );
       rethrow;
+    }
+  }
+
+  /// Sync session to Firestore in the background without blocking the main flow
+  /// This allows Firebase Cloud Functions to trigger notifications asynchronously
+  void _syncSessionToFirestoreInBackground(SplitSession session) {
+    // Get the current user ID from auth state
+    final authState = ref.read(authStateProvider);
+
+    if (authState.value != null) {
+      final userId = authState.value!.uid;
+
+      // Fire and forget - don't await this operation
+      _firebaseRepository.syncLocalSession(userId, session).then((_) {
+        _logger.d('Session synced to Firestore: ${session.id}');
+      }).catchError((e) {
+        _logger.w('Failed to sync session to Firestore: $e');
+        // Don't re-throw as this is background sync - user has already saved locally
+      });
     }
   }
 

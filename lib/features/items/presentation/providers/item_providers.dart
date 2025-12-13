@@ -5,15 +5,9 @@ class ItemState {
   final List<Item> items;
   final bool isLoading;
 
-  const ItemState({
-    required this.items,
-    this.isLoading = false,
-  });
+  const ItemState({required this.items, this.isLoading = false});
 
-  ItemState copyWith({
-    List<Item>? items,
-    bool? isLoading,
-  }) {
+  ItemState copyWith({List<Item>? items, bool? isLoading}) {
     return ItemState(
       items: items ?? this.items,
       isLoading: isLoading ?? this.isLoading,
@@ -60,12 +54,13 @@ final itemsProvider = NotifierProvider<ItemNotifier, ItemState>(
 );
 
 /// Computed provider: total price of all items
-final totalPriceProvider = Provider(
-  (ref) {
-    final items = ref.watch(itemsProvider).items;
-    return items.fold<double>(0, (sum, item) => sum + (item.price * item.quantity));
-  },
-);
+final totalPriceProvider = Provider((ref) {
+  final items = ref.watch(itemsProvider).items;
+  return items.fold<double>(
+    0,
+    (sum, item) => sum + (item.price * item.quantity),
+  );
+});
 
 /// Computed provider: item count
 final itemCountProvider = Provider(

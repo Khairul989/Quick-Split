@@ -26,8 +26,8 @@ class AuthRepository {
   Stream<AuthUser?> get authStateChanges {
     return _firebaseAuth.authStateChanges().map((firebaseUser) {
       return firebaseUser != null
-        ? AuthUser.fromFirebaseUser(firebaseUser)
-        : null;
+          ? AuthUser.fromFirebaseUser(firebaseUser)
+          : null;
     });
   }
 
@@ -36,8 +36,8 @@ class AuthRepository {
   AuthUser? get currentUser {
     final firebaseUser = _firebaseAuth.currentUser;
     return firebaseUser != null
-      ? AuthUser.fromFirebaseUser(firebaseUser)
-      : null;
+        ? AuthUser.fromFirebaseUser(firebaseUser)
+        : null;
   }
 
   /// Sign in with email and password
@@ -68,7 +68,9 @@ class AuthRepository {
     firebase_auth.AuthCredential googleCredential,
   ) async {
     try {
-      final userCredential = await _firebaseAuth.signInWithCredential(googleCredential);
+      final userCredential = await _firebaseAuth.signInWithCredential(
+        googleCredential,
+      );
 
       if (userCredential.user == null) {
         throw AuthException('Google Sign-In failed - no user returned');
@@ -94,12 +96,15 @@ class AuthRepository {
         ],
       );
 
-      final oauthCredential = firebase_auth.OAuthProvider('apple.com').credential(
-        idToken: appleCredential.identityToken,
-        accessToken: appleCredential.authorizationCode,
-      );
+      final oauthCredential = firebase_auth.OAuthProvider('apple.com')
+          .credential(
+            idToken: appleCredential.identityToken,
+            accessToken: appleCredential.authorizationCode,
+          );
 
-      final userCredential = await _firebaseAuth.signInWithCredential(oauthCredential);
+      final userCredential = await _firebaseAuth.signInWithCredential(
+        oauthCredential,
+      );
 
       if (userCredential.user == null) {
         throw AuthException('Apple Sign-In failed - no user returned');
@@ -107,8 +112,11 @@ class AuthRepository {
 
       // Update display name if provided by Apple and Firebase name is empty
       if (userCredential.user!.displayName == null &&
-          (appleCredential.givenName != null || appleCredential.familyName != null)) {
-        final displayName = '${appleCredential.givenName ?? ''} ${appleCredential.familyName ?? ''}'.trim();
+          (appleCredential.givenName != null ||
+              appleCredential.familyName != null)) {
+        final displayName =
+            '${appleCredential.givenName ?? ''} ${appleCredential.familyName ?? ''}'
+                .trim();
         if (displayName.isNotEmpty) {
           await userCredential.user!.updateDisplayName(displayName);
           await userCredential.user!.reload();
@@ -220,13 +228,14 @@ class AuthRepository {
       'user-disabled' => 'This account has been disabled',
       'too-many-requests' => 'Too many failed attempts. Please try again later',
       'operation-not-allowed' => 'This sign-in method is not enabled',
-      'network-request-failed' => 'Network error. Please check your internet connection',
+      'network-request-failed' =>
+        'Network error. Please check your internet connection',
       'account-exists-with-different-credential' =>
         'An account already exists with a different sign-in method',
       'invalid-credential' => 'Invalid credentials. Please try again',
       'invalid-verification-code' => 'Invalid verification code',
       'session-expired' => 'Your session expired. Please sign in again',
-      _ => e.message ?? 'Authentication failed. Please try again'
+      _ => e.message ?? 'Authentication failed. Please try again',
     };
 
     return AuthException(userMessage, code: e.code);

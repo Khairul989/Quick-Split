@@ -50,8 +50,8 @@ class Receipt extends HiveObject {
     required this.total,
     this.imagePath,
     this.ocrRawText,
-  })  : id = id ?? const Uuid().v4(),
-        captureDate = captureDate ?? DateTime.now();
+  }) : id = id ?? const Uuid().v4(),
+       captureDate = captureDate ?? DateTime.now();
 
   double get calculatedSubtotal =>
       items.fold(0.0, (sum, item) => sum + item.subtotal);
@@ -109,11 +109,7 @@ class ReceiptItem extends HiveObject {
 
   double get subtotal => price * quantity;
 
-  ReceiptItem copyWith({
-    String? name,
-    int? quantity,
-    double? price,
-  }) {
+  ReceiptItem copyWith({String? name, int? quantity, double? price}) {
     return ReceiptItem(
       id: id,
       name: name ?? this.name,

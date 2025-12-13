@@ -31,9 +31,7 @@ class _ContactSelectorBottomSheetState
   @override
   void initState() {
     super.initState();
-    Future.microtask(
-      () => ref.read(contactsProvider.notifier).loadContacts(),
-    );
+    Future.microtask(() => ref.read(contactsProvider.notifier).loadContacts());
     _searchController.addListener(_onSearchChanged);
   }
 
@@ -54,11 +52,13 @@ class _ContactSelectorBottomSheetState
 
     return contacts.where((person) {
       final nameMatch = person.name.toLowerCase().contains(_searchQuery);
-      final phoneMatch = person.phoneNumber
+      final phoneMatch =
+          person.phoneNumber
               ?.replaceAll(RegExp(r'[^\d]'), '')
               .contains(_searchQuery.replaceAll(RegExp(r'[^\d]'), '')) ??
           false;
-      final emailMatch = person.email?.toLowerCase().contains(_searchQuery) ?? false;
+      final emailMatch =
+          person.email?.toLowerCase().contains(_searchQuery) ?? false;
 
       return nameMatch || phoneMatch || emailMatch;
     }).toList();
@@ -178,107 +178,104 @@ class _ContactSelectorBottomSheetState
                     ),
                   )
                 : contactsState.error != null
-                    ? Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.error_outline,
-                              color: colorScheme.error,
-                              size: 48,
-                            ),
-                            const SizedBox(height: 16),
-                            Text(
-                              'Error loading contacts',
-                              style: textTheme.bodyMedium?.copyWith(
-                                color: colorScheme.error,
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              contactsState.error!,
-                              style: textTheme.bodySmall?.copyWith(
-                                color: colorScheme.onSurfaceVariant,
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-                          ],
+                ? Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.error_outline,
+                          color: colorScheme.error,
+                          size: 48,
                         ),
-                      )
-                    : filteredContacts.isEmpty
-                        ? Center(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  Icons.contacts_outlined,
-                                  color: colorScheme.onSurfaceVariant,
-                                  size: 48,
-                                ),
-                                const SizedBox(height: 16),
-                                Text(
-                                  _searchQuery.isEmpty
-                                      ? 'No contacts found'
-                                      : 'No contacts found for "$_searchQuery"',
-                                  style: textTheme.bodyMedium,
-                                ),
-                              ],
-                            ),
-                          )
-                        : ListView.builder(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                            ),
-                            itemCount: _buildListItems(
-                              recentContacts,
-                              allContacts,
-                              _searchQuery.isNotEmpty,
-                            ).length,
-                            itemBuilder: (context, index) {
-                              final items = _buildListItems(
-                                recentContacts,
-                                allContacts,
-                                _searchQuery.isNotEmpty,
-                              );
-                              final item = items[index];
-
-                              if (item is SectionHeader) {
-                                return Padding(
-                                  padding: const EdgeInsets.only(
-                                    left: 8,
-                                    top: 16,
-                                    bottom: 8,
-                                  ),
-                                  child: Text(
-                                    item.title,
-                                    style: textTheme.labelMedium?.copyWith(
-                                      color: colorScheme.onSurfaceVariant,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                );
-                              } else if (item is Person) {
-                                return ContactListItem(
-                                  contact: item,
-                                  isSelected: _selectedContactIds
-                                      .contains(item.id),
-                                  onSelectionChanged: (selected) {
-                                    setState(() {
-                                      if (selected) {
-                                        _selectedContactIds.add(item.id);
-                                      } else {
-                                        _selectedContactIds.remove(item.id);
-                                      }
-                                    });
-                                  },
-                                  existingPeople: widget.existingPeople,
-                                  searchQuery: _searchQuery,
-                                );
-                              }
-
-                              return const SizedBox.shrink();
-                            },
+                        const SizedBox(height: 16),
+                        Text(
+                          'Error loading contacts',
+                          style: textTheme.bodyMedium?.copyWith(
+                            color: colorScheme.error,
                           ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          contactsState.error!,
+                          style: textTheme.bodySmall?.copyWith(
+                            color: colorScheme.onSurfaceVariant,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    ),
+                  )
+                : filteredContacts.isEmpty
+                ? Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.contacts_outlined,
+                          color: colorScheme.onSurfaceVariant,
+                          size: 48,
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          _searchQuery.isEmpty
+                              ? 'No contacts found'
+                              : 'No contacts found for "$_searchQuery"',
+                          style: textTheme.bodyMedium,
+                        ),
+                      ],
+                    ),
+                  )
+                : ListView.builder(
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    itemCount: _buildListItems(
+                      recentContacts,
+                      allContacts,
+                      _searchQuery.isNotEmpty,
+                    ).length,
+                    itemBuilder: (context, index) {
+                      final items = _buildListItems(
+                        recentContacts,
+                        allContacts,
+                        _searchQuery.isNotEmpty,
+                      );
+                      final item = items[index];
+
+                      if (item is SectionHeader) {
+                        return Padding(
+                          padding: const EdgeInsets.only(
+                            left: 8,
+                            top: 16,
+                            bottom: 8,
+                          ),
+                          child: Text(
+                            item.title,
+                            style: textTheme.labelMedium?.copyWith(
+                              color: colorScheme.onSurfaceVariant,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        );
+                      } else if (item is Person) {
+                        return ContactListItem(
+                          contact: item,
+                          isSelected: _selectedContactIds.contains(item.id),
+                          onSelectionChanged: (selected) {
+                            setState(() {
+                              if (selected) {
+                                _selectedContactIds.add(item.id);
+                              } else {
+                                _selectedContactIds.remove(item.id);
+                              }
+                            });
+                          },
+                          existingPeople: widget.existingPeople,
+                          searchQuery: _searchQuery,
+                        );
+                      }
+
+                      return const SizedBox.shrink();
+                    },
+                  ),
           ),
 
           // Submit button
@@ -290,16 +287,15 @@ class _ContactSelectorBottomSheetState
                 style: ElevatedButton.styleFrom(
                   minimumSize: const Size(double.infinity, 48),
                   backgroundColor: colorScheme.primary,
-                  disabledBackgroundColor:
-                      colorScheme.primary.withValues(alpha: 0.5),
+                  disabledBackgroundColor: colorScheme.primary.withValues(
+                    alpha: 0.5,
+                  ),
                 ),
                 child: Text(
                   _selectedContactIds.isEmpty
                       ? 'Select Contacts'
                       : 'Add ${_selectedContactIds.length} Contact${_selectedContactIds.length == 1 ? '' : 's'}',
-                  style: textTheme.labelLarge?.copyWith(
-                    color: Colors.white,
-                  ),
+                  style: textTheme.labelLarge?.copyWith(color: Colors.white),
                 ),
               ),
             ),
@@ -324,9 +320,7 @@ class _ContactSelectorBottomSheetState
       // Only add "All Contacts" header if we have non-recent contacts
       if (allContacts.length > recentContacts.length) {
         items.add(SectionHeader('All Contacts'));
-        items.addAll(
-          allContacts.where((c) => !recentContacts.contains(c)),
-        );
+        items.addAll(allContacts.where((c) => !recentContacts.contains(c)));
       }
     } else {
       // If searching or no recent contacts, just show all

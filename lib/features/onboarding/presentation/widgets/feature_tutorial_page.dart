@@ -4,10 +4,7 @@ import '../../utils/onboarding_content.dart';
 class FeatureTutorialPage extends StatelessWidget {
   final Feature feature;
 
-  const FeatureTutorialPage({
-    super.key,
-    required this.feature,
-  });
+  const FeatureTutorialPage({super.key, required this.feature});
 
   @override
   Widget build(BuildContext context) {
@@ -20,11 +17,7 @@ class FeatureTutorialPage extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           // Feature icon
-          Icon(
-            content.icon,
-            size: 120,
-            color: const Color(0xFF248CFF),
-          ),
+          Icon(content.icon, size: 120, color: const Color(0xFF248CFF)),
           const SizedBox(height: 32),
 
           // Title
@@ -63,10 +56,7 @@ class FeatureTutorialPage extends StatelessWidget {
                 ),
                 const SizedBox(width: 12),
                 Expanded(
-                  child: Text(
-                    content.tip,
-                    style: theme.textTheme.bodyMedium,
-                  ),
+                  child: Text(content.tip, style: theme.textTheme.bodyMedium),
                 ),
               ],
             ),

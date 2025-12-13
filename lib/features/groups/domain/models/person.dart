@@ -33,6 +33,12 @@ class Person extends HiveObject {
   @HiveField(8)
   DateTime? lastUsedAt;
 
+  @HiveField(9)
+  String? linkedUserId;
+
+  @HiveField(10)
+  DateTime? linkedAt;
+
   Person({
     String? id,
     required this.name,
@@ -43,8 +49,10 @@ class Person extends HiveObject {
     this.contactId,
     this.usageCount = 0,
     this.lastUsedAt,
-  })  : id = id ?? const Uuid().v4(),
-        createdAt = createdAt ?? DateTime.now();
+    this.linkedUserId,
+    this.linkedAt,
+  }) : id = id ?? const Uuid().v4(),
+       createdAt = createdAt ?? DateTime.now();
 
   Person copyWith({
     String? name,
@@ -54,6 +62,8 @@ class Person extends HiveObject {
     String? contactId,
     int? usageCount,
     DateTime? lastUsedAt,
+    String? linkedUserId,
+    DateTime? linkedAt,
   }) {
     return Person(
       id: id,
@@ -65,11 +75,16 @@ class Person extends HiveObject {
       contactId: contactId ?? this.contactId,
       usageCount: usageCount ?? this.usageCount,
       lastUsedAt: lastUsedAt ?? this.lastUsedAt,
+      linkedUserId: linkedUserId ?? this.linkedUserId,
+      linkedAt: linkedAt ?? this.linkedAt,
     );
   }
 
   /// Check if this person was imported from device contacts
   bool get isFromContacts => contactId != null;
+
+  /// Check if this person is linked to a registered user
+  bool get isRegisteredUser => linkedUserId != null;
 
   /// Format phone number for display (handles null and formatting)
   String? get formattedPhone {
@@ -77,6 +92,43 @@ class Person extends HiveObject {
     final clean = phoneNumber!.replaceAll(RegExp(r'[^\d+\-\s]'), '');
     if (clean.isEmpty) return null;
     return clean;
+  }
+
+  /// Convert Person to Firestore format
+  Map<String, dynamic> toFirestore() => {
+    'name': name,
+    'emoji': emoji,
+    'phoneNumber': phoneNumber,
+    'email': email,
+    'contactId': contactId,
+    'usageCount': usageCount,
+    'lastUsedAt': lastUsedAt?.toIso8601String(),
+    'createdAt': createdAt.toIso8601String(),
+    'linkedUserId': linkedUserId,
+    'linkedAt': linkedAt?.toIso8601String(),
+  };
+
+  /// Create Person from Firestore document data
+  factory Person.fromFirestore(Map<String, dynamic> data) {
+    return Person(
+      id: data['id'] as String? ?? const Uuid().v4(),
+      name: data['name'] as String? ?? '',
+      emoji: data['emoji'] as String? ?? '👤',
+      createdAt: data['createdAt'] != null
+          ? DateTime.parse(data['createdAt'] as String)
+          : DateTime.now(),
+      phoneNumber: data['phoneNumber'] as String?,
+      email: data['email'] as String?,
+      contactId: data['contactId'] as String?,
+      usageCount: data['usageCount'] as int? ?? 0,
+      lastUsedAt: data['lastUsedAt'] != null
+          ? DateTime.parse(data['lastUsedAt'] as String)
+          : null,
+      linkedUserId: data['linkedUserId'] as String?,
+      linkedAt: data['linkedAt'] != null
+          ? DateTime.parse(data['linkedAt'] as String)
+          : null,
+    );
   }
 }
 

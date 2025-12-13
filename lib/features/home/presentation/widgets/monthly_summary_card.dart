@@ -158,40 +158,45 @@ class MonthlySummaryCard extends ConsumerWidget {
                   Container(
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
-                      color: colorScheme.primaryContainer.withValues(alpha: 0.3),
+                      color: colorScheme.primaryContainer.withValues(
+                        alpha: 0.3,
+                      ),
                       borderRadius: BorderRadius.circular(6),
                     ),
-                    child: ref.watch(mostActiveGroupProvider).when(
-                      loading: () => const SizedBox.shrink(),
-                      error: (error, stackTrace) => const SizedBox.shrink(),
-                      data: (group) => group == null
-                          ? Text(
-                              'No active groups this month',
-                              style: theme.textTheme.bodySmall?.copyWith(
-                                color: colorScheme.onSurfaceVariant,
-                                fontSize: 11,
-                              ),
-                            )
-                          : Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(
-                                  Icons.star_rounded,
-                                  size: 14,
-                                  color: colorScheme.primary,
-                                ),
-                                const SizedBox(width: 4),
-                                Text(
-                                  'Most Active: ${group.name}',
+                    child: ref
+                        .watch(mostActiveGroupProvider)
+                        .when(
+                          loading: () => const SizedBox.shrink(),
+                          error: (error, stackTrace) => const SizedBox.shrink(),
+                          data: (group) => group == null
+                              ? Text(
+                                  'No active groups this month',
                                   style: theme.textTheme.bodySmall?.copyWith(
-                                    color: colorScheme.primary,
-                                    fontWeight: FontWeight.w600,
+                                    color: colorScheme.onSurfaceVariant,
                                     fontSize: 11,
                                   ),
+                                )
+                              : Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      Icons.star_rounded,
+                                      size: 14,
+                                      color: colorScheme.primary,
+                                    ),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      'Most Active: ${group.name}',
+                                      style: theme.textTheme.bodySmall
+                                          ?.copyWith(
+                                            color: colorScheme.primary,
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 11,
+                                          ),
+                                    ),
+                                  ],
                                 ),
-                              ],
-                            ),
-                    ),
+                        ),
                   ),
                 ],
               ),

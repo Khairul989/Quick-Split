@@ -43,7 +43,9 @@ class _GroupEditScreenState extends ConsumerState<GroupEditScreen> {
     _groupNameController.text = widget.group.name;
 
     // Get current members
-    final members = ref.read(groupsProvider.notifier).getPeopleForGroup(widget.group.id);
+    final members = ref
+        .read(groupsProvider.notifier)
+        .getPeopleForGroup(widget.group.id);
     _currentMembers.addAll(members);
     _originalMembers.addAll(members.map((p) => p.copyWith()).toList());
 
@@ -105,7 +107,9 @@ class _GroupEditScreenState extends ConsumerState<GroupEditScreen> {
     if (isUsedInOtherGroups) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('${removedPerson.name} is used in other groups and cannot be removed'),
+          content: Text(
+            '${removedPerson.name} is used in other groups and cannot be removed',
+          ),
           backgroundColor: Theme.of(context).colorScheme.error,
         ),
       );
@@ -216,11 +220,7 @@ class _GroupEditScreenState extends ConsumerState<GroupEditScreen> {
           end: Alignment.bottomRight,
         ),
       ),
-      child: const Icon(
-        Icons.groups_rounded,
-        size: 48,
-        color: Colors.white,
-      ),
+      child: const Icon(Icons.groups_rounded, size: 48, color: Colors.white),
     );
   }
 
@@ -307,7 +307,9 @@ class _GroupEditScreenState extends ConsumerState<GroupEditScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Discard Changes?'),
-        content: const Text('You have unsaved changes. Do you want to discard them?'),
+        content: const Text(
+          'You have unsaved changes. Do you want to discard them?',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
@@ -348,11 +350,7 @@ class _GroupEditScreenState extends ConsumerState<GroupEditScreen> {
             if (_hasUnsavedChanges)
               Padding(
                 padding: const EdgeInsets.only(right: 8.0),
-                child: Icon(
-                  Icons.circle,
-                  size: 8,
-                  color: colorScheme.error,
-                ),
+                child: Icon(Icons.circle, size: 8, color: colorScheme.error),
               ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8.0),
@@ -375,9 +373,8 @@ class _GroupEditScreenState extends ConsumerState<GroupEditScreen> {
                           backgroundColor: canSave
                               ? colorScheme.primary
                               : colorScheme.primary.withValues(alpha: 0.5),
-                          disabledBackgroundColor: colorScheme.primary.withValues(
-                            alpha: 0.5,
-                          ),
+                          disabledBackgroundColor: colorScheme.primary
+                              .withValues(alpha: 0.5),
                         ),
                         child: Text(
                           'Save',
@@ -416,7 +413,9 @@ class _GroupEditScreenState extends ConsumerState<GroupEditScreen> {
                           height: 120,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            color: colorScheme.primaryContainer.withValues(alpha: 0.5),
+                            color: colorScheme.primaryContainer.withValues(
+                              alpha: 0.5,
+                            ),
                           ),
                         ),
                         // Image or default icon
@@ -668,10 +667,7 @@ class _EditPersonBottomSheet extends StatelessWidget {
   final Person person;
   final Function(Person) onEdit;
 
-  const _EditPersonBottomSheet({
-    required this.person,
-    required this.onEdit,
-  });
+  const _EditPersonBottomSheet({required this.person, required this.onEdit});
 
   @override
   Widget build(BuildContext context) {

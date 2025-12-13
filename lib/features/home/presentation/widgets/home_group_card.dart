@@ -114,34 +114,43 @@ class HomeGroupCard extends ConsumerWidget {
                                 Text(
                                   'Outstanding',
                                   style: theme.textTheme.bodySmall?.copyWith(
-                                    color: theme.textTheme.bodySmall?.color?.withValues(alpha: 0.6),
+                                    color: theme.textTheme.bodySmall?.color
+                                        ?.withValues(alpha: 0.6),
                                     fontSize: 10,
                                   ),
                                 ),
                                 const SizedBox(height: 2),
-                                ref.watch(groupBalanceProvider(group.id)).when(
-                                  loading: () => const SizedBox(
-                                    width: 12,
-                                    height: 12,
-                                    child: CircularProgressIndicator(strokeWidth: 1.5),
-                                  ),
-                                  error: (error, stackTrace) => Text(
-                                    'RM 0.00',
-                                    style: theme.textTheme.bodyMedium?.copyWith(
-                                      fontWeight: FontWeight.w700,
-                                      fontSize: 12,
-                                      color: theme.colorScheme.primary,
+                                ref
+                                    .watch(groupBalanceProvider(group.id))
+                                    .when(
+                                      loading: () => const SizedBox(
+                                        width: 12,
+                                        height: 12,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 1.5,
+                                        ),
+                                      ),
+                                      error: (error, stackTrace) => Text(
+                                        'RM 0.00',
+                                        style: theme.textTheme.bodyMedium
+                                            ?.copyWith(
+                                              fontWeight: FontWeight.w700,
+                                              fontSize: 12,
+                                              color: theme.colorScheme.primary,
+                                            ),
+                                      ),
+                                      data: (balance) => Text(
+                                        'RM ${balance.toStringAsFixed(2)}',
+                                        style: theme.textTheme.bodyMedium
+                                            ?.copyWith(
+                                              fontWeight: FontWeight.w700,
+                                              fontSize: 12,
+                                              color: balance > 0
+                                                  ? theme.colorScheme.error
+                                                  : theme.colorScheme.primary,
+                                            ),
+                                      ),
                                     ),
-                                  ),
-                                  data: (balance) => Text(
-                                    'RM ${balance.toStringAsFixed(2)}',
-                                    style: theme.textTheme.bodyMedium?.copyWith(
-                                      fontWeight: FontWeight.w700,
-                                      fontSize: 12,
-                                      color: balance > 0 ? theme.colorScheme.error : theme.colorScheme.primary,
-                                    ),
-                                  ),
-                                ),
                               ],
                             ),
                           ),
@@ -151,9 +160,14 @@ class HomeGroupCard extends ConsumerWidget {
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
                               Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 6,
+                                  vertical: 2,
+                                ),
                                 decoration: BoxDecoration(
-                                  color: theme.colorScheme.primary.withValues(alpha: 0.1),
+                                  color: theme.colorScheme.primary.withValues(
+                                    alpha: 0.1,
+                                  ),
                                   borderRadius: BorderRadius.circular(4),
                                 ),
                                 child: Text(
@@ -169,7 +183,8 @@ class HomeGroupCard extends ConsumerWidget {
                               Text(
                                 timeAgo,
                                 style: theme.textTheme.bodySmall?.copyWith(
-                                  color: theme.textTheme.bodySmall?.color?.withValues(alpha: 0.6),
+                                  color: theme.textTheme.bodySmall?.color
+                                      ?.withValues(alpha: 0.6),
                                   fontSize: 9,
                                 ),
                               ),

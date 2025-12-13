@@ -159,9 +159,7 @@ class _ItemEditorScreenState extends ConsumerState<ItemEditorScreen> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                   side: BorderSide(color: colorScheme.primary),
-                  backgroundColor: colorScheme.primary.withValues(
-                    alpha: 0.1,
-                  ),
+                  backgroundColor: colorScheme.primary.withValues(alpha: 0.1),
                 ),
                 icon: Icon(Icons.add, color: colorScheme.primary),
                 label: Text(
@@ -327,9 +325,7 @@ class _ItemEditorTileState extends State<ItemEditorTile> {
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8),
-                          borderSide: BorderSide(
-                            color: colorScheme.primary,
-                          ),
+                          borderSide: BorderSide(color: colorScheme.primary),
                         ),
                         contentPadding: const EdgeInsets.symmetric(
                           horizontal: 12,
@@ -375,9 +371,7 @@ class _ItemEditorTileState extends State<ItemEditorTile> {
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8),
-                          borderSide: BorderSide(
-                            color: colorScheme.primary,
-                          ),
+                          borderSide: BorderSide(color: colorScheme.primary),
                         ),
                         contentPadding: const EdgeInsets.symmetric(
                           horizontal: 12,
@@ -425,15 +419,11 @@ class _ItemEditorTileState extends State<ItemEditorTile> {
                             fillColor: theme.inputDecorationTheme.fillColor,
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8),
-                              borderSide: BorderSide(
-                                color: theme.dividerColor,
-                              ),
+                              borderSide: BorderSide(color: theme.dividerColor),
                             ),
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8),
-                              borderSide: BorderSide(
-                                color: theme.dividerColor,
-                              ),
+                              borderSide: BorderSide(color: theme.dividerColor),
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8),

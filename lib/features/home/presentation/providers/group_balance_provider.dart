@@ -3,7 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_ce/hive.dart';
 import 'package:quicksplit/features/assign/domain/models/split_session.dart';
 
-final groupBalanceProvider = StreamProvider.family.autoDispose<double, String>((ref, groupId) async* {
+final groupBalanceProvider = StreamProvider.family.autoDispose<double, String>((
+  ref,
+  groupId,
+) async* {
   final historyBox = Hive.box<SplitSession>('history');
 
   double computeBalance() {

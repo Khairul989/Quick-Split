@@ -8,11 +8,7 @@ import 'package:quicksplit/features/groups/presentation/screens/group_create_scr
 import 'package:quicksplit/features/ocr/domain/models/receipt.dart';
 
 /// Mock Receipt for testing
-final mockReceipt = Receipt(
-  items: [],
-  subtotal: 0.0,
-  total: 0.0,
-);
+final mockReceipt = Receipt(items: [], subtotal: 0.0, total: 0.0);
 
 /// Mock notifier for testing
 class MockGroupsNotifier extends GroupsNotifier {
@@ -23,8 +19,8 @@ class MockGroupsNotifier extends GroupsNotifier {
   MockGroupsNotifier({
     required List<Group> groups,
     required List<Person> people,
-  })  : _groups = groups,
-        _people = people;
+  }) : _groups = groups,
+       _people = people;
 
   @override
   GroupsState build() {
@@ -32,7 +28,11 @@ class MockGroupsNotifier extends GroupsNotifier {
   }
 
   @override
-  Future<Group> createGroup(String name, List<Person> people, {String? imagePath}) async {
+  Future<Group> createGroup(
+    String name,
+    List<Person> people, {
+    String? imagePath,
+  }) async {
     _createdGroup = Group(
       name: name,
       personIds: people.map((p) => p.id).toList(),
@@ -51,9 +51,7 @@ void main() {
               () => MockGroupsNotifier(groups: const [], people: const []),
             ),
           ],
-          child: MaterialApp(
-            home: GroupCreateScreen(receipt: mockReceipt),
-          ),
+          child: MaterialApp(home: GroupCreateScreen(receipt: mockReceipt)),
         ),
       );
 
@@ -73,9 +71,7 @@ void main() {
               () => MockGroupsNotifier(groups: const [], people: const []),
             ),
           ],
-          child: MaterialApp(
-            home: GroupCreateScreen(receipt: mockReceipt),
-          ),
+          child: MaterialApp(home: GroupCreateScreen(receipt: mockReceipt)),
         ),
       );
 
@@ -92,9 +88,7 @@ void main() {
               () => MockGroupsNotifier(groups: const [], people: const []),
             ),
           ],
-          child: MaterialApp(
-            home: GroupCreateScreen(receipt: mockReceipt),
-          ),
+          child: MaterialApp(home: GroupCreateScreen(receipt: mockReceipt)),
         ),
       );
 
@@ -109,9 +103,7 @@ void main() {
               () => MockGroupsNotifier(groups: const [], people: const []),
             ),
           ],
-          child: MaterialApp(
-            home: GroupCreateScreen(receipt: mockReceipt),
-          ),
+          child: MaterialApp(home: GroupCreateScreen(receipt: mockReceipt)),
         ),
       );
 
@@ -137,8 +129,9 @@ void main() {
       expect(find.text('1 selected'), findsOneWidget);
     });
 
-    testWidgets('shows validation error for empty person name',
-        (WidgetTester tester) async {
+    testWidgets('shows validation error for empty person name', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
@@ -146,9 +139,7 @@ void main() {
               () => MockGroupsNotifier(groups: const [], people: const []),
             ),
           ],
-          child: MaterialApp(
-            home: GroupCreateScreen(receipt: mockReceipt),
-          ),
+          child: MaterialApp(home: GroupCreateScreen(receipt: mockReceipt)),
         ),
       );
 
@@ -164,8 +155,9 @@ void main() {
       expect(find.text('Name is required'), findsOneWidget);
     });
 
-    testWidgets('shows validation error for name exceeding max length',
-        (WidgetTester tester) async {
+    testWidgets('shows validation error for name exceeding max length', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
@@ -173,9 +165,7 @@ void main() {
               () => MockGroupsNotifier(groups: const [], people: const []),
             ),
           ],
-          child: MaterialApp(
-            home: GroupCreateScreen(receipt: mockReceipt),
-          ),
+          child: MaterialApp(home: GroupCreateScreen(receipt: mockReceipt)),
         ),
       );
 
@@ -185,7 +175,10 @@ void main() {
 
       // Enter name longer than 20 characters
       final nameField = find.byType(TextFormField).last;
-      await tester.enterText(nameField, 'This is a very long name that is more than 20 chars');
+      await tester.enterText(
+        nameField,
+        'This is a very long name that is more than 20 chars',
+      );
       await tester.pumpAndSettle();
 
       // Trigger validation by tapping add button
@@ -204,9 +197,7 @@ void main() {
               () => MockGroupsNotifier(groups: const [], people: const []),
             ),
           ],
-          child: MaterialApp(
-            home: GroupCreateScreen(receipt: mockReceipt),
-          ),
+          child: MaterialApp(home: GroupCreateScreen(receipt: mockReceipt)),
         ),
       );
 
@@ -234,8 +225,9 @@ void main() {
       expect(find.text('Bob'), findsOneWidget);
     });
 
-    testWidgets('save button is disabled with less than 2 people',
-        (WidgetTester tester) async {
+    testWidgets('save button is disabled with less than 2 people', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
@@ -243,9 +235,7 @@ void main() {
               () => MockGroupsNotifier(groups: const [], people: const []),
             ),
           ],
-          child: MaterialApp(
-            home: GroupCreateScreen(receipt: mockReceipt),
-          ),
+          child: MaterialApp(home: GroupCreateScreen(receipt: mockReceipt)),
         ),
       );
 
@@ -258,8 +248,9 @@ void main() {
       expect(button.onPressed, null);
     });
 
-    testWidgets('save button is enabled with 2 or more people',
-        (WidgetTester tester) async {
+    testWidgets('save button is enabled with 2 or more people', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
@@ -267,9 +258,7 @@ void main() {
               () => MockGroupsNotifier(groups: const [], people: const []),
             ),
           ],
-          child: MaterialApp(
-            home: GroupCreateScreen(receipt: mockReceipt),
-          ),
+          child: MaterialApp(home: GroupCreateScreen(receipt: mockReceipt)),
         ),
       );
 
@@ -292,8 +281,9 @@ void main() {
       expect(button.onPressed, isNotNull);
     });
 
-    testWidgets('displays snackbar on group creation success',
-        (WidgetTester tester) async {
+    testWidgets('displays snackbar on group creation success', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
@@ -302,9 +292,7 @@ void main() {
             ),
           ],
           child: MaterialApp(
-            home: Scaffold(
-              body: GroupCreateScreen(receipt: mockReceipt),
-            ),
+            home: Scaffold(body: GroupCreateScreen(receipt: mockReceipt)),
           ),
         ),
       );
@@ -323,10 +311,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Enter group name
-      await tester.enterText(
-        find.byType(TextFormField).first,
-        'Test Group',
-      );
+      await tester.enterText(find.byType(TextFormField).first, 'Test Group');
       await tester.pumpAndSettle();
 
       // Click save
@@ -337,8 +322,9 @@ void main() {
       expect(find.byType(SnackBar), findsOneWidget);
     });
 
-    testWidgets('minimum 2 people validation shows snackbar',
-        (WidgetTester tester) async {
+    testWidgets('minimum 2 people validation shows snackbar', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
@@ -347,9 +333,7 @@ void main() {
             ),
           ],
           child: MaterialApp(
-            home: Scaffold(
-              body: GroupCreateScreen(receipt: mockReceipt),
-            ),
+            home: Scaffold(body: GroupCreateScreen(receipt: mockReceipt)),
           ),
         ),
       );
@@ -368,8 +352,7 @@ void main() {
       expect(button.onPressed, null);
     });
 
-    testWidgets('displays help text about groups',
-        (WidgetTester tester) async {
+    testWidgets('displays help text about groups', (WidgetTester tester) async {
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
@@ -377,9 +360,7 @@ void main() {
               () => MockGroupsNotifier(groups: const [], people: const []),
             ),
           ],
-          child: MaterialApp(
-            home: GroupCreateScreen(receipt: mockReceipt),
-          ),
+          child: MaterialApp(home: GroupCreateScreen(receipt: mockReceipt)),
         ),
       );
 
@@ -399,9 +380,7 @@ void main() {
               () => MockGroupsNotifier(groups: const [], people: const []),
             ),
           ],
-          child: MaterialApp(
-            home: GroupCreateScreen(receipt: mockReceipt),
-          ),
+          child: MaterialApp(home: GroupCreateScreen(receipt: mockReceipt)),
         ),
       );
 

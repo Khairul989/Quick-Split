@@ -159,27 +159,21 @@ void main() {
       expect(retrieved.emoji, '👸');
     });
 
-    test(
-      'deletePerson throws exception if person is in a group',
-      () async {
-        final container = ProviderContainer();
-        final notifier = container.read(groupsProvider.notifier);
+    test('deletePerson throws exception if person is in a group', () async {
+      final container = ProviderContainer();
+      final notifier = container.read(groupsProvider.notifier);
 
-        // Create person and group
-        final person = await notifier.createPerson('Dave', '👨');
-        await notifier.createGroup('Group with Dave', [person]);
+      // Create person and group
+      final person = await notifier.createPerson('Dave', '👨');
+      await notifier.createGroup('Group with Dave', [person]);
 
-        // Attempt to delete person in group
-        expect(
-          () => notifier.deletePerson(person.id),
-          throwsA(isA<Exception>()),
-        );
+      // Attempt to delete person in group
+      expect(() => notifier.deletePerson(person.id), throwsA(isA<Exception>()));
 
-        // Verify person still exists
-        final state = container.read(groupsProvider);
-        expect(state.people.length, 1);
-      },
-    );
+      // Verify person still exists
+      final state = container.read(groupsProvider);
+      expect(state.people.length, 1);
+    });
 
     test('deletePerson removes person if not in any group', () async {
       final container = ProviderContainer();
@@ -289,7 +283,9 @@ void main() {
       for (int i = 0; i < frequent.length - 1; i++) {
         expect(
           frequent[i].lastUsedAt.isAfter(frequent[i + 1].lastUsedAt) ||
-              frequent[i].lastUsedAt.isAtSameMomentAs(frequent[i + 1].lastUsedAt),
+              frequent[i].lastUsedAt.isAtSameMomentAs(
+                frequent[i + 1].lastUsedAt,
+              ),
           true,
         );
       }
@@ -338,10 +334,7 @@ void main() {
 
       // This test verifies that errors are properly propagated
       // Creating with valid data should not throw
-      expect(
-        () => notifier.createGroup('Valid', []),
-        returnsNormally,
-      );
+      expect(() => notifier.createGroup('Valid', []), returnsNormally);
     });
   });
 
@@ -357,7 +350,10 @@ void main() {
       // Second container: should load same group
       final container2 = ProviderContainer();
       expect(container2.read(groupsProvider).groups.length, 1);
-      expect(container2.read(groupsProvider).groups.first.name, 'Persistent Group');
+      expect(
+        container2.read(groupsProvider).groups.first.name,
+        'Persistent Group',
+      );
     });
 
     test('people persist across container recreations', () async {
@@ -371,7 +367,10 @@ void main() {
       // Second container: should load same person
       final container2 = ProviderContainer();
       expect(container2.read(groupsProvider).people.length, 1);
-      expect(container2.read(groupsProvider).people.first.name, 'Persistent Person');
+      expect(
+        container2.read(groupsProvider).people.first.name,
+        'Persistent Person',
+      );
     });
   });
 }

@@ -10,17 +10,16 @@ class MonthlyStats {
   final double totalSpent;
   final int splitCount;
 
-  const MonthlyStats({
-    required this.totalSpent,
-    required this.splitCount,
-  });
+  const MonthlyStats({required this.totalSpent, required this.splitCount});
 }
 
 /// Stream provider that calculates monthly statistics from Hive boxes
 ///
 /// Returns the total amount spent and number of splits for the current month.
 /// Automatically refreshes when either the history or receipts Hive boxes change.
-final monthlyStatsProvider = StreamProvider.autoDispose<MonthlyStats>((ref) async* {
+final monthlyStatsProvider = StreamProvider.autoDispose<MonthlyStats>((
+  ref,
+) async* {
   // Get the Hive boxes
   final historyBox = Hive.box<SplitSession>('history');
   final receiptsBox = Hive.box<Receipt>('receipts');
@@ -36,8 +35,8 @@ final monthlyStatsProvider = StreamProvider.autoDispose<MonthlyStats>((ref) asyn
       // Filter sessions by current month and that are saved
       final sessions = historyBox.values.where((session) {
         return session.createdAt.isAfter(firstDayOfMonth) &&
-               session.createdAt.isBefore(firstDayOfNextMonth) &&
-               session.isSaved;
+            session.createdAt.isBefore(firstDayOfNextMonth) &&
+            session.isSaved;
       }).toList();
 
       // Calculate total spent by summing receipt totals
@@ -49,10 +48,7 @@ final monthlyStatsProvider = StreamProvider.autoDispose<MonthlyStats>((ref) asyn
         }
       }
 
-      return MonthlyStats(
-        totalSpent: totalSpent,
-        splitCount: sessions.length,
-      );
+      return MonthlyStats(totalSpent: totalSpent, splitCount: sessions.length);
     } catch (e) {
       // Return zero values on error
       return const MonthlyStats(totalSpent: 0.0, splitCount: 0);

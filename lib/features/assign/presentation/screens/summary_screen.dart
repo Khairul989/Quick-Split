@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:quicksplit/core/router/router.dart';
+import 'package:quicksplit/core/utils/whatsapp_helper.dart';
 import '../../../ocr/domain/models/receipt.dart';
 import '../providers/calculator_provider.dart';
 import '../providers/session_provider.dart';
@@ -37,11 +38,13 @@ class _SummaryScreenState extends ConsumerState<SummaryScreen> {
         : null;
 
     if (receipt != null && participants.isNotEmpty && assignments != null) {
-      ref.read(calculatorProvider.notifier).calculate(
-        receipt: receipt,
-        participants: participants,
-        assignments: assignments.assignments,
-      );
+      ref
+          .read(calculatorProvider.notifier)
+          .calculate(
+            receipt: receipt,
+            participants: participants,
+            assignments: assignments.assignments,
+          );
     }
   }
 
@@ -60,7 +63,9 @@ class _SummaryScreenState extends ConsumerState<SummaryScreen> {
     buffer.writeln();
 
     for (final share in shares) {
-      buffer.writeln('${share.personEmoji} ${share.personName}: RM ${share.total.toStringAsFixed(2)}');
+      buffer.writeln(
+        '${share.personEmoji} ${share.personName}: RM ${share.total.toStringAsFixed(2)}',
+      );
     }
 
     buffer.writeln();
@@ -81,10 +86,7 @@ class _SummaryScreenState extends ConsumerState<SummaryScreen> {
       final shareText = _generateShareText(session.currentReceipt!);
       await Clipboard.setData(ClipboardData(text: shareText));
       await SharePlus.instance.share(
-        ShareParams(
-          text: shareText,
-          subject: 'Receipt from QuickSplit',
-        ),
+        ShareParams(text: shareText, subject: 'Receipt from QuickSplit'),
       );
 
       if (!mounted) return;
@@ -110,6 +112,69 @@ class _SummaryScreenState extends ConsumerState<SummaryScreen> {
     }
   }
 
+  Future<void> _handleShareViaWhatsApp() async {
+    final calculatorState = ref.read(calculatorProvider);
+    final shares = calculatorState.shares;
+    final receipt = ref.read(sessionProvider).currentReceipt;
+
+    if (shares.isEmpty || receipt == null) return;
+
+    // Show dialog to select which participant to share with
+    final selectedShare = await showDialog<dynamic>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Share via WhatsApp'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('Select a participant to share their breakdown:'),
+            const SizedBox(height: 16),
+            ...shares.map((share) => ListTile(
+              leading: Text(share.personEmoji, style: const TextStyle(fontSize: 24)),
+              title: Text(share.personName),
+              subtitle: Text('RM ${share.total.toStringAsFixed(2)}'),
+              onTap: () => Navigator.of(context).pop(share),
+            )),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Cancel'),
+          ),
+        ],
+      ),
+    );
+
+    if (selectedShare == null || !mounted) return;
+
+    try {
+      await WhatsAppHelper.shareBillSummary(
+        receipt: receipt,
+        userShare: selectedShare,
+      );
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Shared ${selectedShare.personName}\'s breakdown via WhatsApp'),
+          duration: const Duration(milliseconds: 1500),
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to share via WhatsApp: ${e.toString().contains('not installed') ? 'WhatsApp is not installed' : 'An error occurred'}'),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
@@ -121,9 +186,7 @@ class _SummaryScreenState extends ConsumerState<SummaryScreen> {
     if (receipt == null) {
       return Scaffold(
         appBar: AppBar(title: const Text('Split Summary')),
-        body: const Center(
-          child: Text('No active session'),
-        ),
+        body: const Center(child: Text('No active session')),
       );
     }
 
@@ -146,7 +209,9 @@ class _SummaryScreenState extends ConsumerState<SummaryScreen> {
                       padding: const EdgeInsets.all(24),
                       child: Container(
                         decoration: BoxDecoration(
-                          color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+                          color: colorScheme.surfaceContainerHighest.withValues(
+                            alpha: 0.5,
+                          ),
                           borderRadius: BorderRadius.circular(16),
                           border: Border.all(
                             color: colorScheme.outline.withValues(alpha: 0.2),
@@ -183,7 +248,8 @@ class _SummaryScreenState extends ConsumerState<SummaryScreen> {
                               Column(
                                 children: [
                                   Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
                                     children: [
                                       Text(
                                         'SST',
@@ -204,7 +270,8 @@ class _SummaryScreenState extends ConsumerState<SummaryScreen> {
                               Column(
                                 children: [
                                   Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
                                     children: [
                                       Text(
                                         'Service Charge',
@@ -259,15 +326,19 @@ class _SummaryScreenState extends ConsumerState<SummaryScreen> {
                       ),
                     ),
                     const SizedBox(height: 12),
-                    if (calculatorState.isCalculated && calculatorState.shares.isNotEmpty)
+                    if (calculatorState.isCalculated &&
+                        calculatorState.shares.isNotEmpty)
                       ListView.separated(
                         padding: const EdgeInsets.symmetric(horizontal: 24),
                         physics: const NeverScrollableScrollPhysics(),
                         shrinkWrap: true,
                         itemCount: calculatorState.shares.length,
-                        separatorBuilder: (context, index) => const SizedBox(height: 12),
+                        separatorBuilder: (context, index) =>
+                            const SizedBox(height: 12),
                         itemBuilder: (context, index) {
-                          return PersonShareCard(share: calculatorState.shares[index]);
+                          return PersonShareCard(
+                            share: calculatorState.shares[index],
+                          );
                         },
                       )
                     else
@@ -344,6 +415,26 @@ class _SummaryScreenState extends ConsumerState<SummaryScreen> {
                         ),
                       ),
                     ],
+                  ),
+                  const SizedBox(height: 12),
+                  // NEW: WhatsApp share button
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton.icon(
+                      onPressed: _handleShareViaWhatsApp,
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        side: const BorderSide(color: Color(0xFF25D366)),
+                      ),
+                      icon: const Icon(Icons.chat_bubble_outline, size: 18, color: Color(0xFF25D366)),
+                      label: const Text(
+                        'Share via WhatsApp',
+                        style: TextStyle(color: Color(0xFF25D366)),
+                      ),
+                    ),
                   ),
                 ],
               ),

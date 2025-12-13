@@ -34,9 +34,9 @@ class _CameraScreenState extends ConsumerState<CameraScreen>
       final cameras = await availableCameras();
       if (cameras.isEmpty) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('No cameras available')),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(const SnackBar(content: Text('No cameras available')));
         }
         return;
       }
@@ -68,9 +68,9 @@ class _CameraScreenState extends ConsumerState<CameraScreen>
     try {
       if (!_cameraController.value.isInitialized) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Camera not ready')),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(const SnackBar(content: Text('Camera not ready')));
         }
         return;
       }
@@ -132,19 +132,17 @@ class _CameraScreenState extends ConsumerState<CameraScreen>
         } else if (ocrState case OcrStateError(:final message)) {
           // Show error message
           if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text('OCR failed: $message'),
-              ),
-            );
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text('OCR failed: $message')));
           }
         }
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Capture error: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Capture error: $e')));
       }
     }
   }
@@ -212,19 +210,17 @@ class _CameraScreenState extends ConsumerState<CameraScreen>
         } else if (ocrState case OcrStateError(:final message)) {
           // Show error message
           if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text('OCR failed: $message'),
-              ),
-            );
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text('OCR failed: $message')));
           }
         }
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Gallery error: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Gallery error: $e')));
       }
     }
   }
@@ -242,9 +238,9 @@ class _CameraScreenState extends ConsumerState<CameraScreen>
       });
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Flash toggle error: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Flash toggle error: $e')));
       }
     }
   }
@@ -285,18 +281,13 @@ class _CameraScreenState extends ConsumerState<CameraScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Scan Receipt'),
-        elevation: 0,
-      ),
+      appBar: AppBar(title: const Text('Scan Receipt'), elevation: 0),
       body: FutureBuilder<void>(
         future: _initializeCameraFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
             if (!_isCameraInitialized) {
-              return const Center(
-                child: Text('Camera initialization failed'),
-              );
+              return const Center(child: Text('Camera initialization failed'));
             }
 
             return Stack(
@@ -332,8 +323,8 @@ class _CameraScreenState extends ConsumerState<CameraScreen>
                               _flashMode == FlashMode.auto
                                   ? Icons.flash_auto
                                   : _flashMode == FlashMode.always
-                                      ? Icons.flash_on
-                                      : Icons.flash_off,
+                                  ? Icons.flash_on
+                                  : Icons.flash_off,
                             ),
                           ),
                         ],
@@ -341,9 +332,9 @@ class _CameraScreenState extends ConsumerState<CameraScreen>
                       const SizedBox(height: 16),
                       Text(
                         _getFlashLabel(),
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: Colors.white,
-                            ),
+                        style: Theme.of(
+                          context,
+                        ).textTheme.bodySmall?.copyWith(color: Colors.white),
                       ),
                     ],
                   ),
@@ -351,9 +342,7 @@ class _CameraScreenState extends ConsumerState<CameraScreen>
               ],
             );
           } else {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
+            return const Center(child: CircularProgressIndicator());
           }
         },
       ),

@@ -55,7 +55,8 @@ extension PaymentStatusExtensions on PaymentStatus {
   }
 
   /// Check if status indicates payment has been made
-  bool get hasPaid => this == PaymentStatus.partial || this == PaymentStatus.paid;
+  bool get hasPaid =>
+      this == PaymentStatus.partial || this == PaymentStatus.paid;
 
   /// Check if status is fully paid
   bool get isFullyPaid => this == PaymentStatus.paid;
